@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
+  username: { 
+    type: String, 
+    required: true 
+  },
   name: {
     type: String,
     required: true,
@@ -20,22 +24,23 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  address: {
-    street: String,
-    city: String,
-    state: String,
-    zipCode: String,
-    country: String
+  userType: { 
+    type: String, 
+    enum: ['Donor', 'Beneficiary'], 
+    required: true 
   },
-  role: {
-    type: String,
-    enum: ['donor', 'beneficiary'],
-    required: true
+  location: { 
+    type: String 
   },
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  updatedAt: { 
+    type: Date, 
+    default: Date.now 
   }
+  
 });
 
 module.exports = mongoose.model('User', UserSchema);
