@@ -6,7 +6,7 @@ const DonationSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  itemType: {
+  donationType: {
     type: String,
     required: true,
     enum: ['clothing', 'food', 'money', 'medicines', 'books', 'furniture', 'other']
@@ -17,17 +17,24 @@ const DonationSchema = new mongoose.Schema({
   description: {
     type: String
   },
+  location: { 
+    type: String 
+  },
   availabilityDate: {
     type: Date,
     required: true
   },
   status: {
     type: String,
-    enum: ['available', 'claimed', 'delivered'],
+    enum: ['available', 'requested', 'completed'],
     default: 'available'
   },
   createdAt: {
     type: Date,
+    default: Date.now
+  },
+  updatedAt: { 
+    type: Date,  // Corrected here
     default: Date.now
   }
 });
