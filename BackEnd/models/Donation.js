@@ -26,8 +26,12 @@ const DonationSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['available', 'requested', 'completed'],
+    enum: ['available', 'completed'],
     default: 'available'
+  },
+  goal: {
+    type: Boolean,
+    default: false
   },
   createdAt: {
     type: Date,
@@ -37,6 +41,13 @@ const DonationSchema = new mongoose.Schema({
     type: Date,  
     default: Date.now
   }
+});
+
+DonationSchema.pre('save', function(next) {
+  if (this.goal === true) {
+    this.status = 'completed'; 
+  }
+  next();
 });
 
 module.exports = mongoose.model('Donation', DonationSchema);
