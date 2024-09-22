@@ -34,7 +34,7 @@ const DonationSchema = new mongoose.Schema({
     default: Date.now
   },
   updatedAt: { 
-    type: Date,  // Corrected here
+    type: Date,  
     default: Date.now
   }
 });
