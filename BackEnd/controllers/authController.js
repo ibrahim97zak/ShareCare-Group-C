@@ -1,23 +1,26 @@
-import UserSchema, { findOne, findById, findByIdAndDelete } from '../models/User';
-import Donor, { findOneAndDelete } from '../models/Donor';
-import Beneficiary, { findOneAndDelete as _findOneAndDelete } from '../models/Beneficiary';
-import { sign } from 'jsonwebtoken';
-import { genSalt, hash, compare } from 'bcryptjs';
+import User from '../models/User.js';
+import Donor  from '../models/Donor.js';
+import Beneficiary  from '../models/Beneficiary.js';
+import pkg from 'jsonwebtoken';
+import bycrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
-import sendEmail from '../utils/sendEmail';
+//import sendEmail from '../utils/jwtUtils.js';
+
+const { genSalt, hash, compare } = bycrypt;
+const { sign } = pkg;
 
 export async function register(req, res) {
   try {
-    const { username, email, password, userType, name, location } = req.body;
+    const { username, name, email, password, phone, userType, location } = req.body;
     
     // Check if user already exists
-    let user = await findOne({ $or: [{ email }, { username }] });
+    let user = await User.findOne({ $or: [{ email }, { username }] });
     if (user) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
     // Create new user
-    user = new UserSchema({ username, email, password, userType, name, location });
+    user = new User({ username, name, email, password, phone, userType, location });
     
     // Hash password
     const salt = await genSalt(10);
@@ -40,17 +43,17 @@ export async function register(req, res) {
     }
 
     // Send verification email
-    const verificationUrl = `${req.protocol}://${req.get('host')}/api/auth/verify-email/${verificationToken}`;
+    /**const verificationUrl = `${req.protocol}://${req.get('host')}/api/auth/verify-email/${verificationToken}`;
     await sendEmail({
       email: user.email,
       subject: 'Email Verification',
       message: `Please click on the link to verify your email: ${verificationUrl}`
-    });
+    });**/
 
     res.status(201).json({ message: 'User registered successfully. Please check your email to verify your account.' });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).send('Server error, Registration failed');
   }
 }
 
@@ -59,7 +62,7 @@ export async function login(req, res) {
     const { email, password } = req.body;
 
     // Check if user exists
-    const user = await findOne({ email });
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
@@ -71,9 +74,9 @@ export async function login(req, res) {
     }
 
     // Check if email is verified
-    if (!user.isVerified) {
+    /**if (!user.isVerified) {
       return res.status(400).json({ message: 'Please verify your email before logging in' });
-    }
+    }**/
 
     // Create and return JWT token
     const payload = { user: { id: user.id } };
@@ -83,14 +86,14 @@ export async function login(req, res) {
     });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).send('Server error, login failed');
   }
 }
 
 export async function forgotPassword(req, res) {
   try {
     const { email } = req.body;
-    const user = await findOne({ email });
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -175,11 +178,11 @@ export async function verifyEmail(req, res) {
 
 export async function getCurrentUser(req, res) {
   try {
-    const user = await findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select('-password');
     res.json(user);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).send('Server error, getCurrentUser failed');
   }
 }
 
@@ -187,7 +190,7 @@ export async function changePassword(req, res) {
   try {
     const { currentPassword, newPassword } = req.body;
 
-    const user = await findById(req.user.id);
+    const user = await User.findById(req.user.id);
 
     // Check current password
     const isMatch = await compare(currentPassword, user.password);
@@ -204,7 +207,7 @@ export async function changePassword(req, res) {
     res.json({ message: 'Password changed successfully' });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).send('Server error, changePassword failed');
   }
 }
 
@@ -216,21 +219,22 @@ export function logout(req, res) {
 
 export async function deleteAccount(req, res) {
   try {
-    const user = await findById(req.user.id);
+    const ID = parseInt(req.params.id);
+    const user = await User.findById(ID);
 
     // Remove associated donor or beneficiary document
     if (user.userType === 'Donor') {
-      await findOneAndDelete({ user: user._id });
+      await User.findOneAndDelete({ user: user._id });
     } else if (user.userType === 'Beneficiary') {
       await _findOneAndDelete({ user: user._id });
     }
 
     // Remove user
-    await findByIdAndDelete(req.user.id);
+    await User.findByIdAndDelete(req.user.id);
 
-    res.json({ message: 'Account deleted successfully' });
+    res.json({ message: 'Account was deleted successfully' });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).send('Server error, deleteAccount failed');
   }
 }
