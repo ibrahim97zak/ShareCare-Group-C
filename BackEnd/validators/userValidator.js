@@ -36,15 +36,6 @@ export const validateRegistration = [
     .trim()
     .notEmpty()
     .withMessage('Location is required'),
-  body('donorType')
-    .if(body('userType').equals('Donor'))
-    .notEmpty()
-    .withMessage('Donor type is required for donors'),
-  body('description')
-    .if(body('userType').equals('Beneficiary'))
-    .trim()
-    .notEmpty()
-    .withMessage('Description is required for beneficiaries'),
   handleValidationErrors
 ];
 
