@@ -1,8 +1,8 @@
 import express from 'express';
 const authRouter = express.Router();
 import { register, login, forgotPassword, resetPassword, verifyEmail, getCurrentUser, changePassword, logout, deleteAccount} from '../controllers/authController.js'; // import authController from '../controllers/authController';
-import { validateRegistration, validateLogin, validatePasswordReset } from '../validators/userValidator.js';
-import auth from '../middlewares/authMiddleware.js';
+import { validateRegistration, validateLogin, validatePasswordReset , validateChangePassword} from '../validators/userValidator.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
 
 // Public routes
 authRouter.post('/register', validateRegistration, register);
@@ -12,10 +12,10 @@ authRouter.post('/reset-password/:token', validatePasswordReset, resetPassword);
 authRouter.get('/verify-email/:token', verifyEmail);
 
 // Protected routes
-authRouter.get('/me', auth, getCurrentUser);
-authRouter.put('/change-password', auth, validatePasswordReset, changePassword);
-authRouter.post('/logout', auth, logout);
-authRouter.delete('/delete-account', auth, deleteAccount);
+authRouter.get('/me', authMiddleware, getCurrentUser);
+authRouter.put('/change-password', authMiddleware, validateChangePassword, changePassword);
+authRouter.post('/logout', authMiddleware, logout);
+authRouter.delete('/delete-account/:id', deleteAccount);
 
 
 export default authRouter;
