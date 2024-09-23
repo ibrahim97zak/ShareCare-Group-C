@@ -1,5 +1,6 @@
-const mongoose = require('mongoose');
-const User = require('./User');
+import mongoose from 'mongoose';
+//const User = require('./User');
+import User from './User.js';
 
 const DonorSchema = new mongoose.Schema({
   availableDonations: [{
@@ -12,5 +13,5 @@ const DonorSchema = new mongoose.Schema({
   }
 });
 
-module.exports = User.discriminator('Donor', DonorSchema);
-module.exports = Donor;
+const Donor = User.discriminator('Donor', DonorSchema);
+export default Donor;

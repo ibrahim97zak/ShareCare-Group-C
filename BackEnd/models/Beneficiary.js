@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const User = require('./User');
+import mongoose from 'mongoose';
+import User from './User.js';
 
 const BeneficiarySchema = new mongoose.Schema({
   description: { 
@@ -8,4 +8,6 @@ const BeneficiarySchema = new mongoose.Schema({
 });
 
 const Beneficiary = User.discriminator('Beneficiary', BeneficiarySchema);
-module.exports = Beneficiary;
+//module.exports = Beneficiary;
+export default Beneficiary;
+

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const DonationRequestSchema = new mongoose.Schema({
   beneficiaryId: { 
@@ -14,4 +14,4 @@ const DonationRequestSchema = new mongoose.Schema({
 });
 
 const DonationRequest = mongoose.model('DonationRequest', DonationRequestSchema);
-module.exports = DonationRequest;
+export default DonationRequest;
