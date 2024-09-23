@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const DonationSchema = new mongoose.Schema({
   donor: {
@@ -26,8 +26,12 @@ const DonationSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['available', 'requested', 'completed'],
+    enum: ['available', 'completed'],
     default: 'available'
+  },
+  goal: {
+    type: Boolean,
+    default: false
   },
   createdAt: {
     type: Date,
@@ -39,4 +43,11 @@ const DonationSchema = new mongoose.Schema({
   }
 });
 
-export default mongoose.model('Donation', DonationSchema);
+DonationSchema.pre('save', function(next) {
+  if (this.goal === true) {
+    this.status = 'completed'; 
+  }
+  next();
+});
+
+module.exports = mongoose.model('Donation', DonationSchema);
