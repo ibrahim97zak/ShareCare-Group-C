@@ -1,51 +1,65 @@
 import express from 'express';
 import { check } from 'express-validator';
-import authMiddleware from '../middlewares/authMiddleware.js';
 import {
-    createRating,
-    getRatings,
-    getRatingById,
-    updateRating,
-    deleteRating
+  createRating,
+  getRatings,
+  getRatingById,
+  updateRating,
+  deleteRating,
+  getRatingsByDonor
 } from '../controllers/ratingController.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
 
-const router = express.Router();
+const ratingRouter = express.Router();
 
 // @route   POST api/ratings
 // @desc    Create a new rating
-// @access  Private
-router.post(
-    '/',
+// @access  Private (Beneficiary)
+ratingRouter.post(
+  '/',
+  [
+    authMiddleware,
     [
-        authMiddleware,
-        [check('donationId', 'Donation ID is required').not().isEmpty()],
-        [check('score', 'Score must be between 1 and 5').isInt({ min: 1, max: 5 })]
-    ],
-    createRating
+      check('ratedId', 'Rated ID (Donor) is required').not().isEmpty(),
+      check('donationId', 'Donation ID is required').not().isEmpty(),
+      check('score', 'Score must be a number between 1 and 5').isInt({ min: 1, max: 5 })
+    ]
+  ],
+  createRating
 );
 
 // @route   GET api/ratings
 // @desc    Get all ratings
 // @access  Public
-router.get('/', getRatings);
+ratingRouter.get('/', getRatings);
 
 // @route   GET api/ratings/:id
 // @desc    Get rating by ID
 // @access  Public
-router.get('/:id', getRatingById);
+ratingRouter.get('/:id', getRatingById);
 
 // @route   PUT api/ratings/:id
 // @desc    Update a rating
-// @access  Private
-router.put(
-    '/:id',
+// @access  Private (Beneficiary)
+ratingRouter.put(
+  '/:id',
+  [
     authMiddleware,
-    updateRating
+    [
+      check('score', 'Score must be a number between 1 and 5').optional().isInt({ min: 1, max: 5 })
+    ]
+  ],
+  updateRating
 );
 
 // @route   DELETE api/ratings/:id
 // @desc    Delete a rating
-// @access  Private
-router.delete('/:id', authMiddleware, deleteRating);
+// @access  Private (Beneficiary)
+ratingRouter.delete('/:id', authMiddleware, deleteRating);
 
-export default router;
+// @route   GET api/ratings/donor/:donorId
+// @desc    Get ratings by Donor ID
+// @access  Public
+ratingRouter.get('/donor/:donorId', getRatingsByDonor);
+
+export default ratingRouter;
