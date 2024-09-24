@@ -1,6 +1,6 @@
-import Donation, { find, findById } from '../models/Donation';
-import { find as _find } from '../models/User';
-import { create } from '../models/Notification';
+import Donation  from '../models/Donation.js';
+import User from '../models/User.js';
+import Notification from '../models/Notification.js';
 
 export async function createDonation(req, res) {
   try {
