@@ -2,110 +2,110 @@ import User  from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import Bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
+import { google } from 'googleapis';
+import pkg from 'google-auth-library';
 import { validationResult } from 'express-validator';
 
-//const { sign } = pkg;
 
+const {
+  CLIENT_ID,
+  CLIENT_SECRET,
+  REDIRECT_URI,
+  REFRESH_TOKEN,
+  EMAIL_FROM
+} = process.env;
+
+// Create OAuth2 client
+const oAuth2Client = new google.auth.OAuth2(
+  CLIENT_ID,
+  CLIENT_SECRET,
+  REDIRECT_URI
+);
+oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 export async function register(req, res) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { username, name, gender, email, password, phone, userType, location } = req.body;
-
   try {
-    // Check if the user already exists by email or username
-    let user = await User.findOne({ $or: [{ email }, { username }] });
-    if (user) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { username, name, gender, email, password, phone, userType, location } = req.body;
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    // Hash the password
+    const hashedPassword = await Bcrypt.hash(password, 10);
+
     // Create new user
-    user = new User({
+    const newUser = new User({
       username,
       name,
       gender,
       email,
-      password,
+      password: hashedPassword,
       phone,
       userType,
       location
     });
 
-    // Hash the password before saving
-    const hashedPassword = await Bcrypt.hash(password, 10);
-    user.password = hashedPassword;
+    // Save the user
+    await newUser.save();
 
-    // Save the user in the database
-    await user.save();
-
-    // Generate a JWT token for the new user
-    const payload = {
+    // Generate JWT token
+    const token = await jwtUtils.generateToken({
       user: {
-        id: user.id,
-        userType: user.userType
+        id: newUser.id,
+        userType: newUser.userType
       }
-    };
+    });
 
-    jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' },
-      async (err, token) => {
-        if (err) throw err;
+    // Send verification email
+    await verifyEmail(email);
 
-        // Send token in the response
-        res.json({ token });
+    // Send response
+    newUser.isVerified = true;
+    res.status(201).json({
+      message: 'User registered successfully. Please check your email to verify your account.',
+      token
+    });
 
-        // Send verification email after the token is generated
-        const transporter = nodemailer.createTransport({
-          service: 'Gmail',
-          auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-          }
-        });
-
-        // Construct the verification link using the token
-        const verificationLink = `http://localhost:5000/verify-email/${token}`;
-
-        // Send the email
-        await transporter.sendMail({
-          from: process.env.EMAIL_USER,
-          to: email,
-          subject: 'Email Verification',
-          text: `Click the following link to verify your email: ${verificationLink}`
-        });
-      }
-    );
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error, Signup failed');
+  } catch (error) {
+    res.status(500).json({ message: 'Server error during registration', error: error.message });
   }
 }
 
 export async function verifyEmail (req,res) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  const { token } = req.params;
-    
-    try {
-        // Verify the token
-        const decoded = jwt.verify(token, JWT_SECRET);
-        const user = User.find(u => u.email === decoded.email);
-        
-        if (!user) return res.status(400).send('Invalid token');
-        if (user.isVerified) return res.status(400).send('Email already verified');
+  try {
+    const accessToken = await oAuth2Client.getAccessToken();
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        type: 'OAuth2',
+        user: EMAIL_FROM,
+        clientId: CLIENT_ID,
+        clientSecret: CLIENT_SECRET,
+        refreshToken: REFRESH_TOKEN,
+        accessToken: accessToken.token,
+      },
+    });
 
-        // Set user as verified
-        user.isVerified = true;
-        res.send('Email verified successfully!');
-    } catch (error) {
-        res.status(400).send('Invalid or expired token');
-    }
+    const mailOptions = {
+      from: EMAIL_FROM,
+      to: email,
+      subject: 'Verify Your Email',
+      text: 'Please confirm your email address to complete your registration.',
+      html: '<p>Please click <a href="#">here</a> to verify your email address.</p>' // Add actual verification link
+    };
+
+    const result = await transporter.sendMail(mailOptions);
+    console.log('Verification email sent:', result.messageId);
+  } catch (error) {
+    res.status(500).send('Failed to send verification email' + error.message);
+  }
 }
 
 export async function login(req, res) {
