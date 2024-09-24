@@ -1,7 +1,7 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { createRequest, getRequests, getRequestById, updateRequest, deleteRequest, getRequestsByBeneficiary, getOpenRequests } from '../controllers/requestController';
-import authMiddleware from '../middlewares/authMiddleware';
+import { createRequest, getRequests, getRequestById, updateRequest, deleteRequest, getRequestsByBeneficiary, getOpenRequests } from '../controllers/requestController.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
 
 const requestRouter = express.Router();
 
