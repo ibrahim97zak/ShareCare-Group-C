@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const DonationSchema = new mongoose.Schema({
   donor: {
@@ -50,4 +50,4 @@ DonationSchema.pre('save', function(next) {
   next();
 });
 
-module.exports = mongoose.model('Donation', DonationSchema);
+export default mongoose.model('Donation', DonationSchema);
