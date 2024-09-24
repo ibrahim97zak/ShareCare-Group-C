@@ -1,9 +1,9 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { createDonation, getDonations, getDonationById, updateDonation, deleteDonation } from '../controllers/donationController';
-import authMiddleware from '../middlewares/authMiddleware';
+import { createDonation, getDonations, getDonationById, updateDonation, deleteDonation } from '../controllers/donationController.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
 
-const donationdonationRouter = express.Router();
+const donationRouter = express.Router();
 
 // @route   POST api/donations
 // @desc    Create a new donation

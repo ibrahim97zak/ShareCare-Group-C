@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const UserSchema = new mongoose.Schema({
+const UserSchema = new Schema({
   username: { 
     type: String, 
     required: true,
@@ -39,6 +39,9 @@ const UserSchema = new mongoose.Schema({
   location: { 
     type: String 
   },
+  isVerified: {
+    type: Boolean
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -50,4 +53,4 @@ const UserSchema = new mongoose.Schema({
   
 });
 
-module.exports = mongoose.model('User', UserSchema);
+export default model('User', UserSchema);
