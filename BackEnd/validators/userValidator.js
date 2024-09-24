@@ -56,13 +56,6 @@ export const validatePasswordReset = [
     .withMessage('Password must be at least 8 characters long')
     .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/)
     .withMessage('Password must contain at least one lowercase letter, one uppercase letter, one numeric digit, and one special character'),
-  body('confirmPassword')
-    .custom((value, { req }) => {
-      if (value !== req.body.password) {
-        throw new Error('Password confirmation does not match password');
-      }
-      return true;
-    }),
   handleValidationErrors
 ];
 
@@ -85,7 +78,7 @@ export const validatePasswordResetToken = [
 ];
 
 export const validateChangePassword = [
-  body('currentPassword')
+  body('oldPassword')
     .notEmpty()
     .withMessage('Current password is required'),
   body('newPassword')
