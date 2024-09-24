@@ -1,51 +1,58 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { createDonationOffer, getDonationOffers, getDonationOfferById, updateDonationOffer, deleteDonationOffer } from '../controllers/offerController.js';
-import authMiddleware from '../middlewares/authMiddleware';
+import { 
+  createOffer, 
+  getOffers, 
+  getOfferById, 
+  updateOffer, 
+  deleteOffer, 
+  getOffersByDonor 
+} from '../controllers/offerController.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
 
 const donationOfferRouter = express.Router();
 
 // @route   POST api/donation-offers
-// @desc    Create a new donation offer
+// @desc    Create a new Donation Offer
 // @access  Private
 donationOfferRouter.post(
   '/',
   [
     authMiddleware,
     [
-      check('donationId', 'Donation ID is required').not().isEmpty()
+      check('donationId', 'Donation ID is required').not().isEmpty(),
     ]
   ],
-  createDonationOffer
+  createOffer
 );
 
 // @route   GET api/donation-offers
-// @desc    Get all donation offers
+// @desc    Get all Donation Offers
 // @access  Public
-donationOfferRouter.get('/', getDonationOffers);
+donationOfferRouter.get('/', getOffers);
 
 // @route   GET api/donation-offers/:id
-// @desc    Get donation offer by ID
+// @desc    Get Donation Offer by ID
 // @access  Public
-donationOfferRouter.get('/:id', getDonationOfferById);
+donationOfferRouter.get('/:id', getOfferById);
 
 // @route   PUT api/donation-offers/:id
-// @desc    Update a donation offer
+// @desc    Update a Donation Offer
 // @access  Private
 donationOfferRouter.put(
   '/:id',
-  [
-    authMiddleware,
-    [
-      check('donationId', 'Donation ID is required').optional().not().isEmpty()
-    ]
-  ],
-  updateDonationOffer
+  authMiddleware,
+  updateOffer
 );
 
 // @route   DELETE api/donation-offers/:id
-// @desc    Delete a donation offer
+// @desc    Delete a Donation Offer
 // @access  Private
-donationOfferRouter.delete('/:id', authMiddleware, deleteDonationOffer);
+donationOfferRouter.delete('/:id', authMiddleware, deleteOffer);
+
+// @route   GET api/donation-offers/donor/:donorId
+// @desc    Get Donation Offers by Donor
+// @access  Public
+donationOfferRouter.get('/donor/:donorId', getOffersByDonor);
 
 export default donationOfferRouter;
