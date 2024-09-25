@@ -9,7 +9,7 @@ const donationRouter = express.Router();
 // @desc    Create a new donation
 // @access  Private
 donationRouter.post(
-  '/',
+  '/createDonation',
   [
     authMiddleware,
     [
@@ -24,12 +24,12 @@ donationRouter.post(
 // @route   GET api/donations
 // @desc    Get all donations
 // @access  Public
-donationRouter.get('/', getDonations);
+donationRouter.get('/getDonations', getDonations);
 
 // @route   GET api/donations/:id
 // @desc    Get donation by ID
 // @access  Public
-donationRouter.get('/:id', getDonationById);
+donationRouter.get('/Donation/:id', getDonationById);
 
 // @route   PUT api/donations/:id
 // @desc    Update a donation

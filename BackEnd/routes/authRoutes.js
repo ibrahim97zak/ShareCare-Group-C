@@ -1,13 +1,13 @@
 import express from 'express';
 const authRouter = express.Router();
-import { register, login, resetPassword, verifyEmail, getProfile, changePassword, logout} from '../controllers/authController.js'; // import authController from '../controllers/authController';
+import { register, confirmEmail, login, resetPassword, getProfile, changePassword, logout} from '../controllers/authController.js'; // import authController from '../controllers/authController';
 import { validateRegistration, validateLogin, validatePasswordReset , validateChangePassword} from '../validators/userValidator.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 
 // Public routes
 authRouter.post('/register', validateRegistration, register);
 authRouter.post('/login', validateLogin, login);
-authRouter.get('/verify-email/:token', verifyEmail);
+authRouter.get('/confirm-email', confirmEmail);
 authRouter.post('/reset-password/:token', validatePasswordReset, resetPassword);
 
 
