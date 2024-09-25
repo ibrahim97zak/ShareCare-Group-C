@@ -7,21 +7,6 @@ import pkg from 'google-auth-library';
 import { validationResult } from 'express-validator';
 
 
-const {
-  CLIENT_ID,
-  CLIENT_SECRET,
-  REDIRECT_URI,
-  REFRESH_TOKEN,
-  EMAIL_FROM
-} = process.env;
-
-// Create OAuth2 client
-const oAuth2Client = new google.auth.OAuth2(
-  CLIENT_ID,
-  CLIENT_SECRET,
-  REDIRECT_URI
-);
-oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 export async function register(req, res) {
   try {
     const errors = validationResult(req);
@@ -56,57 +41,69 @@ export async function register(req, res) {
     await newUser.save();
 
     // Generate JWT token
-    const token = await jwtUtils.generateToken({
-      user: {
-        id: newUser.id,
-        userType: newUser.userType
-      }
-    });
+const token = jwt.sign(
+  {
+    user: {
+      id: newUser.id,
+      userType: newUser.userType
+    }
+  },
+  process.env.JWT_SECRET, // Replace with your actual secret key
+  { expiresIn: '1h' } // Optional: set expiration time
+);
 
-    // Send verification email
-    await verifyEmail(email);
 
-    // Send response
-    newUser.isVerified = true;
-    res.status(201).json({
-      message: 'User registered successfully. Please check your email to verify your account.',
-      token
-    });
+// Send verification email
+/**const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+      user: process.env.EMAIL,
+      pass: process.env.EMAIL_PASSWORD
+  }
+});**/
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.ethereal.email',
+  port: 587,
+  auth: {
+      user: process.env.EMAIL,
+      pass: process.env.EMAIL_PASSWORD
+  }
+});
+
+const verificationLink = `http://localhost:5000/api/auth/confirm-email?email=${email}&token=${token}`;
+await transporter.sendMail({
+  from: process.env.EMAIL,
+  to: email,
+  subject: 'Email Verification',
+  text: `Click the following link to verify your email: ${verificationLink}`
+});
+
+res.send('Registration successful! Please check your email for verification.');
 
   } catch (error) {
     res.status(500).json({ message: 'Server error during registration', error: error.message });
   }
 }
 
-export async function verifyEmail (req,res) {
-  try {
-    const accessToken = await oAuth2Client.getAccessToken();
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        type: 'OAuth2',
-        user: EMAIL_FROM,
-        clientId: CLIENT_ID,
-        clientSecret: CLIENT_SECRET,
-        refreshToken: REFRESH_TOKEN,
-        accessToken: accessToken.token,
-      },
-    });
+export async function confirmEmail(req, res) {
+  const { email,token } = req.query;
 
-    const mailOptions = {
-      from: EMAIL_FROM,
-      to: email,
-      subject: 'Verify Your Email',
-      text: 'Please confirm your email address to complete your registration.',
-      html: '<p>Please click <a href="#">here</a> to verify your email address.</p>' // Add actual verification link
-    };
+  // Find the user with the provided email and token
+  const user = await User.findOne({ email});
 
-    const result = await transporter.sendMail(mailOptions);
-    console.log('Verification email sent:', result.messageId);
-  } catch (error) {
-    res.status(500).send('Failed to send verification email' + error.message);
+  if (!user) {
+    return res.status(400).send('Invalid token or email.');
   }
+
+  // Token is valid, verify the user
+  user.isVerified = true; // Assuming you have a 'verified' field
+  user.verificationToken = undefined; // Clear the token after verification
+  await user.save();
+
+  res.send('Your email has been Confirmed successfully!');
 }
+
 
 export async function login(req, res) {
   const errors = validationResult(req);
@@ -178,7 +175,8 @@ export async function changePassword(req,res){
     if(newPassword !== confirmNewPassword){
       return res.status(400).json({ message: 'New password confirmation does not match new password' });
     }
-    user.password = newPassword;
+    const hashedPassword = await Bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
     await user.save();
     res.json("The password was changed successfully" + user);
   } catch (err) {
@@ -187,26 +185,41 @@ export async function changePassword(req,res){
 }
 
 
-export async function resetPassword(req,res){
+// Verify Email Function
+async function verifyEmail(email) {
+  try {
+    let user = await User.findOne({ email });
+    if (!user) {
+      return "No associated user with this email"; // Email not found
+    }
+    return user; // Email found, return the user object
+  } catch (error) {
+    throw new Error('Error verifying email');
+  }
+}
+
+export async function resetPassword(req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { password } = req.body;
+  const { email, password } = req.body;
   try {
-    let user = await User.findOne({ _id: req.params.id });
-  
-  
-      // Hash the password before saving
+    // Verify the email
+    let user = await verifyEmail(email);
+    if (!user) {
+      return res.status(400).json({ msg: 'Invalid email, user not found' });
+    }
+
+    // Hash the password before saving
     const hashedPassword = await Bcrypt.hash(password, 10);
     user.password = hashedPassword;
-    
 
     await user.save();
-    res.json(user);
+    res.json({ msg: 'Password reset successful'});
   } catch (err) {
-    res.status(500).send('Server error, reset password failed' + err.message);
+    res.status(500).send('Server error, reset password failed: ' + err.message);
   }
 }
 
