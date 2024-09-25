@@ -9,7 +9,7 @@ const requestRouter = express.Router();
 // @desc    Create a new request
 // @access  Private
 requestRouter.post(
-  '/',
+  '/makeRequest',
   [
     authMiddleware,
     [
@@ -25,7 +25,7 @@ requestRouter.post(
 // @route   GET api/requests
 // @desc    Get all requests
 // @access  Public
-requestRouter.get('/', getRequests);
+requestRouter.get('/getReguests', getRequests);
 
 // @route   GET api/requests/:id
 // @desc    Get request by ID
