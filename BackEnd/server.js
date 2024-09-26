@@ -29,15 +29,16 @@ app.use(bodyParser.json());
 
 connectDB();
 
-// middlewares
-app.use(authMiddleware);
-app.use(errorHandler);
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/donations', donationRoutes);
 app.use('/api/requests', requestRoutes);
 //app.use('/api/notifications', notificationRoutes);
+
+// middlewares
+app.use(authMiddleware);
+app.use(errorHandler);
 
 
 

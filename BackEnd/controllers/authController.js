@@ -2,8 +2,8 @@ import User  from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import Bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
-import { google } from 'googleapis';
-import pkg from 'google-auth-library';
+import Donor from '../models/Donor.js';
+import Beneficiary from '../models/Beneficiary.js';
 import { validationResult } from 'express-validator';
 
 

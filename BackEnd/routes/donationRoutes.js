@@ -15,7 +15,8 @@ donationRouter.post(
     [
       check('donationType', 'Donation type is required').not().isEmpty(),
       check('quantity', 'Quantity must be a positive number').isInt({ min: 1 }),
-      check('location', 'Location is required').not().isEmpty()
+      check('location', 'Location is required').not().isEmpty(),
+      check('availabilityDate', 'availabilityDate is required').not().isEmpty().isDate(),
     ]
   ],
   createDonation
@@ -42,6 +43,7 @@ donationRouter.put(
       check('donationType', 'Donation type is required').optional().not().isEmpty(),
       check('quantity', 'Quantity must be a positive number').optional().isInt({ min: 1 }),
       check('location', 'Location is required').optional().not().isEmpty(),
+      check('availabilityDate', 'availabilityDate is required').not().isEmpty().isDate(),
       check('status', 'Status is required').optional().isIn(['available', 'reserved', 'completed'])
     ]
   ],
