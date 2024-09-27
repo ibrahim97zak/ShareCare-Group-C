@@ -1,25 +1,23 @@
-// utils/jwtUtils.js
+import dotenv from 'dotenv';
+import pkg from 'jsonwebtoken';
 
-import { sign, verify, decode } from 'jsonwebtoken';
-import { promisify } from 'util';
+dotenv.config();
+const { sign, verify, decode } = pkg;
 
 // Load environment variables
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d';
 
-// Promisify jwt.sign and jwt.verify
-const signAsync = promisify(sign);
-const verifyAsync = promisify(verify);
-
 const jwtUtils = {
   /**
    * Generate a JWT token
    * @param {Object} payload - Data to be encoded in the token
-   * @returns {Promise<string>} The generated JWT token
+   * @returns {string} The generated JWT token (synchronous)
    */
-  generateToken: async (payload) => {
+  generateToken: (payload) => {
     try {
-      const token = await signAsync(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+      // Synchronously sign and return the token
+      const token = sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
       return token;
     } catch (error) {
       throw new Error('Error generating token');
@@ -29,11 +27,12 @@ const jwtUtils = {
   /**
    * Verify a JWT token
    * @param {string} token - The token to verify
-   * @returns {Promise<Object>} The decoded token payload
+   * @returns {Object} The decoded token payload
    */
-  verifyToken: async (token) => {
+  verifyToken: (token) => {
     try {
-      const decoded = await verifyAsync(token, JWT_SECRET);
+      // Synchronously verify and return the decoded payload
+      const decoded = verify(token, JWT_SECRET);
       return decoded;
     } catch (error) {
       throw new Error('Invalid token');
