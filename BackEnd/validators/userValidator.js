@@ -25,7 +25,7 @@ export const validateRegistration = [
     .withMessage('Password must be at least 8 characters long')
     .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/)
     .withMessage('Password must contain at least one lowercase letter, one uppercase letter, one numeric digit, and one special character'),
-  body('userType')
+  body('role')
     .isIn(['Donor', 'Beneficiary'])
     .withMessage('User type must be either Donor or Beneficiary'),
   body('name')
@@ -36,6 +36,10 @@ export const validateRegistration = [
     .trim()
     .notEmpty()
     .withMessage('Location is required'),
+    body('gender')
+    .trim()
+    .notEmpty()
+    .withMessage('gender is required'),
   handleValidationErrors
 ];
 
