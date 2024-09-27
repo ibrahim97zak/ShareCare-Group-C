@@ -1,17 +1,18 @@
 import mongoose from 'mongoose';
+import Donation from './Donation.js'; 
 
 const DonationOfferSchema = new mongoose.Schema({
-  donorId: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Donor', 
-    required: true 
- },
-  donationId: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Donation', 
-    required: true 
+  donor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Donor',
+    required: true
+  },
+  receiver: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Beneficiary',
+    default: null
   }
 });
 
-const DonationOffer = mongoose.model('DonationOffer', DonationOfferSchema);
+const DonationOffer = Donation.discriminator('Offer', DonationOfferSchema);
 export default DonationOffer;

@@ -1,11 +1,11 @@
-import { Schema, model } from 'mongoose';
+import mongoose from 'mongoose';
 
-const UserSchema = new Schema({
-  username: { 
+const UserSchema = new mongoose.Schema({
+  userName: { 
     type: String, 
     required: true,
     unique: true,
-    trim: true
+    trim: true,
   },
   name: {
     type: String,
@@ -31,26 +31,28 @@ const UserSchema = new Schema({
     type: String,
     required: true
   },
-  userType: { 
+  role: { 
     type: String, 
-    enum: ['Donor', 'Beneficiary'], 
+    enum: ['Admin', 'Donor', 'Beneficiary'], 
     required: true 
   },
   location: { 
     type: String 
   },
+  description: {
+    type: String
+  },
   isVerified: {
     type: Boolean
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: { 
-    type: Date, 
-    default: Date.now 
-  }
-  
+  notifications: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Notification'
+  }],
+
+}, {
+  timestamps: true
 });
 
-export default model('User', UserSchema);
+const User = mongoose.model('User', UserSchema);
+export default User;
