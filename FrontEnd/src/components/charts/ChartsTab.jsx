@@ -32,7 +32,7 @@ const ChartsTab = ({ chartData }) => {
 
   return (
     <div className='charts-tab-smaller '>
-      <h2 className="text-lg font-bold mb-4">Donations Chart</h2>
+      <h2 className="text-lg font-bold mb-4">Distribution Chart</h2>
       <div className="grid grid-cols-3 gap-4">
       <div className="col-span-1">
       <Doughnut data={data} options={options} />

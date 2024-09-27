@@ -4,6 +4,14 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'rec
 const BarCharts = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedType, setSelectedType] = useState('All'); // State to track the selected data type
+
+  // Simulate the logged-in user (this can come from your auth state)
+  const currentUser = {
+    id: 1,
+    name: 'Admin User',
+    userType: 'Admin', // Change this to test with 'User' or other roles
+  };
 
   useEffect(() => {
     // Fake data
@@ -11,7 +19,7 @@ const BarCharts = () => {
       {
         id: 1,
         name: 'John Doe',
-        username: 'johndoe',
+        userName: 'johndoe',
         email: 'johndoe@example.com',
         location: 'New York',
         userType: 'Admin',
@@ -26,7 +34,7 @@ const BarCharts = () => {
       {
         id: 2,
         name: 'Jane Doe',
-        username: 'janedoe',
+        userName: 'janedoe',
         email: 'janedoe@example.com',
         location: 'Los Angeles',
         userType: 'User',
@@ -41,7 +49,7 @@ const BarCharts = () => {
       {
         id: 3,
         name: 'Bob Smith',
-        username: 'bobsmith',
+        userName: 'bobsmith',
         email: 'bobsmith@example.com',
         location: 'Chicago',
         userType: 'Moderator',
@@ -59,27 +67,48 @@ const BarCharts = () => {
     setLoading(false);
   }, []);
 
-  const data = users.reduce((acc, user) => {
-    user.donations.forEach((donation) => {
-      const existingDonation = acc.find((item) => item.type === donation.type);
-      if (existingDonation) {
-        existingDonation.quantity += donation.quantity;
-      } else {
-        acc.push({
-          type: donation.type,
-          quantity: donation.quantity,
-        });
-      }
-    });
+  // Filter data based on the selected type and user type
+  const filteredData = users.reduce((acc, user) => {
+    // Check if the current user is admin or the same as the logged-in user
+    if (currentUser.userType === 'Admin' || currentUser.id === user.id) {
+      user.donations.forEach((donation) => {
+        if (selectedType === 'All' || donation.type === selectedType) {
+          const existingDonation = acc.find((item) => item.type === donation.type);
+          if (existingDonation) {
+            existingDonation.quantity += donation.quantity;
+          } else {
+            acc.push({
+              type: donation.type,
+              quantity: donation.quantity,
+            });
+          }
+        }
+      });
+    }
     return acc;
   }, []);
 
   return (
     <div className="bar-chart-container">
+      <h3 className="text-lg font-bold">Select Data to Display</h3>
+
+      {/* Dropdown for selecting donation type */}
+      <select
+        className="mb-4 p-2 border border-gray-300 rounded"
+        value={selectedType}
+        onChange={(e) => setSelectedType(e.target.value)}
+      >
+        <option value="All">All</option>
+        <option value="Cash">Cash</option>
+        <option value="Food">Food</option>
+        <option value="Clothing">Clothing</option>
+        <option value="Toys">Toys</option>
+      </select>
+
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <BarChart width={500} height={300} data={data}>
+        <BarChart width={500} height={300} data={filteredData}>
           <XAxis dataKey="type" />
           <YAxis />
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
