@@ -1,28 +1,20 @@
 import mongoose from 'mongoose';
 
 const DonationSchema = new mongoose.Schema({
-  donor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
   donationType: {
     type: String,
     required: true,
-    enum: ['clothing', 'food', 'money', 'medicines', 'books', 'furniture', 'other']
+    enum: ['clothes', 'food', 'money', 'medicines', 'books', 'furniture', 'other']
   },
   quantity: {
-    type: Number
+    type: Number,
+    required: true
   },
   description: {
     type: String
   },
   location: { 
     type: String 
-  },
-  availabilityDate: {
-    type: Date,
-    required: true
   },
   status: {
     type: String,
@@ -33,14 +25,10 @@ const DonationSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: { 
-    type: Date,  
-    default: Date.now
-  }
+}, {
+  discriminatorKey: 'donationRole',
+  collection: 'donations',
+  timestamps: true
 });
 
 DonationSchema.pre('save', function(next) {
@@ -50,4 +38,5 @@ DonationSchema.pre('save', function(next) {
   next();
 });
 
-export default mongoose.model('Donation', DonationSchema);
+const Donation = mongoose.model('Donation', DonationSchema);
+export default Donation;

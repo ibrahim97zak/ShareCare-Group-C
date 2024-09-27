@@ -1,17 +1,22 @@
 import mongoose from 'mongoose';
+import Donation from './Donation.js';
 
 const DonationRequestSchema = new mongoose.Schema({
-  beneficiaryId: { 
+  beneficiary: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Beneficiary', 
     required: true 
   },
-  donationId: { 
+  sender: {
     type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Donation', 
-    required: true 
+    ref: 'Donor', 
+    default: null
+  },
+  receivedQuantity: { 
+    type: Number, 
+    default: 0 
   }
 });
 
-const DonationRequest = mongoose.model('DonationRequest', DonationRequestSchema);
+const DonationRequest = Donation.discriminator('Request', DonationRequestSchema);
 export default DonationRequest;
