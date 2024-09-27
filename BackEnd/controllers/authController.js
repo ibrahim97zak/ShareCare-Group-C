@@ -221,7 +221,7 @@ export async function resetPassword(req, res) {
   const { email, password } = req.body;
   try {
     // Verify the email
-    let user = await verifyEmail(email);
+    let user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ msg: 'Invalid email, user not found' });
     }
@@ -231,7 +231,7 @@ export async function resetPassword(req, res) {
     user.password = hashedPassword;
 
     await user.save();
-    res.json({ msg: 'Password reset successful'});
+    res.json({ msg: 'Password reset successful' });
   } catch (err) {
     res.status(500).send('Server error, reset password failed: ' + err.message);
   }
