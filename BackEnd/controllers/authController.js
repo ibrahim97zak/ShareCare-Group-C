@@ -5,6 +5,7 @@ import nodemailer from 'nodemailer';
 import Donor from '../models/Donor.js';
 import Beneficiary from '../models/Beneficiary.js';
 import { validationResult } from 'express-validator';
+import jwtUtils from '../utils/jwtUtils.js';
 
 
 export async function register(req, res) {
@@ -14,10 +15,10 @@ export async function register(req, res) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { username, name, gender, email, password, phone, userType, location } = req.body;
+    const { userName, name, gender, email, password, phone, userType, location } = req.body;
 
     // Check if the user already exists
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+    const existingUser = await User.findOne({ $or: [{ email }, { userName }] });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
@@ -27,7 +28,7 @@ export async function register(req, res) {
 
     // Create new user
     const newUser = new User({
-      username,
+      userName,
       name,
       gender,
       email,
@@ -41,7 +42,17 @@ export async function register(req, res) {
     await newUser.save();
 
     // Generate JWT token
-const token = jwt.sign(
+const token = jwtUtils.generateToken({
+  user: {
+    id: newUser.id,
+    userType: newUser.userType
+  }
+},
+process.env.JWT_SECRET, // Replace with your actual secret key
+{ expiresIn: '1h' } // Optional: set expiration time
+);
+
+/**const token = jwt.sign(
   {
     user: {
       id: newUser.id,
@@ -50,17 +61,8 @@ const token = jwt.sign(
   },
   process.env.JWT_SECRET, // Replace with your actual secret key
   { expiresIn: '1h' } // Optional: set expiration time
-);
+); **/
 
-
-// Send verification email
-/**const transporter = nodemailer.createTransport({
-  service: 'Gmail',
-  auth: {
-      user: process.env.EMAIL,
-      pass: process.env.EMAIL_PASSWORD
-  }
-});**/
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.ethereal.email',
@@ -97,8 +99,10 @@ export async function confirmEmail(req, res) {
   }
 
   // Token is valid, verify the user
+  if(jwtUtils.verifyToken(token)){
   user.isVerified = true; // Assuming you have a 'verified' field
   user.verificationToken = undefined; // Clear the token after verification
+  }
   await user.save();
 
   res.send('Your email has been Confirmed successfully!');
@@ -135,7 +139,16 @@ export async function login(req, res) {
       }
     };
 
-    jwt.sign(
+    const token = jwtUtils.generateToken(payload,
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' },
+      //(err, token) => {
+       // if (err) throw err;
+       //}
+      );
+      res.json({ token });
+      
+    /**jwt.sign(
       payload,
       process.env.JWT_SECRET,
       { expiresIn: '1h' },
@@ -143,7 +156,8 @@ export async function login(req, res) {
         if (err) throw err;
         res.json({ token });
       }
-    );
+    );**/
+
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error, login failed');
