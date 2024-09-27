@@ -28,6 +28,23 @@ const validateSignup = (data) => {
       'any.only': 'Passwords do not match',
       'any.required': 'Confirm password is required',
     }),
+    location: Joi.string().required().messages({
+      'string.empty': 'Location is required',
+    }),
+    userType: Joi.string().valid('Donor', 'Beneficiary').required().messages({
+      'string.empty': 'User type is required',
+      'string.invalid': 'Invalid user type',
+    }),
+    phone: Joi.string()
+      .pattern(/^(\+?1-?)?(\(?\d{3}\)?)?(-|\s)?(\d{3})(-|\s)?(\d{4})$/)
+      .required()
+      .messages({
+        'string.empty': 'Phone number is required',
+        'string.pattern.base': 'Please enter a valid phone number',
+      }),
+      gender: Joi.string().required().messages({
+        'string.empty': 'Gender is required',
+      })
   });
 
   return schema.validate(data, { abortEarly: false });

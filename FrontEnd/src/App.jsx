@@ -10,6 +10,7 @@ const routes =(
     <Route path="/signUp" element={<RegisterForm />} />
     <Route path='login' element={<LoginForm />} />
     <Route path='/ProfileDetails'element={<ProfileDetails />} />
+    
   </Routes>
 </Router>
 )

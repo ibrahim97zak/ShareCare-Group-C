@@ -2,6 +2,7 @@
 export default {
   content: ["./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
+
   ],
   theme: {
     extend: {
@@ -9,9 +10,11 @@ export default {
       'primary': '#000200',
       'secondary': '#1B9C54',
       'greenlight': '#9AF19A',
-    }
+    },
   },
 },
-  plugins: [],
+plugins: [
+
+],
 }
 
