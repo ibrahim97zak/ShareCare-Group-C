@@ -29,7 +29,7 @@ const UserSchema = new Schema({
     type: String,
     required: true
   },
-  userType: { 
+  role: {
     type: String, 
     enum: ['Donor', 'Beneficiary'], 
     required: true 
