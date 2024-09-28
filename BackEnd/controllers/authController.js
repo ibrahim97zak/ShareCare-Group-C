@@ -15,7 +15,7 @@ export async function register(req, res) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { userName, name, gender, email, password, phone, userType, location } = req.body;
+    const { userName, name, gender, email, password, phone, role, location } = req.body;
 
     // Check if the user already exists
     const existingUser = await User.findOne({ $or: [{ email }, { userName }] });
@@ -34,7 +34,7 @@ export async function register(req, res) {
       email,
       password: hashedPassword,
       phone,
-      userType,
+      role,
       location
     });
 
