@@ -18,13 +18,10 @@ const DonationSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['available', 'completed'],
+    enum: ['available', 'not available'],
     default: 'available'
   },
-  goal: {
-    type: Boolean,
-    default: false
-  },
+
 }, {
   discriminatorKey: 'donationRole',
   collection: 'donations',

@@ -15,7 +15,11 @@ const DonationRequestSchema = new mongoose.Schema({
   receivedQuantity: { 
     type: Number, 
     default: 0 
-  }
+  },
+    goal: {
+    type: Boolean,
+    default: false
+  },
 });
 
 const DonationRequest = Donation.discriminator('Request', DonationRequestSchema);
