@@ -13,6 +13,7 @@ donationRouter.post(
   [
     authMiddleware,
     [
+      check('role','Donors only create donations').isIn(['donor']),
       check('donationType', 'Donation type is required').not().isEmpty(),
       check('quantity', 'Quantity must be a positive number').isInt({ min: 1 }),
       check('location', 'Location is required').not().isEmpty(),

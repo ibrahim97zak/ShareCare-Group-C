@@ -13,6 +13,7 @@ requestRouter.post(
   [
     authMiddleware,
     [
+      check('role','Benficeries only create requests').isIn(['beneficiary']),
       check('donationType', 'Donation type is required').not().isEmpty(),
       check('quantity', 'Quantity must be a positive number').isInt({ min: 1 }),
       check('location', 'Location is required').not().isEmpty(),
