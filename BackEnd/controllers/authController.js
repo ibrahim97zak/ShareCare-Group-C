@@ -154,6 +154,7 @@ sendEmail(email, userName, 'Email Verification', `Click the following link to ve
 
 confirmEmail(req, res);
 
+
   } catch (error) {
     res.status(500).json({ message: 'Server error during registration', error: error.message });
   }
