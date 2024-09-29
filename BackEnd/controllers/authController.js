@@ -6,6 +6,98 @@ import Donor from '../models/Donor.js';
 import Beneficiary from '../models/Beneficiary.js';
 import { validationResult } from 'express-validator';
 import jwtUtils from '../utils/jwtUtils.js';
+import emailjs from 'emailjs-com';
+
+export async function sendEmail(to, userName, subject, verificationLink) {
+  // Define the HTML body for the email
+  var html = `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <title>Email from Sahre-Care (Sahim)</title>
+      <style>
+          body {
+              font-family: Arial, sans-serif;
+              background-color: #f4f4f4;
+              margin: 0;
+              padding: 0;
+              color: #333333;
+          }
+          .container {
+              max-width: 600px;
+              margin: 20px auto;
+              background-color: #ffffff;
+              padding: 20px;
+              border: 1px solid #dddddd;
+              box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+          }
+          .header {
+              background-color: #007BFF;
+              color: #ffffff;
+              padding: 10px;
+              text-align: center;
+          }
+          .header h1 {
+              margin: 0;
+              font-size: 24px;
+          }
+          .content {
+              padding: 20px;
+              line-height: 1.6;
+          }
+          .footer {
+              text-align: center;
+              font-size: 12px;
+              color: #888888;
+              margin-top: 20px;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">
+              <h1>Sahre-Care (Sahim)</h1>
+          </div>
+          <div class="content">
+              <p>Dear ${userName},</p>
+              <p>We are excited to inform you about ${subject}.</p>
+              <p>${verificationLink}</p>
+              <p>Thank you for choosing Sahre-Care (Sahim).</p>
+              <p>Best regards,<br>Sahre-Care (Sahim) Team</p>
+          </div>
+          <div class="footer">
+              <p>Sahre-Care (Sahim), All rights reserved.<br>123 Knowledge Street, Education City</p>
+              <p><a href="#">Unsubscribe</a></p>
+          </div>
+      </div>
+  </body>
+  </html>`;
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASSWORD
+    }
+});
+
+  try {
+    let info = await transporter.sendMail({
+      from: { name: 'Sahre-Care (Sahim)', address: process.env.EMAIL },
+      to: to,
+      subject: subject,
+      html: html,
+    });
+    console.log("Message sent: %s", info.messageId);
+  } catch (error) {
+    console.error("Error sending email:", error.message);
+  }
+}
 
 
 export async function register(req, res) {
@@ -15,7 +107,7 @@ export async function register(req, res) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { userName, name, gender, email, password, phone, role, location } = req.body;
+    const { userName, name, gender, email, password, confirmPassword, phone, role, location } = req.body;
 
     // Check if the user already exists
     const existingUser = await User.findOne({ $or: [{ email }, { userName }] });
@@ -23,6 +115,9 @@ export async function register(req, res) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: 'Passwords do not match' });
+    }
     // Hash the password
     const hashedPassword = await Bcrypt.hash(password, 10);
 
@@ -38,8 +133,6 @@ export async function register(req, res) {
       location
     });
 
-    // Save the user
-    await newUser.save();
 
     // Generate JWT token
 const token = jwtUtils.generateToken({
@@ -52,36 +145,14 @@ process.env.JWT_SECRET, // Replace with your actual secret key
 { expiresIn: '1h' } // Optional: set expiration time
 );
 
-/**const token = jwt.sign(
-  {
-    user: {
-      id: newUser.id,
-      userType: newUser.userType
-    }
-  },
-  process.env.JWT_SECRET, // Replace with your actual secret key
-  { expiresIn: '1h' } // Optional: set expiration time
-); **/
-
-
-const transporter = nodemailer.createTransport({
-  host: 'smtp.ethereal.email',
-  port: 587,
-  auth: {
-      user: process.env.EMAIL,
-      pass: process.env.EMAIL_PASSWORD
-  }
-});
-
+newUser.isVerified = false;
+await newUser.save();
 const verificationLink = `http://localhost:5000/api/auth/confirm-email?email=${email}&token=${token}`;
-await transporter.sendMail({
-  from: process.env.EMAIL,
-  to: email,
-  subject: 'Email Verification',
-  text: `Click the following link to verify your email: ${verificationLink}`
-});
 
-res.send('Registration successful! Please check your email for verification.');
+sendEmail(email, userName, 'Email Verification', `Click the following link to verify your email: ${verificationLink}`);
+
+
+confirmEmail(req, res);
 
   } catch (error) {
     res.status(500).json({ message: 'Server error during registration', error: error.message });
@@ -105,7 +176,7 @@ export async function confirmEmail(req, res) {
   }
   await user.save();
 
-  res.send('Your email has been Confirmed successfully!');
+  res.send('Your email has been Confirmed successfully!, Log in now');
 }
 
 
