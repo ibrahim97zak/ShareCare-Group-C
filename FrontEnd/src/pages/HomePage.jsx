@@ -6,12 +6,12 @@ import Footer from '../components/Footer';
 import RequestsList from '../components/RequestsList';
 
 const HomePage = () => {
-  const [userType, setUserType] = useState('beneficiary');
+  const [userType, setUserType] = useState('b');
   return (
     <div>
-      <NavigationBar/>
+      <NavigationBar userType={userType}/>
       <Banner/>
-      {userType === 'donor' ?(<DonationsList/>) : (<RequestsList/>)}
+      {userType === 'donor' ?(<RequestsList/>) : (<DonationsList/>)}
       <Footer/>
     </div>
   )

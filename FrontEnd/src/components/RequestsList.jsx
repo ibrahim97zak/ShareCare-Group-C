@@ -3,12 +3,24 @@ import RequestCard from './RequestCard';
 import { FaSearch } from 'react-icons/fa';
 
 const requests = [
-  { id: 1, type: 'Clothes', quantity: 50, total: 1000, location: 'New York', beneficiary: 'John Doe' },
-  { id: 2, type: 'Food', quantity: 100, total: 300, location: 'Los Angeles', beneficiary: 'Jane Smith' },
-  { id: 3, type: 'Books', quantity: 30, total: 50, location: 'Chicago', beneficiary: 'Alice Johnson' },
-  { id: 4, type: 'Money', quantity: 20, total: 100, location: 'Houston', beneficiary: 'Bob Brown' },
-  { id: 5, type: 'Clothes', quantity: 70, total: 150, location: 'Miami', beneficiary: 'Emily White' },
-  { id: 6, type: 'Food', quantity: 200, total: 500, location: 'New York', beneficiary: 'Chris Green' }
+  { id: 1, type: 'Clothes', quantity: 50, total: 1000, location: 'New York', beneficiary: 'John Doe',goal:false,
+     description: "This is a food donation including non-perishable items for families in need. The items include canned goods, pasta, rice, and more. Please reach out to coordinate delivery."
+   },
+  { id: 2, type: 'Food', quantity: 100, total: 300, location: 'Los Angeles', beneficiary: 'Jane Smith',goal:false,
+      description:"This donation contains new and gently used clothing for adults and children, including jackets, shirts, and shoes."
+   },
+  { id: 3, type: 'Books', quantity: 30, total: 50, location: 'Chicago', beneficiary: 'Alice Johnson',goal:false,
+      description:"This donation contains new and gently used clothing for adults and children, including jackets, shirts, and shoes."
+  },
+  { id: 4, type: 'Money', quantity: 20, total: 100, location: 'Houston', beneficiary: 'Bob Brown' ,goal:false,
+    description: "This donation contains new and gently used clothing for adults and children, including jackets, shirts, and shoes."
+  },
+  { id: 5, type: 'Clothes', quantity: 70, total: 150, location: 'Miami', beneficiary: 'Emily White',goal:false,
+      description:"This donation contains new and gently used clothing for adults and children, including jackets, shirts, and shoes."
+  },
+  { id: 6, type: 'Food', quantity: 200, total: 500, location: 'New York', beneficiary: 'Chris Green',goal:true,
+      description:"This donation contains new and gently used clothing for adults and children, including jackets, shirts, and shoes."
+   }
 ];
 const RequestsList = () => {
    const [searchTerm, setSearchTerm] = useState('');
@@ -38,7 +50,7 @@ const RequestsList = () => {
       </div>
      <div className="flex flex-wrap justify-center">
       {displayedRequests.map(request => (
-      <RequestCard key={request.id} request={request} />
+        <RequestCard key={request.id} request={request} />
       ))}
    </div>
  </div>

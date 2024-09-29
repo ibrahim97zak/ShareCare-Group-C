@@ -2,7 +2,7 @@ import React,{useState} from 'react'
 import bannerImg from '../assets/don.jpg'
 const Banner = () => {
 
-   const [isLoggedIn, setIsLoggedIn] = useState(false);
+   const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   return (
    <div className="relative  h-screen overflow-hidden">

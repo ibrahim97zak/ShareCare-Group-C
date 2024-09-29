@@ -3,13 +3,12 @@ import DonationCard from './DonationCard';
 import { FaSearch } from 'react-icons/fa';
 
 const donations = [
-   { id: 1, type: 'Clothes', quantity: 20, location: 'New York',donor: 'John Doe' },
-  { id: 2, type: 'Money', quantity: 15, location: 'Los Angeles',donor:'Jane Smith'},
-  { id: 3, type: 'Food', quantity: 30, location: 'Chicago',donor:'Alice Johnson'},
+   { id: 1, type: 'Clothes', quantity: 20, location: 'New York',donor: 'John Doe' ,description: "This is a food donation including non-perishable items for families in need. The items include" },
+  { id: 2, type: 'Money', quantity: 15, location: 'Los Angeles',donor:'Jane Smith',description: "This is a food donation including non-perishable items for families in need. The items include"},
+  { id: 3, type: 'Food', quantity: 30, location: 'Chicago',donor:'Alice Johnson',description: "This is a food donation including non-perishable items for families in need. The items include"},
 ];
 const DonationsList = () => {
    const [searchTerm, setSearchTerm] = useState('');
-   const searchBarRef = useRef(null);
    const filteredDonations = donations.filter(
       (donation) =>
         donation.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -27,7 +26,6 @@ const DonationsList = () => {
           {/* Search Input */}
           <input
             type="text"
-            ref={searchBarRef}
             placeholder="Filter by Type or Location"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
