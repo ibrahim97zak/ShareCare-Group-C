@@ -1,4 +1,5 @@
 import { body, param, validationResult } from 'express-validator';
+import User from '../models/User.js';
 
 // Utility function to handle validation results
 const handleValidationErrors = (req, res, next) => {
@@ -15,7 +16,14 @@ export const validateRegistration = [
     .isLength({ min: 3, max: 30 })
     .withMessage('Username must be between 3 and 30 characters')
     .matches(/^[a-zA-Z0-9_]+$/)
-    .withMessage('Username can only contain letters, numbers, and underscores'),
+    .withMessage('Username can only contain letters, numbers, and underscores')
+    .custom(async (value) => {
+      const user = await User.findOne({ userName: value });
+      if (user) {
+        throw new Error('Username is already taken');
+      }
+      return true;
+    }),
   body('email')
     .isEmail()
     .withMessage('Must be a valid email address')
