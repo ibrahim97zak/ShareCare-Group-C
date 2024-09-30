@@ -8,20 +8,20 @@ const NotificationSchema = new mongoose.Schema({
   },
   type: { 
     type: String, 
+    enum: ['match', 'alert', 'message'],
     required: true 
   },
   content: { 
     type: String 
   },
-  emailSent: { 
+  isRead: { 
     type: Boolean, 
     default: false
   },
-  createdAt: { 
-    type: Date, 
-    default: Date.now
-  }
-});
+},
+  {
+    timestamps: true
+  });
 
 const Notification = mongoose.model('Notification', NotificationSchema);
 export default Notification;
