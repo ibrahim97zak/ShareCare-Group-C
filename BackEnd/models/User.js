@@ -11,6 +11,11 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  role: { 
+    type: String, 
+    enum: ['Admin', 'Donor', 'Beneficiary'], 
+    required: true 
+  },
   gender: {
     type: String,
     enum: ['Male', 'Female'],
@@ -46,7 +51,8 @@ const UserSchema = new mongoose.Schema({
   }],
 
 }, {
-  timestamps: true
+  timestamps: true,
+  discriminatorKey: 'role'
 });
 
 const User = mongoose.model('User', UserSchema);
