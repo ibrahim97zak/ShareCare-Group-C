@@ -3,22 +3,42 @@ import DonationOffer from '../models/DonationOffer.js';
 import DonationRequest from '../models/DonationRequest.js';
 import Donation from '../models/Donation.js';
 import Notification from '../models/Notification.js';
+import Beneficiary from '../models/Beneficiary.js'; 
+import Donor from '../models/Donor.js';
 
 export const createDonationOffer = async (req, res, next) => {
   try {
-    const offer = new DonationOffer(req.body);
-    const savedOffer = await offer.save();
-    res.status(201).json(savedOffer);
+    const { donorId, ...offerData } = req.body;
+
+    const newOffer = new DonationOffer(offerData);
+    const savedOffer = await newOffer.save();
+
+    const donor = await Donor.findById(donorId);
+    if (!donor) return res.status(404).json({ error: 'Donor not found' });
+
+    donor.offers.push(savedOffer._id);
+    await donor.save();
+
+    res.status(201).json({ message: 'Donation offer created', savedOffer });
   } catch (err) {
-    next(err); 
+    next(err);
   }
 };
 
 export const createDonationRequest = async (req, res, next) => {
   try {
-    const request = new DonationRequest(req.body);
-    const savedRequest = await request.save();
-    res.status(201).json(savedRequest);
+    const { beneficiaryId, ...requestData } = req.body;
+
+    const newRequest = new DonationRequest(requestData);
+    const savedRequest = await newRequest.save();
+
+    const beneficiary = await Beneficiary.findById(beneficiaryId);
+    if (!beneficiary) return res.status(404).json({ error: 'Beneficiary not found' });
+
+    beneficiary.requests.push(savedRequest._id);
+    await beneficiary.save();
+
+    res.status(201).json({ message: 'Request created', savedRequest });
   } catch (err) {
     next(err);
   }
@@ -71,8 +91,14 @@ export const takeOffer = async (req, res, next) => {
     if (offer.status !== 'available') return res.status(400).json({ error: 'Offer is not available' });
 
     offer.receiver = beneficiaryId;
-    offer.status = 'not available'; 
+    offer.status = 'not available';
     await offer.save();
+
+    const beneficiary = await Beneficiary.findById(beneficiaryId);
+    if (!beneficiary) return res.status(404).json({ error: 'Beneficiary not found' });
+
+    beneficiary.receivedDonations.push(offer._id);
+    await beneficiary.save();
 
     res.json({ message: 'Offer accepted by beneficiary', offer });
   } catch (err) {
@@ -86,7 +112,6 @@ export const fulfillRequest = async (req, res, next) => {
 
     const request = await DonationRequest.findById(requestId);
     if (!request) return res.status(404).json({ error: 'Request not found' });
-
     if (request.goal) return res.status(400).json({ error: 'Request goal has already been met' });
 
     const remainingQuantity = request.quantity - request.receivedQuantity;
@@ -98,14 +123,21 @@ export const fulfillRequest = async (req, res, next) => {
     request.receivedQuantity += quantity;
 
     if (request.receivedQuantity === request.quantity) {
-      request.goal = true; 
-      request.status = 'not available'; 
+      request.goal = true;
+      request.status = 'not available';
     }
 
     await request.save();
+
+    const donor = await Donor.findById(donorId);
+    if (!donor) return res.status(404).json({ error: 'Donor not found' });
+
+    donor.donations.push(request._id);
+    await donor.save();
+
     res.json({ message: 'Request fulfilled by donor', request });
   } catch (err) {
-    next(err); 
+    next(err);
   }
 };
 
