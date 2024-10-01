@@ -6,9 +6,9 @@ import { config } from 'dotenv';
 
 // Import routes
 import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import donationRoutes from './routes/donationRoutes.js';
-import requestRoutes from './routes/requestRoutes.js';
-//import notificationRoutes from './routes/notificationRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 
 // Import error handler middleware
 import authMiddleware from './middlewares/authMiddleware.js';
@@ -33,8 +33,8 @@ connectDB();
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/donations', donationRoutes);
-app.use('/api/requests', requestRoutes);
-//app.use('/api/notifications', notificationRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // middlewares
 app.use(authMiddleware);
