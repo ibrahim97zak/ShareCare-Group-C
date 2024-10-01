@@ -4,20 +4,27 @@ import Beneficiary from '../models/Beneficiary.js';
 
 export const createUser = async (req, res, next) => {
   try {
-    const { role, ...userData } = req.body;  
+    const { role, ...userData } = req.body;
 
     let newUser;
 
+    // Ensure the role is provided and valid
+    if (!role) {
+      return res.status(400).json({ success: false, error: 'Role is required' });
+    }
+
     if (role === 'Donor') {
-      newUser = new Donor(userData);
+      newUser = new Donor({ ...userData, role });  // Include role when creating a Donor
     } else if (role === 'Beneficiary') {
-      newUser = new Beneficiary(userData);
+      newUser = new Beneficiary({ ...userData, role });  // Include role when creating a Beneficiary
+    } else if (role === 'Admin') {
+      newUser = new User({ ...userData, role });  // Handle Admin role
     } else {
-      newUser = new User(userData);
+      return res.status(400).json({ success: false, error: 'Invalid role' });
     }
 
     const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
+    res.status(201).json({ success: true, user: savedUser });
   } catch (err) {
     next(err);
   }
