@@ -28,12 +28,5 @@ const DonationSchema = new mongoose.Schema({
   timestamps: true
 });
 
-DonationSchema.pre('save', function(next) {
-  if (this.goal === true) {
-    this.status = 'completed'; 
-  }
-  next();
-});
-
 const Donation = mongoose.model('Donation', DonationSchema);
 export default Donation;
