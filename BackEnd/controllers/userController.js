@@ -1,8 +1,21 @@
 import User from '../models/User.js';
+import Donor from '../models/Donor.js';
+import Beneficiary from '../models/Beneficiary.js';
 
 export const createUser = async (req, res, next) => {
   try {
-    const newUser = new User(req.body);
+    const { role, ...userData } = req.body;  
+
+    let newUser;
+
+    if (role === 'Donor') {
+      newUser = new Donor(userData);
+    } else if (role === 'Beneficiary') {
+      newUser = new Beneficiary(userData);
+    } else {
+      newUser = new User(userData);
+    }
+
     const savedUser = await newUser.save();
     res.status(201).json(savedUser);
   } catch (err) {
