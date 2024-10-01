@@ -1,21 +1,14 @@
 import Notification from '../models/Notification.js';
-import User from '../models/User.js';
-import nodemailer from 'nodemailer';
+import User from '../models/User.js'; 
+import mongoose from 'mongoose';
 
-const transporter = nodemailer.createTransport({
-  service: 'Gmail', 
-  auth: {
-    user: process.env.EMAIL_USER, 
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-// @desc    Create a new notification
-// @route   POST /api/notifications
-// @access  Private
-export const createNotification = async (req, res) => {
+export const createNotification = async (req, res, next) => {
   try {
     const { userId, type, content } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: 'Invalid user ID format' });
+    }
 
     const newNotification = new Notification({
       userId,
@@ -25,103 +18,101 @@ export const createNotification = async (req, res) => {
 
     await newNotification.save();
 
-    res.status(201).json(newNotification);
+    await User.findByIdAndUpdate(
+      userId,
+      { $push: { notifications: newNotification._id } }, 
+      { new: true }
+    );
+
+    res.status(201).json({ message: 'Notification created successfully', newNotification });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    next(err); 
   }
 };
 
-// @desc    Get all notifications for a user
-// @route   GET /api/notifications/user/:userId
-// @access  Private
-export const getNotificationsByUser = async (req, res) => {
+export const getUserNotifications = async (req, res, next) => {
   try {
-    const notifications = await Notification.find({ userId: req.params.userId })
-      .sort({ createdAt: -1 });
+    const { userId } = req.params;
 
-    res.json(notifications);
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: 'Invalid user ID format' });
+    }
+
+    const notifications = await Notification.find({ userId }).sort({ createdAt: -1 });
+    res.status(200).json(notifications);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    next(err); 
   }
 };
 
-// @desc    Mark email as sent after sending a notification email
-// @route   PUT /api/notifications/:id/email-sent
-// @access  Private
-export const markEmailAsSent = async (req, res) => {
+export const markAsRead = async (req, res, next) => {
   try {
-    const notification = await Notification.findById(req.params.id);
+    const { notificationId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(notificationId)) {
+      return res.status(400).json({ error: 'Invalid notification ID format' });
+    }
+
+    const notification = await Notification.findByIdAndUpdate(
+      notificationId,
+      { isRead: true },
+      { new: true }
+    );
 
     if (!notification) {
-      return res.status(404).json({ message: 'Notification not found' });
+      return res.status(404).json({ error: 'Notification not found' });
     }
 
-    notification.emailSent = true;
-    await notification.save();
-
-    res.json(notification);
+    res.status(200).json({ message: 'Notification marked as read', notification });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    next(err);
   }
 };
 
-// @desc    Match and Notify users
-// @route   POST /api/notifications/match
-// @access  Private
-export const notifyMatch = async (req, res) => {
+export const updateNotification = async (req, res, next) => {
   try {
-    const { requestUserId, offerUserId, matchedDetails } = req.body;
+    const { notificationId } = req.params;
+    const updateData = req.body;
 
-    const requestUser = await User.findById(requestUserId);
-    const offerUser = await User.findById(offerUserId);
-
-    if (!requestUser || !offerUser) {
-      return res.status(404).json({ message: 'User not found' });
+    if (!mongoose.Types.ObjectId.isValid(notificationId)) {
+      return res.status(400).json({ error: 'Invalid notification ID format' });
     }
 
-    const emailContent = `A match has been found!\nDetails: ${matchedDetails}`;
+    const updatedNotification = await Notification.findByIdAndUpdate(notificationId, updateData, { new: true });
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: requestUser.email,
-      subject: 'Match Found!',
-      text: `Hi ${requestUser.name},\n${emailContent}`,
-    });
+    if (!updatedNotification) {
+      return res.status(404).json({ error: 'Notification not found' });
+    }
 
-    const notificationForRequester = new Notification({
-      userId: requestUserId,
-      type: 'Match',
-      content: emailContent,
-      emailSent: true,
-    });
-
-    await notificationForRequester.save();
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: offerUser.email,
-      subject: 'Match Found!',
-      text: `Hi ${offerUser.name},\n${emailContent}`,
-    });
-
-    const notificationForOfferer = new Notification({
-      userId: offerUserId,
-      type: 'Match',
-      content: emailContent,
-      emailSent: true,
-    });
-
-    await notificationForOfferer.save();
-
-    res.status(201).json({
-      message: 'Notification emails sent to both users and notifications created.',
-      notifications: [notificationForRequester, notificationForOfferer],
-    });
+    res.status(200).json({ message: 'Notification updated successfully', updatedNotification });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    next(err); 
+  }
+};
+
+export const deleteNotification = async (req, res, next) => {
+  try {
+    const { notificationId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(notificationId)) {
+      return res.status(400).json({ error: 'Invalid notification ID format' });
+    }
+
+    const notification = await Notification.findById(notificationId);
+    if (!notification) {
+      return res.status(404).json({ error: 'Notification not found' });
+    }
+
+    await User.findByIdAndUpdate(
+      notification.userId,
+      { $pull: { notifications: notificationId } }, 
+      { new: true }
+    );
+
+    await Notification.findByIdAndDelete(notificationId);
+
+    res.status(200).json({ message: 'Notification deleted successfully' });
+  } catch (err) {
+    next(err); 
   }
 };
