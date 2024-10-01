@@ -4,7 +4,7 @@ import { FaSearch } from 'react-icons/fa';
 
 
 const NavigationBar = ({userType}) => {
-   // Simulating user login state
+
    const [isLoggedIn, setIsLoggedIn] = useState(true); // Change to false to simulate logged-out state
    const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown visibility
 

@@ -1,18 +1,25 @@
-import React, { useState } from "react";
+import React, { useState} from "react";
 import Modal from 'react-modal';
+import SweetAlertComponent from "./SweetAlertComponent ";
 
 const DonationModal = ({ isOpen, onClose,donationType,remainingAmount}) => {
+
   const donationAmounts = [10, 100, 200, 300, 500, 1000];
   const [selectedAmount, setSelectedAmount] = useState(null);
 
   if (!isOpen) return null;
   const handleSubmit = () => {
-    if(selectedAmount > remainingAmount){
-      alert('You cannot donate more than the target quantity!');
-      return;
+    if (!selectedAmount || Number(selectedAmount) <= 0) {
+      SweetAlertComponent.error('Oops...', 'Please enter a valid amount!');
     }
-   alert('Thank you for your donation!');
-   onClose(); 
+    else if(selectedAmount > remainingAmount){
+      SweetAlertComponent.error('Oops...', 'Donation exceeds the target.');
+    }
+    else{
+      SweetAlertComponent.success('Thank you!', 'Your donation has been submitted successfully!')
+      .then(() => {
+        onClose(); });
+    }
   };
 
   return (

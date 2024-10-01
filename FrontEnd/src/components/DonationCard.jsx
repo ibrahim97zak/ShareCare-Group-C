@@ -1,5 +1,6 @@
 import React,{useState} from 'react';
 import ProfileModal from './ProfileModal';
+import SweetAlertComponent from "./SweetAlertComponent ";
 
 const DonationCard = ({ donation }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,7 +31,9 @@ const DonationCard = ({ donation }) => {
       <p className="text-gray-600"> <span className="font-bold">Location: </span> {donation.location}</p>
       <button
         className="mt-4 px-4 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700"
-        onClick={() => alert('Your request has been sent to the donor.')}>
+        onClick={() => 
+          SweetAlertComponent.success('Your request has been sent to the donor.')
+        }>
          Request
       </button>
       <ProfileModal isOpen={isModalOpen} onClose={closeModal} donor={donation.donor}/>

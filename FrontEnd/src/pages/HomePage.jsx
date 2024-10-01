@@ -6,7 +6,7 @@ import Footer from '../components/Footer';
 import RequestsList from '../components/RequestsList';
 
 const HomePage = () => {
-  const [userType, setUserType] = useState('b');
+  const [userType, setUserType] = useState('donor');
   return (
     <div>
       <NavigationBar userType={userType}/>
