@@ -6,27 +6,35 @@ export const createUser = async (req, res, next) => {
   try {
     const { role, ...userData } = req.body;
 
+    const existingUser = await User.findOne({ userName: userData.userName });
+    if (existingUser) {
+      return res.status(400).json({ success: false, error: 'Username already exists' });
+    }
+
     let newUser;
 
-    // Ensure the role is provided and valid
     if (!role) {
       return res.status(400).json({ success: false, error: 'Role is required' });
     }
 
-    if (role === 'Donor') {
-      newUser = new Donor({ ...userData, role });  // Include role when creating a Donor
-    } else if (role === 'Beneficiary') {
-      newUser = new Beneficiary({ ...userData, role });  // Include role when creating a Beneficiary
-    } else if (role === 'Admin') {
-      newUser = new User({ ...userData, role });  // Handle Admin role
-    } else {
-      return res.status(400).json({ success: false, error: 'Invalid role' });
+    switch (role) {
+      case 'Donor':
+        newUser = new Donor({ ...userData, role });  
+        break;
+      case 'Beneficiary':
+        newUser = new Beneficiary({ ...userData, role });  
+        break;
+      case 'Admin':
+        newUser = new User({ ...userData, role });  
+        break;
+      default:
+        return res.status(400).json({ success: false, error: 'Invalid role' });
     }
 
     const savedUser = await newUser.save();
     res.status(201).json({ success: true, user: savedUser });
   } catch (err) {
-    next(err);
+    next(err);  
   }
 };
 
@@ -49,13 +57,23 @@ export const getUserById = async (req, res, next) => {
   }
 };
 
-export const updateUser = async (req, res, next) => {
+export const updateUser = async (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+
   try {
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedUser) return res.status(404).json({ error: 'User not found' });
-    res.json(updatedUser);
+    const updatedUser = await User.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    res.status(200).json({ success: true, user: updatedUser });
   } catch (err) {
-    next(err); 
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ success: false, error: err.message });
+    }
+    next(err);
   }
 };
 
