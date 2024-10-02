@@ -1,3 +1,5 @@
+// routes/userRoutes.js
+
 import express from 'express';
 import {
   createUser,
@@ -6,13 +8,18 @@ import {
   updateUser,
   deleteUser
 } from '../controllers/userController.js';
+import { validateCreateUser, validateUpdateUser } from '../middlewares/validationMiddleware.js';
 
 const router = express.Router();
 
-router.post('/', createUser);
+router.post('/', validateCreateUser, createUser);
+
 router.get('/', getUsers);
-router.get('/:id', getUserById);
-router.put('/:id', updateUser);
-router.delete('/:id', deleteUser);
+
+router.get('/:id', validateUpdateUser, getUserById);
+
+router.put('/:id', validateUpdateUser, updateUser);
+
+router.delete('/:id', validateUpdateUser, deleteUser);
 
 export default router;
