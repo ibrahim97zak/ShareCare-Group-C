@@ -12,7 +12,7 @@ import requestRoutes from './routes/requestRoutes.js';
 
 // Import error handler middleware
 import authMiddleware from './middlewares/authMiddleware.js';
-import errorHandler from './middlewares/errorHandler.js';
+import {errorHandler} from './middlewares/errorHandler.js';
 
 // connect to DB
 import connectDB from './dbConfig/db.js';

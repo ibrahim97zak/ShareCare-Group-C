@@ -25,7 +25,13 @@ export const validateRegistration = [
     .withMessage('Password must be at least 8 characters long')
     .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/)
     .withMessage('Password must contain at least one lowercase letter, one uppercase letter, one numeric digit, and one special character'),
-  body('role')
+  body('confirmPassword').custom((value, { req }) => {
+    if (value !== req.body.password) {
+      throw new Error('Passwords do not match');
+    }
+    return true;
+  }),
+    body('role')
     .isIn(['Donor', 'Beneficiary'])
     .withMessage('User type must be either Donor or Beneficiary'),
   body('name')

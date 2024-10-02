@@ -7,7 +7,7 @@ import authMiddleware from '../middlewares/authMiddleware.js';
 // Public routes
 authRouter.post('/register', validateRegistration, register);
 authRouter.post('/login', validateLogin, login);
-authRouter.get('/confirm-email', confirmEmail);
+authRouter.get('/confirm-email', authMiddleware, confirmEmail);
 authRouter.post('/reset-password/:token', validatePasswordReset, resetPassword);
 
 
