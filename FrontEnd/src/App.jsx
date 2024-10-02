@@ -1,17 +1,26 @@
-import React,{ useState } from 'react'
-import './App.css'
-import HomePage from './pages/HomePage'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import DonationsList from './components/DonationsList';
+import { BrowserRouter as Router,Routes,Route } from 'react-router-dom'
 
-function App() {
+import RegisterForm from './components/RegisterForm'
+import LoginForm from './components/LoginForm'
+import ProfileDetails from './components/ProfileDetails'
+import RequestDonationForm from './components/RequestDonationForm'
+
+const routes =(
+  <Router>
+  <Routes>
+    <Route path="/signUp" element={<RegisterForm />} />
+    <Route path='login' element={<LoginForm />} />
+    <Route path='/ProfileDetails'element={<ProfileDetails />} />
+    <Route path='/DonationForm'element={<RequestDonationForm />}/>
+    
+  </Routes>
+</Router>
+)
+const App = ()=> {
   return (
-    <Router>
-     <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/donationList" element={<DonationsList />}/>
-      </Routes>
-    </Router>
+    <div>
+      {routes}
+    </div>
   )
 }
 

@@ -12,3 +12,18 @@
     overflow-x: hidden;
   }
 }
+@layer components{
+  .input-box{
+    @apply w-full text-sm bg-transparent border-[1.5px] px-5 py-3 rounded mb-4 outline-none;
+  }
+  .btn-primary{
+    @apply w-full text-sm bg-secondary hover:bg-greenlight text-white rounded my-1 font-bold py-2 ;
+  }
+  .icon-btn{
+    @apply text-xl text-slate-300 cursor-pointer hover:text-primary
+  }
+  .input-label{
+    @apply text-xs text-slate-400 mb-2
+  }
+  
+}

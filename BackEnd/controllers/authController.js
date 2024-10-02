@@ -1,0 +1,308 @@
+import User from '../models/User.js';
+import Bcrypt from 'bcryptjs';
+import nodemailer from 'nodemailer';
+import { validationResult } from 'express-validator';
+import jwtUtils from '../utils/jwtUtils.js';
+
+export async function sendEmail(to, userName, subject, verificationLink) {
+  // Define the HTML body for the email
+  var html = `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <title>Email from Sahre-Care (Sahim)</title>
+      <style>
+          body {
+              font-family: Arial, sans-serif;
+              background-color: #f4f4f4;
+              margin: 0;
+              padding: 0;
+              color: #333333;
+          }
+          .container {
+              max-width: 600px;
+              margin: 20px auto;
+              background-color: #ffffff;
+              padding: 20px;
+              border: 1px solid #dddddd;
+              box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+          }
+          .header {
+              background-color: #007BFF;
+              color: #ffffff;
+              padding: 10px;
+              text-align: center;
+          }
+          .header h1 {
+              margin: 0;
+              font-size: 24px;
+          }
+          .content {
+              padding: 20px;
+              line-height: 1.6;
+          }
+          .footer {
+              text-align: center;
+              font-size: 12px;
+              color: #888888;
+              margin-top: 20px;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">
+              <h1>Sahre-Care (Sahim)</h1>
+          </div>
+          <div class="content">
+              <p>Dear ${userName},</p>
+              <p>We are excited to inform you about ${subject}.</p>
+              <p>${verificationLink}</p>
+              <p>Thank you for choosing Sahre-Care (Sahim).</p>
+              <p>Best regards,<br>Sahre-Care (Sahim) Team</p>
+          </div>
+          <div class="footer">
+              <p>Sahre-Care (Sahim), All rights reserved.<br>123 Knowledge Street, Education City</p>
+              <p><a href="#">Unsubscribe</a></p>
+          </div>
+      </div>
+  </body>
+  </html>
+  `;
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.EMAIL_PASSWORD
+    }
+  });
+
+  try {
+    let info = await transporter.sendMail({
+      from: { name: 'Sahre-Care (Sahim)', address: process.env.EMAIL },
+      to: to,
+      subject: subject,
+      html: html,
+    });
+    console.log("Message sent: %s", info.messageId);
+  } catch (error) {
+    console.error("Error sending email:", error.message);
+  }
+}
+
+export async function register(req, res) {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { userName, name, gender, email, password, confirmPassword, phone, role, location } = req.body;
+
+    // Check if the user already exists
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: 'Passwords do not match' });
+    }
+    const existingUser = await User.findOne({ $or: [{ email }, { userName }] });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    // Hash the password
+    const hashedPassword = await Bcrypt.hash(password, 10);
+
+    // Create new user
+    const newUser = new User({
+      userName,
+      name,
+      gender,
+      email,
+      password: hashedPassword,
+      phone,
+      role,
+      location,
+      isVerified: false
+    });
+
+    // Save the user
+    await newUser.save();
+
+    let token;
+    try {
+      token = await jwtUtils.generateToken({ user: { id: newUser.id, role: newUser.role } });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error generating token' });
+    }
+
+    // Set the token as a cookie
+    const maxAge = parseInt(process.env.JWT_EXPIRES_IN);
+    res.cookie('jwtToken', token, {
+      httpOnly: true, // Set to true to prevent JavaScript access
+      secure: true, // Set to true if using HTTPS
+      sameSite: 'strict', // Set to 'strict' to prevent CSRF attacks
+      maxAge: maxAge // Set the cookie to expire when the token expires
+    });
+
+    // Send verification email
+    const verificationLink = `http://localhost:5000/api/auth/confirm-email?email=${newUser.email}&token=${token}`;
+    await sendEmail(newUser.email, newUser.userName, 'Email Verification', verificationLink);
+
+    res.json({ message: 'User created successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error during user creation' });
+  }
+}
+
+export async function login(req, res) {
+  try {
+    const { email, password } = req.body;
+
+    // Find the user
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+
+    // Check if the user is verified
+    if (!user.isVerified) {
+      return res.status(400).json({ message: 'User is not verified' });
+    }
+
+    // Compare the password
+    const isValidPassword = await Bcrypt.compare(password, user.password);
+
+    if (!isValidPassword) {
+      return res.status(400).json({ message: 'Invalid password' });
+    }
+
+    // Generate a token for the user
+    const token = await jwtUtils.generateToken({ user: { id: user.id, role: user.role } });
+
+    // Store the token in cookies
+    res.cookie('jwtToken', token, {
+      httpOnly: true, // Set to true to prevent JavaScript access
+      secure: false, // Set to true if using HTTPS
+      sameSite: 'strict', // Set to 'strict' to prevent CSRF attacks
+      maxAge: parseInt(process.env.JWT_EXPIRES_IN) // Set the cookie to expire when the token expires
+    });
+
+    res.json({ message: 'User  logged in successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error during user login', error: error.message });
+  }
+}
+
+export async function confirmEmail(req, res) {
+  try {
+    const { email, token } = req.query; // Access query parameters
+    if (!token) {
+      return res.status(400).json({ message: 'jwt must be provided' });
+    }
+    // Verify the token
+    try {
+      const decoded = await jwtUtils.verifyToken(token);
+      console.log('Decoded token:', decoded);
+    } catch (error) {
+      console.error('Error verifying token:', error);
+      return res.status(500).json({ message: 'Error verifying token' });
+    }
+
+    // Update the user's verification status
+    try {
+      const user = await User.findOneAndUpdate({ email }, { isVerified: true }, { new: true });
+      if (!user) {
+        console.error('User not found');
+        return res.status(400).json({ message: 'User not found' });
+      }
+      console.log('User updated:', user);
+    } catch (error) {
+      console.error('Error updating user:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+
+    res.status(200).json({ message: 'Email verified successfully' });
+  } catch (error) {
+    console.error('Error confirming email:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+}
+
+
+export async function logout(req, res) {
+  res.clearCookie('token');
+  res.json({ success: true });
+}
+
+// export async function forgotPassword(req, res) {
+//   try {
+//     const { email } = req.body;
+
+//     // Find the user
+//     const user = await User.findOne({ email });
+
+//     if (!user) {
+//       return res.status(400).json({ message: 'User not found' });
+//     }
+
+//     // Generate JWT token
+//     const token = jwtUtils.generateToken({
+//       user: {
+//         id: user.id,
+//         role: user.role
+//       }
+//     });
+
+//     // Send password reset email
+//     const verificationLink = `http://localhost:3000/reset-password?email=${user.email}&token=${token}`;
+//     await sendEmail(user.email, user.userName, 'Password Reset', verificationLink);
+
+//     res.json({ message: 'Password reset email sent successfully' });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Server error during password reset', error: error.message });
+//   }
+// }
+
+// export async function resetPassword(req, res) {
+//   try {
+//     const { email, token, newPassword, confirmPassword } = req.body;
+
+//     // Verify the token
+//     if (!jwtUtils.verifyToken(token)) {
+//       return res.status(400).json({ message: 'Invalid or expired token' });
+//     }
+
+//     // Find the user with the provided email
+//     const user = await User.findOne({ email });
+
+//     if (!user) {
+//       return res.status(400).json({ message: 'User not found' });
+//     }
+
+//     // Check if the new password and confirm password match
+//     if (newPassword !== confirmPassword) {
+//       return res.status(400).json({ message: 'Passwords do not match' });
+//     }
+
+//     // Hash the new password
+//     const hashedPassword = await Bcrypt.hash(newPassword, 10);
+
+//     // Update the user's password
+//     user.password = hashedPassword;
+//     await user.save();
+
+//     res.json({ message: 'Password reset successfully' });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Server error during password reset', error: error.message });
+//   }
+// }
+
+

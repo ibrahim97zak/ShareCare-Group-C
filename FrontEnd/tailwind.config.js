@@ -6,10 +6,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        customGreen: '#000200',   
-      },
+      'primary': '#000200',
+      'secondary': '#1B9C54',
+      'greenlight': '#9AF19A',
     },
   },
-  plugins: [],
+},
+plugins: [
+
+],
 }
 
