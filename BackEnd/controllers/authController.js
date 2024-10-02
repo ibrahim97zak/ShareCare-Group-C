@@ -1,12 +1,8 @@
-import User  from '../models/User.js';
-import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
 import Bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
-import Donor from '../models/Donor.js';
-import Beneficiary from '../models/Beneficiary.js';
 import { validationResult } from 'express-validator';
 import jwtUtils from '../utils/jwtUtils.js';
-import emailjs from 'emailjs-com';
 
 export async function sendEmail(to, userName, subject, verificationLink) {
   // Define the HTML body for the email
@@ -74,17 +70,18 @@ export async function sendEmail(to, userName, subject, verificationLink) {
           </div>
       </div>
   </body>
-  </html>`;
+  </html>
+  `;
 
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     host: 'smtp.gmail.com',
     port: 587,
     auth: {
-        user: process.env.EMAIL,
-        pass: process.env.EMAIL_PASSWORD
+      user: process.env.EMAIL,
+      pass: process.env.EMAIL_PASSWORD
     }
-});
+  });
 
   try {
     let info = await transporter.sendMail({
@@ -99,7 +96,6 @@ export async function sendEmail(to, userName, subject, verificationLink) {
   }
 }
 
-
 export async function register(req, res) {
   try {
     const errors = validationResult(req);
@@ -110,14 +106,14 @@ export async function register(req, res) {
     const { userName, name, gender, email, password, confirmPassword, phone, role, location } = req.body;
 
     // Check if the user already exists
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: 'Passwords do not match' });
+    }
     const existingUser = await User.findOne({ $or: [{ email }, { userName }] });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    if (password !== confirmPassword) {
-      return res.status(400).json({ message: 'Passwords do not match' });
-    }
     // Hash the password
     const hashedPassword = await Bcrypt.hash(password, 10);
 
@@ -130,187 +126,183 @@ export async function register(req, res) {
       password: hashedPassword,
       phone,
       role,
-      location
+      location,
+      isVerified: false
     });
 
+    // Save the user
+    await newUser.save();
 
-    // Generate JWT token
-const token = jwtUtils.generateToken({
-  user: {
-    id: newUser.id,
-    role: newUser.role
-  }
-},
-process.env.JWT_SECRET, // Replace with your actual secret key
-{ expiresIn: '1h' } // Optional: set expiration time
-);
+    let token;
+    try {
+      token = await jwtUtils.generateToken({ user: { id: newUser.id, role: newUser.role } });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error generating token' });
+    }
 
-newUser.isVerified = false;
-await newUser.save();
-const verificationLink = `http://localhost:5000/api/auth/confirm-email?email=${email}&token=${token}`;
+    // Set the token as a cookie
+    const maxAge = parseInt(process.env.JWT_EXPIRES_IN);
+    res.cookie('jwtToken', token, {
+      httpOnly: true, // Set to true to prevent JavaScript access
+      secure: true, // Set to true if using HTTPS
+      sameSite: 'strict', // Set to 'strict' to prevent CSRF attacks
+      maxAge: maxAge // Set the cookie to expire when the token expires
+    });
 
-sendEmail(email, userName, 'Email Verification', `Click the following link to verify your email: ${verificationLink}`);
+    // Send verification email
+    const verificationLink = `http://localhost:5000/api/auth/confirm-email?email=${newUser.email}&token=${token}`;
+    await sendEmail(newUser.email, newUser.userName, 'Email Verification', verificationLink);
 
-
-confirmEmail(req, res);
-
-
+    res.json({ message: 'User created successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Server error during registration', error: error.message });
+    console.error(error);
+    res.status(500).json({ message: 'Server error during user creation' });
+  }
+}
+
+export async function login(req, res) {
+  try {
+    const { email, password } = req.body;
+
+    // Find the user
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+
+    // Check if the user is verified
+    if (!user.isVerified) {
+      return res.status(400).json({ message: 'User is not verified' });
+    }
+
+    // Compare the password
+    const isValidPassword = await Bcrypt.compare(password, user.password);
+
+    if (!isValidPassword) {
+      return res.status(400).json({ message: 'Invalid password' });
+    }
+
+    // Generate a token for the user
+    const token = await jwtUtils.generateToken({ user: { id: user.id, role: user.role } });
+
+    // Store the token in cookies
+    res.cookie('jwtToken', token, {
+      httpOnly: true, // Set to true to prevent JavaScript access
+      secure: false, // Set to true if using HTTPS
+      sameSite: 'strict', // Set to 'strict' to prevent CSRF attacks
+      maxAge: parseInt(process.env.JWT_EXPIRES_IN) // Set the cookie to expire when the token expires
+    });
+
+    res.json({ message: 'User  logged in successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error during user login', error: error.message });
   }
 }
 
 export async function confirmEmail(req, res) {
-  const { email,token } = req.query;
-
-  // Find the user with the provided email and token
-  const user = await User.findOne({ email});
-
-  if (!user) {
-    return res.status(400).send('Invalid token or email.');
-  }
-
-  // Token is valid, verify the user
-  if(jwtUtils.verifyToken(token)){
-  user.isVerified = true; // Assuming you have a 'verified' field
-  user.verificationToken = undefined; // Clear the token after verification
-  }
-  await user.save();
-
-  res.send('Your email has been Confirmed successfully!, Log in now');
-}
-
-
-export async function login(req, res) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { email, password } = req.body;
-
   try {
-    let user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+    const { email, token } = req.query; // Access query parameters
+    if (!token) {
+      return res.status(400).json({ message: 'jwt must be provided' });
+    }
+    // Verify the token
+    try {
+      const decoded = await jwtUtils.verifyToken(token);
+      console.log('Decoded token:', decoded);
+    } catch (error) {
+      console.error('Error verifying token:', error);
+      return res.status(500).json({ message: 'Error verifying token' });
     }
 
-    if (!user.isVerified) {
-      return res.status(400).json({ message: 'Please verify your email before logging in' });
-    }
-
-    const isMatch = await Bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    const payload = {
-      user: {
-        id: user.id,
-        role: user.role
+    // Update the user's verification status
+    try {
+      const user = await User.findOneAndUpdate({ email }, { isVerified: true }, { new: true });
+      if (!user) {
+        console.error('User not found');
+        return res.status(400).json({ message: 'User not found' });
       }
-    };
-
-    const token = jwtUtils.generateToken(payload,
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' },
-      //(err, token) => {
-       // if (err) throw err;
-       //}
-      );
-      res.json({ token });
-      
-    /**jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' },
-      (err, token) => {
-        if (err) throw err;
-        res.json({ token });
-      }
-    );**/
-
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error, login failed');
-  }
-}
-
-export async function getProfile(req, res) {
-  try {
-    const user = await User.findById(req.user.id).select('-password');
-    res.json(user);
-  } catch (err) {
-    res.status(500).send('Server error, get profile failed :' + err.message);
-  }
-}
-
-export async function changePassword(req,res){
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { oldPassword, newPassword, confirmNewPassword} = req.body;
-  try {
-    let user = await User.findById(req.user.id);
-    const isMatch = await Bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      console.log('User updated:', user);
+    } catch (error) {
+      console.error('Error updating user:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
     }
-    if(newPassword !== confirmNewPassword){
-      return res.status(400).json({ message: 'New password confirmation does not match new password' });
-    }
-    const hashedPassword = await Bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
-    await user.save();
-    res.json("The password was changed successfully" + user);
-  } catch (err) {
-    res.status(500).send('Server error, change password failed' + err.message);
-  }
-}
 
-
-// Verify Email Function
-async function verifyEmail(email) {
-  try {
-    let user = await User.findOne({ email });
-    if (!user) {
-      return "No associated user with this email"; // Email not found
-    }
-    return user; // Email found, return the user object
+    res.status(200).json({ message: 'Email verified successfully' });
   } catch (error) {
-    throw new Error('Error verifying email');
+    console.error('Error confirming email:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 }
 
-export async function resetPassword(req, res) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { email, password } = req.body;
-  try {
-    // Verify the email
-    let user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ msg: 'Invalid email, user not found' });
-    }
-
-    // Hash the password before saving
-    const hashedPassword = await Bcrypt.hash(password, 10);
-    user.password = hashedPassword;
-
-    await user.save();
-    res.json({ msg: 'Password reset successful' });
-  } catch (err) {
-    res.status(500).send('Server error, reset password failed: ' + err.message);
-  }
-}
 
 export async function logout(req, res) {
   res.clearCookie('token');
   res.json({ success: true });
 }
+
+// export async function forgotPassword(req, res) {
+//   try {
+//     const { email } = req.body;
+
+//     // Find the user
+//     const user = await User.findOne({ email });
+
+//     if (!user) {
+//       return res.status(400).json({ message: 'User not found' });
+//     }
+
+//     // Generate JWT token
+//     const token = jwtUtils.generateToken({
+//       user: {
+//         id: user.id,
+//         role: user.role
+//       }
+//     });
+
+//     // Send password reset email
+//     const verificationLink = `http://localhost:3000/reset-password?email=${user.email}&token=${token}`;
+//     await sendEmail(user.email, user.userName, 'Password Reset', verificationLink);
+
+//     res.json({ message: 'Password reset email sent successfully' });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Server error during password reset', error: error.message });
+//   }
+// }
+
+// export async function resetPassword(req, res) {
+//   try {
+//     const { email, token, newPassword, confirmPassword } = req.body;
+
+//     // Verify the token
+//     if (!jwtUtils.verifyToken(token)) {
+//       return res.status(400).json({ message: 'Invalid or expired token' });
+//     }
+
+//     // Find the user with the provided email
+//     const user = await User.findOne({ email });
+
+//     if (!user) {
+//       return res.status(400).json({ message: 'User not found' });
+//     }
+
+//     // Check if the new password and confirm password match
+//     if (newPassword !== confirmPassword) {
+//       return res.status(400).json({ message: 'Passwords do not match' });
+//     }
+
+//     // Hash the new password
+//     const hashedPassword = await Bcrypt.hash(newPassword, 10);
+
+//     // Update the user's password
+//     user.password = hashedPassword;
+//     await user.save();
+
+//     res.json({ message: 'Password reset successfully' });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Server error during password reset', error: error.message });
+//   }
+// }
+
 

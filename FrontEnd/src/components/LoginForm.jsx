@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import InputField from "./input/InputField";
@@ -12,20 +13,14 @@ const LoginForm = () => {
   });
   const [error, setError] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
-  const [forgotPassword, setForgotPassword] = useState(false);
-  const [resetPassword, setResetPassword] = useState({
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const [resetError, setResetError] = useState(null);
-
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     const formData = { ...userInputs };
-
+  
+    // Validate form inputs
     const { error } = validateLogin(formData);
-
+  
     if (error) {
       const validationErrors = {};
       error.details.forEach((err) => {
@@ -34,48 +29,36 @@ const LoginForm = () => {
       setValidationErrors(validationErrors);
       return;
     }
-
+  
     setValidationErrors({});
     setError(null);
-
-    // Login API call
-    axios
-      .post("/api/login", formData)
-      .then((response) => {
-        console.log("Login successful", response);
-        // Redirect to dashboard or home page
-      })
-      .catch((error) => {
-        console.error("Login failed", error);
-        setError("Invalid email or password");
-        setForgotPassword(true); // Show forgot password link on login error
+  
+    try {
+      // Send a POST request to the login API
+      const response = await axios.post("http://localhost:5000/api/auth/login", formData, {
+        withCredentials: true, // This allows cookies to be set if your API is configured to use them
       });
-  };
-
-  const handleForgotPassword = () => {
-    setForgotPassword(true);
-  };
-
-  const handleResetPassword = (e) => {
-    e.preventDefault();
-
-    if (resetPassword.newPassword !== resetPassword.confirmPassword) {
-      setResetError("Passwords do not match");
-      return;
+  
+      // Handle successful login
+      if (response.status === 200) {
+        // Assuming the response contains a token
+        const token = response.data.token;
+  
+        // Option 1: Store the token in localStorage
+        localStorage.setItem("authToken", token);
+  
+        // Option 2: If the token is set in cookies by the server, no need to store it manually
+  
+        // Optionally redirect to another page
+        window.location.href = "/ProfileDetails";
+      }
+    } catch (err) {
+      // Handle error (e.g., invalid credentials)
+      setError("Invalid email or password. Please try again.");
     }
-
-    // TODO: Implement password reset API call
-    // axios
-    //   .post("/api/reset-password", { email: userInputs.email, newPassword: resetPassword.newPassword })
-    //   .then((response) => {
-    //     console.log("Password reset successful", response);
-    //     setForgotPassword(false);
-    //   })
-    //   .catch((error) => {
-    //     console.error("Password reset failed", error);
-    //     setResetError("Failed to reset password");
-    //   });
   };
+  
+
 
   return (
     <>
@@ -113,39 +96,7 @@ const LoginForm = () => {
                 Create an Account
               </Link>
             </p>
-            {forgotPassword && (
-              <p className="text-sm text-center mt-4">
-                Forgot password?{" "}
-                <a href="#" onClick={handleForgotPassword} className="font-medium text-primary underline">
-                  Reset Password
-                </a>
-              </p>
-            )}
           </form>
-          {forgotPassword && (
-            <form onSubmit={handleResetPassword}>
-              <h4 className="text-2xl mb-7">Reset Password</h4>
-              <br />
-              <InputField
-                type="password"
-                placeholder="New Password"
-                value={resetPassword.newPassword}
-                onChange={(e) => setResetPassword({ ...resetPassword, newPassword: e.target.value })}
-              />
-              <br />
-              <InputField
-                type="password"
-                placeholder="Confirm New Password"
-                value={resetPassword.confirmPassword}
-                onChange={(e) => setResetPassword({ ...resetPassword, confirmPassword: e.target.value })}
-              />
-              {resetError && <p className="text-red-600 text-xs pb-1">{resetError}</p>}
-              <br />
-              <button type="submit" className="btn-primary">
-                Reset Password
-              </button>
-            </form>
-          )}
         </div>
       </div>
     </>
