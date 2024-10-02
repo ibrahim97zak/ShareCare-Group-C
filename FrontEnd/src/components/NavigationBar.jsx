@@ -20,12 +20,12 @@ const NavigationBar = ({userType}) => {
    <nav className="bg-white shadow-md fixed w-full z-50 top-0">
       <div className="container mx-auto px-6 py-3 flex justify-between items-center">
       <div className="flex items-center">
-        { userType === 'donor' ? 
+        { isLoggedIn ? userType === 'donor' ? 
           (<>
            <a href="#" className="ml-6 text-gray-700 hover:text-gray-900">Donate</a>
            </>
           ):
-          (<a href="#" className="ml-6 text-gray-700 hover:text-gray-900">Request</a>)
+          (<a href="#" className="ml-6 text-gray-700 hover:text-gray-900">Request</a>):(<div></div>)
         }
       </div>
 
