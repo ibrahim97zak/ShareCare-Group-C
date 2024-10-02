@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import singletonModel from './SingletonModel.js'; 
 
 const DonationSchema = new mongoose.Schema({
   donationType: {
@@ -28,5 +29,5 @@ const DonationSchema = new mongoose.Schema({
   timestamps: true
 });
 
-const Donation = mongoose.model('Donation', DonationSchema);
+const Donation = singletonModel('Donation', DonationSchema);
 export default Donation;

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import singletonModel from './SingletonModel.js'; 
 
 const UserSchema = new mongoose.Schema({
   userName: { 
@@ -55,5 +56,5 @@ const UserSchema = new mongoose.Schema({
   discriminatorKey: 'role'
 });
 
-const User = mongoose.model('User', UserSchema);
+const User = singletonModel('User', UserSchema);
 export default User;
