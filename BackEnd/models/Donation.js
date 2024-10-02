@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import singletonModel from './SingletonModel.js'; 
 
 const DonationSchema = new mongoose.Schema({
   donationType: {
@@ -28,12 +29,5 @@ const DonationSchema = new mongoose.Schema({
   timestamps: true
 });
 
-DonationSchema.pre('save', function(next) {
-  if (this.goal === true) {
-    this.status = 'completed'; 
-  }
-  next();
-});
-
-const Donation = mongoose.model('Donation', DonationSchema);
+const Donation = singletonModel('Donation', DonationSchema);
 export default Donation;

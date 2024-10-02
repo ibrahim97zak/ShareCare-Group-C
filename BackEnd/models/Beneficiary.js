@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import User from './User.js';
+import singletonModel from './SingletonModel.js'; 
 
 const BeneficiarySchema = new mongoose.Schema({
   requests: [{
@@ -13,4 +14,4 @@ const BeneficiarySchema = new mongoose.Schema({
 });
 
 const Beneficiary = User.discriminator('Beneficiary', BeneficiarySchema);
-export default Beneficiary;
+export default singletonModel('Beneficiary', BeneficiarySchema);

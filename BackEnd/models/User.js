@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import singletonModel from './SingletonModel.js'; 
 
 const UserSchema = new mongoose.Schema({
   userName: { 
@@ -10,6 +11,11 @@ const UserSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
+  },
+  role: { 
+    type: String, 
+    enum: ['Admin', 'Donor', 'Beneficiary'], 
+    required: true 
   },
   gender: {
     type: String,
@@ -31,11 +37,6 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  role: { 
-    type: String, 
-    enum: ['Admin', 'Donor', 'Beneficiary'], 
-    required: true 
-  },
   location: { 
     type: String 
   },
@@ -51,8 +52,9 @@ const UserSchema = new mongoose.Schema({
   }],
 
 }, {
-  timestamps: true
+  timestamps: true,
+  discriminatorKey: 'role'
 });
 
-const User = mongoose.model('User', UserSchema);
+const User = singletonModel('User', UserSchema);
 export default User;

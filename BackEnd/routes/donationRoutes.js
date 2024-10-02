@@ -1,60 +1,54 @@
 import express from 'express';
-import { check } from 'express-validator';
-import { createDonation, getDonations, getDonationById, updateDonation, deleteDonation } from '../controllers/donationController.js';
-import authMiddleware from '../middlewares/authMiddleware.js';
+import { validationResult } from 'express-validator';
+import {
+  createDonationOffer,
+  createDonationRequest,
+  getDonations,
+  getDonationById,
+  updateDonation,
+  deleteDonation,
+  takeOffer,
+  fulfillRequest,
+  updateRequest,
+  matchRequestWithOffer,
+} from '../controllers/donationController.js';
 
-const donationRouter = express.Router();
+import {
+  validateCreateDonationOffer,
+  validateCreateDonationRequest,
+  validateDonationId,
+  validateTakeOffer,
+  validateFulfillRequest,
+} from '../middlewares/validationMiddleware.js';
 
-// @route   POST api/donations
-// @desc    Create a new donation
-// @access  Private
-donationRouter.post(
-  '/createDonation',
-  [
-    authMiddleware,
-    [
-      check('role','Donors only create donations').isIn(['donor']),
-      check('donationType', 'Donation type is required').not().isEmpty(),
-      check('quantity', 'Quantity must be a positive number').isInt({ min: 1 }),
-      check('location', 'Location is required').not().isEmpty(),
-      check('availabilityDate', 'availabilityDate is required').not().isEmpty().isDate(),
-    ]
-  ],
-  createDonation
-);
+const router = express.Router();
 
-// @route   GET api/donations
-// @desc    Get all donations
-// @access  Public
-donationRouter.get('/getDonations', [check('role','Donors only view donations').isIn(['donor'])] ,getDonations);
+const handleValidationErrors = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  next();
+};
 
-// @route   GET api/donations/:id
-// @desc    Get donation by ID
-// @access  Public
-donationRouter.get('/Donation/:id', [check('role','Donors only view donations').isIn(['donor'])] , getDonationById);
+router.post('/offer', validateCreateDonationOffer, handleValidationErrors, createDonationOffer);
 
-// @route   PUT api/donations/:id
-// @desc    Update a donation
-// @access  Private
-donationRouter.put(
-  '/:id',
-  [
-    authMiddleware,
-    [
-      check('role','Donors only modify donations').isIn(['donor']),
-      check('donationType', 'Donation type is required').optional().not().isEmpty(),
-      check('quantity', 'Quantity must be a positive number').optional().isInt({ min: 1 }),
-      check('location', 'Location is required').optional().not().isEmpty(),
-      check('availabilityDate', 'availabilityDate is required').not().isEmpty().isDate(),
-      check('status', 'Status is required').optional().isIn(['available', 'reserved', 'completed'])
-    ]
-  ],
-  updateDonation
-);
+router.post('/request', validateCreateDonationRequest, handleValidationErrors, createDonationRequest);
 
-// @route   DELETE api/donations/:id
-// @desc    Delete a donation
-// @access  Private
-donationRouter.delete('/:id', authMiddleware, [check('role','Donors only delete donations').isIn(['donor'])] ,deleteDonation);
+router.get('/', getDonations);
 
-export default donationRouter;
+router.get('/:id', validateDonationId, handleValidationErrors, getDonationById);
+
+router.put('/:id', validateDonationId, handleValidationErrors, updateDonation);
+
+router.delete('/:id', validateDonationId, handleValidationErrors, deleteDonation);
+
+router.post('/take-offer', validateTakeOffer, handleValidationErrors, takeOffer);
+
+router.post('/fulfill-request', validateFulfillRequest, handleValidationErrors, fulfillRequest);
+
+router.put('/request/:id', updateRequest);
+
+router.post('/match', matchRequestWithOffer);
+
+export default router;

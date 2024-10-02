@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import singletonModel from './SingletonModel.js'; 
 
 const NotificationSchema = new mongoose.Schema({
   userId: { 
@@ -23,5 +24,5 @@ const NotificationSchema = new mongoose.Schema({
     timestamps: true
   });
 
-const Notification = mongoose.model('Notification', NotificationSchema);
-export default Notification;
+  const Notification = singletonModel('Notification', NotificationSchema);
+  export default Notification;

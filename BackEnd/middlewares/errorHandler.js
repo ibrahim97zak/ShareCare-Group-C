@@ -19,15 +19,16 @@ export const errorHandler = (err, req, res, next) => {
     // Log the error for debugging purposes
     console.error(err);
   
-    // Default error status and message
+    
     let statusCode = 500;
     let message = 'Internal Server Error';
   
-    // Handle specific error types
-    if (err.name === 'ValidationError') {
-      statusCode = 400;
-      message = err.message;
-    } else if (err.name === 'UnauthorizedError') {
+    if (err.name === 'MongoServerError' && err.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        error: 'Duplicate key error: A user with this username or email already exists.',
+      });
+    }else if (err.name === 'UnauthorizedError') {
       statusCode = 401;
       message = 'Unauthorized';
     } else if (err.name === 'ForbiddenError') {
@@ -38,18 +39,15 @@ export const errorHandler = (err, req, res, next) => {
       message = 'Resource Not Found';
     }
   
-    // Check if we're in development mode
     const isDevelopment = process.env.NODE_ENV === 'development';
   
-    // Prepare the error response
     const errorResponse = {
       success: false,
       error: {
         message: message,
-        ...(isDevelopment && { stack: err.stack }) // Include stack trace only in development
+        ...(isDevelopment && { stack: err.stack }) 
       }
     };
   
-    // Send the error response
     res.status(statusCode).json(errorResponse);
   };

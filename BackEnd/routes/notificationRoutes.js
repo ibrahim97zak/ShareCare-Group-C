@@ -1,27 +1,22 @@
 import express from 'express';
-import { createNotification, getNotificationsByUser, markEmailAsSent, notifyMatch } from '../controllers/notificationController.js';
-import authMiddleware from '../middlewares/authMiddleware.js';
+import { 
+  createNotification, 
+  getUserNotifications, 
+  markAsRead, 
+  deleteNotification, 
+  updateNotification 
+} from '../controllers/notificationController.js';
+import { validateNotification } from '../middlewares/validationMiddleware.js'; 
+const router = express.Router();
 
-const notificationRouter = express.Router();
+router.post('/', validateNotification, createNotification);
 
-// @route   POST /api/notifications
-// @desc    Create a new notification
-// @access  Private
-notificationRouter.post('/', authMiddleware, createNotification);
+router.get('/:userId', getUserNotifications);
 
-// @route   GET /api/notifications/user/:userId
-// @desc    Get all notifications for a user
-// @access  Private
-notificationRouter.get('/user/:userId', authMiddleware, getNotificationsByUser);
+router.put('/:notificationId/read', markAsRead);
 
-// @route   PUT /api/notifications/:id/email-sent
-// @desc    Mark email as sent
-// @access  Private
-notificationRouter.put('/:id/email-sent', authMiddleware, markEmailAsSent);
+router.put('/:notificationId', validateNotification, updateNotification); 
 
-// @route   POST /api/notifications/match
-// @desc    Match and send notification emails to both users
-// @access  Private
-notificationRouter.post('/match', authMiddleware, notifyMatch);
+router.delete('/:notificationId', deleteNotification);
 
-export default notificationRouter;
+export default router;

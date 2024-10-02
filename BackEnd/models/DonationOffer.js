@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Donation from './Donation.js'; 
+import singletonModel from './SingletonModel.js'; 
 
 const DonationOfferSchema = new mongoose.Schema({
   donor: {
@@ -15,4 +16,4 @@ const DonationOfferSchema = new mongoose.Schema({
 });
 
 const DonationOffer = Donation.discriminator('Offer', DonationOfferSchema);
-export default DonationOffer;
+export default singletonModel('Offer', DonationOfferSchema);
