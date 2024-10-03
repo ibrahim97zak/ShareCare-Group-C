@@ -22,17 +22,17 @@ const NavigationBar = ({userType}) => {
       <div className="flex items-center">
         { isLoggedIn ? userType === 'donor' ? 
           (<>
-           <a href="#" className="ml-6 text-gray-700 hover:text-gray-900">Donate</a>
+           <a href="/DonationForm" className="ml-6 text-gray-700 hover:text-gray-900">Donate</a>
            </>
           ):
-          (<a href="#" className="ml-6 text-gray-700 hover:text-gray-900">Request</a>):(<div></div>)
+          (<a href="/DonationForm" className="ml-6 text-gray-700 hover:text-gray-900">Request</a>):(<div></div>)
         }
       </div>
 
       <div className="hidden md:flex  items-center text-green-600 text-xl ">
           <img src={logo}
             alt="Logo" className="h-10 w-auto" />
-          <span className="text-xl font-bold text-green-600 ml-1">SAHEM</span>
+          <a href="/" className="text-xl font-bold text-green-600 ml-1">SAHEM</a>
       </div>
      
        {/* Right side - Buttons */}
@@ -50,15 +50,15 @@ const NavigationBar = ({userType}) => {
               {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg py-2 z-50">
-                  <a href="#" className="block px-4 py-2 hover:bg-gray-100">Profile</a>
-                  <a href="#" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLogout}>Logout</a>
+                  <a href="/ProfileDetails" className="block px-4 py-2 hover:bg-gray-100">Profile</a>
+                  <a href="/login" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLogout}>Logout</a>
                 </div>
               )}
             </div>
           ) : (
             <>
-            <a href="#" className="text-green-600 hover:text-green-700">Login</a>
-            <a className="cursor-pointer px-4 py-2 bg-green-600 text-white rounded-full">Start a SAHEM</a>
+            <a href="/login" className="text-green-600 hover:text-green-700">Login</a>
+            <a  href="/signUp" className="cursor-pointer px-4 py-2 bg-green-600 text-white rounded-full">Start a SAHEM</a>
             </>
           )}
         </div>

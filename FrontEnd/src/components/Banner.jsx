@@ -30,9 +30,9 @@ const Banner = () => {
    
          {!isLoggedIn && (
               <div className="mt-10 space-x-4">
-            <button className="bg-green-600 text-white px-7 py-4 rounded-lg hover:bg-green-700 ">
+            <a href="/signUp" className="bg-green-600 text-white px-7 py-4 rounded-lg hover:bg-green-700 ">
               Register Now
-            </button>
+            </a>
             </div>
             )}
          

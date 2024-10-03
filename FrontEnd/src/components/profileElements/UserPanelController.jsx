@@ -60,22 +60,22 @@ const UserPanelController = () => {
               <th scope="col" className="px-6 py-3">
                 Name
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-6 py-3 hidden md:table-cell">
                 Username
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-6 py-3 hidden sm:table-cell">
                 Email
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-6 py-3 hidden lg:table-cell">
                 Location
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-6 py-3 hidden lg:table-cell">
                 User Type
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-6 py-3 hidden xl:table-cell">
                 Phone
               </th>
-              <th scope="col" className="px-6 py-3">
+              <th scope="col" className="px-6 py-3 hidden xl:table-cell">
                 Gender
               </th>
               <th scope="col" className="px-6 py-3">
@@ -90,12 +90,12 @@ const UserPanelController = () => {
                 className="bg-white border-b dark:bg-slate-100 dark:border-gray-700"
               >
                 <td className="px-6 py-4">{user.name}</td>
-                <td className="px-6 py-4">{user.username}</td>
-                <td className="px-6 py-4">{user.email}</td>
-                <td className="px-6 py-4">{user.location}</td>
-                <td className="px-6 py-4">{user.userType}</td>
-                <td className="px-6 py-4">{user.phone}</td>
-                <td className="px-6 py-4">{user.gender}</td>
+                <td className="px-6 py-4 hidden md:table-cell">{user.username}</td>
+                <td className="px-6 py-4 hidden sm:table-cell">{user.email}</td>
+                <td className="px-6 py-4 hidden lg:table-cell">{user.location}</td>
+                <td className="px-6 py-4 hidden lg:table-cell">{user.userType}</td>
+                <td className="px-6 py-4 hidden xl:table-cell">{user.phone}</td>
+                <td className="px-6 py-4 hidden xl:table-cell">{user.gender}</td>
                 <td className="px-6 py-4">
                   <button
                     onClick={deleteUserCallback.bind(null, user.id)}

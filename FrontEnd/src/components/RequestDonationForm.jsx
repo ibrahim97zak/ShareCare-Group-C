@@ -4,27 +4,23 @@ import LocationSelect from './input/LocationSelect';
 import InputField from './input/InputField';
 import SelectDonationCategory from './input/SelectDonationCategory';
 import DonationFormValidator from '../utils/DonationFormValidator';
+import { useNavigate } from 'react-router-dom';
 
 const RequestDonationForm = () => {
-  const [donationType, setDonationType] = useState('');
+  const [userType, setUserType] = useState('beneficiary');
   const [donationCategory, setDonationCategory] = useState('');
   const [description, setDescription] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [goal, setGoal] = useState('');          // For "Request" type
   const [location, setLocation] = useState('');
   const [errors, setErrors] = useState({});
-
-  const donationTypes = [
-    { value: 'request', label: 'Request' },
-    { value: 'offer', label: 'Offer' },
-  ];
+  const navigate = useNavigate();
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const { error } = DonationFormValidator.validate({
-      donationType,
       donationCategory,
       description,
-      quantity,
       location,
     });
     if (error) {
@@ -35,43 +31,21 @@ const RequestDonationForm = () => {
     } else {
       // Handle form submission here
       console.log({
-        donationType,
         donationCategory,
         description,
-        quantity,
         location,
       });
     }
   };
-
+  const handleClose = () => {
+    navigate('/');
+  };
   return (
-    <div className="h-screen flex justify-center">
-      <div className="max-w-md w-full p-4 bg-white rounded shadow-md">
-        <h2 className="text-3xl font-bold text-green-600">Donation Form</h2>
-        <form onSubmit={handleSubmit} className="mt-4">
-          <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="donationType"
-            >
-              Donation Type:
-            </label>
-            <select
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={donationType}
-              onChange={(event) => setDonationType(event.target.value)}
-            >
-              <option value="">Select Donation Type</option>
-              {donationTypes.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-            {errors.donationType && (
-              <p className="text-red-500 text-sm">{errors.donationType}</p>
-            )}
-          </div>
+    <div className="min-h-screen flex justify-center items-center bg-gray-100 p-4 mt-12">
+      <div className="max-w-lg w-full bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-green-600 mb-6 ">Donation Form</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          
           <SelectDonationCategory
             value={donationCategory}
             onChange={(event) => setDonationCategory(event.target.value)}
@@ -81,7 +55,7 @@ const RequestDonationForm = () => {
           )}
           <div className="mb-4">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
+              className="block text-gray-700 font-medium mb-2"
               htmlFor="description"
             >
               Description:
@@ -96,33 +70,58 @@ const RequestDonationForm = () => {
               <p className="text-red-500 text-sm">{errors.description}</p>
             )}
           </div>
-          <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="quantity"
-            >
-              Quantity:
-            </label>
-            <InputField
-              type="number"
-              placeholder="Enter quantity"
-              value={quantity}
-              onChange={(event) => setQuantity(event.target.value)}
-            />
-            {errors.quantity && (
-              <p className="text-red-500 text-sm">{errors.quantity}</p>
-            )}
-          </div>
+          {userType === 'donor' && (
+            <div className="mb-4">
+              <label className="block text-gray-700 font-medium mb-2" htmlFor="quantity">
+                Quantity:
+              </label>
+              <InputField
+                type="number"
+                placeholder="Enter quantity"
+                value={quantity}
+                onChange={(event) => setQuantity(event.target.value)}
+              />
+              {errors.quantity && (
+                <p className="text-red-500 text-sm">{errors.quantity}</p>
+              )}
+            </div>
+          )}
+            {userType === 'beneficiary' && (
+            <div className="mb-4">
+              <label className="block text-gray-700 font-medium mb-2" htmlFor="goal">
+                Goal Amount:
+              </label>
+              <InputField
+                type="number"
+                placeholder="Enter goal amount"
+                value={goal}
+                onChange={(event) => setGoal(event.target.value)}
+              />
+              {errors.goal && (
+                <p className="text-red-500 text-sm">{errors.goal}</p>
+              )}
+            </div>
+          )}
           <LocationSelect value={location} onChange={(event) => setLocation(event.target.value)} />
           {errors.location && (
             <p className="text-red-500 text-sm">{errors.location}</p>
           )}
-          <button
-            type="submit"
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Submit
-          </button>
+          <div className="flex justify-between space-x-4">
+            <button
+              type="submit"
+              className="w-full py-3 bg-green-500 text-white font-semibold rounded-lg shadow hover:bg-green-600 focus:ring-4 focus:ring-green-300 focus:outline-none transition duration-150"
+            >
+              Submit
+            </button>
+
+            <button
+              type="button"
+              className="w-full py-3 bg-gray-500 text-white font-semibold rounded-lg shadow hover:bg-gray-600 focus:ring-4 focus:ring-gray-300 focus:outline-none transition duration-150"
+              onClick={handleClose}
+            >
+              Close
+            </button>
+          </div>
         </form>
       </div>
     </div>

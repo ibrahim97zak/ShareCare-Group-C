@@ -25,7 +25,7 @@ const requests = [
 ];
 const RequestsList = () => {
    const [searchTerm, setSearchTerm] = useState('');
-
+  //  const [requests,setRequests] = useState([]);
    const filteredRequests = DonationService.filterService(requests,searchTerm);
    const displayedRequests = filteredRequests.length === 0 ? requests : filteredRequests;
 
