@@ -116,7 +116,9 @@ export async function register(req, res,next) {
 
     // Hash the password
     const hashedPassword = await Bcrypt.hash(password, 10);
-
+    // profile pic
+    const boyProfilePic= `https://avatar.iran.liara.run/public/boy?username=${userName}`;
+    const girlProfilePic= `https://avatar.iran.liara.run/public/girl?username=${userName}`;
     // Create new user
     const newUser = new User({
       userName,
@@ -127,7 +129,8 @@ export async function register(req, res,next) {
       phone,
       role,
       location,
-      isVerified: false
+      isVerified: false,
+      profilePicture: gender === "Male" ? boyProfilePic : girlProfilePic
     });
 
     // Save the user
