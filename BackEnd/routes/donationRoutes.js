@@ -1,54 +1,36 @@
+// Import dependencies
 import express from 'express';
 import { validationResult } from 'express-validator';
-import {
-  createDonationOffer,
-  createDonationRequest,
-  getDonations,
-  getDonationById,
-  updateDonation,
-  deleteDonation,
-  takeOffer,
-  fulfillRequest,
-  updateRequest,
-  matchRequestWithOffer,
-} from '../controllers/donationController.js';
 
-import {
-  validateCreateDonationOffer,
-  validateCreateDonationRequest,
-  validateDonationId,
-  validateTakeOffer,
-  validateFulfillRequest,
-} from '../middlewares/validationMiddleware.js';
+// Import controllers
+import * as donationController from '../controllers/donationController.js';
 
+// Import validation middlewares
+import * as validationMiddleware from '../middlewares/validationMiddleware.js';
+import { authenticate, authorize } from '../middlewares/authMiddleware.js';
+
+import { handleValidationErrors } from '../utils/errorHandler.js';
+
+// Create router instance
 const router = express.Router();
 
-const handleValidationErrors = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  next();
-};
 
-router.post('/offer', validateCreateDonationOffer, handleValidationErrors, createDonationOffer);
+// Define routes
+router.post('/offer', authenticate, authorize('Donor'), validationMiddleware.validateCreateDonationOffer, handleValidationErrors, donationController.createDonationOffer);
+router.post('/request', authenticate, authorize('Beneficiary'), validationMiddleware.validateCreateDonationRequest, handleValidationErrors, donationController.createDonationRequest);
 
-router.post('/request', validateCreateDonationRequest, handleValidationErrors, createDonationRequest);
+router.get('/', authenticate, donationController.getDonations);
+router.get('/:id', authenticate, validationMiddleware.validateDonationId, handleValidationErrors, donationController.getDonationById);
 
-router.get('/', getDonations);
+router.put('/:id', authenticate, validationMiddleware.validateDonationId, handleValidationErrors, donationController.updateDonation);
+router.delete('/:id', authenticate, validationMiddleware.validateDonationId, handleValidationErrors, donationController.deleteDonation);
 
-router.get('/:id', validateDonationId, handleValidationErrors, getDonationById);
+router.post('/take-offer', authenticate, authorize('Beneficiary'), validationMiddleware.validateTakeOffer, handleValidationErrors, donationController.takeOffer);
+router.post('/fulfill-request', authenticate, authorize('Donor'), validationMiddleware.validateFulfillRequest, handleValidationErrors, donationController.fulfillRequest);
 
-router.put('/:id', validateDonationId, handleValidationErrors, updateDonation);
+router.put('/request/:id', authenticate, donationController.updateRequest);
+router.post('/match', authenticate, donationController.matchRequestWithOffer);
 
-router.delete('/:id', validateDonationId, handleValidationErrors, deleteDonation);
 
-router.post('/take-offer', validateTakeOffer, handleValidationErrors, takeOffer);
-
-router.post('/fulfill-request', validateFulfillRequest, handleValidationErrors, fulfillRequest);
-
-router.put('/request/:id', updateRequest);
-
-router.post('/match', matchRequestWithOffer);
-
+// Export the router
 export default router;

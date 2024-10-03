@@ -1,12 +1,10 @@
-// src/utils/validateSignup.js
 import Joi from 'joi';
+import { generalFeilds } from './validation.js';
 
-// Improved email regex
-const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+export const signupSchema = 
 
-const validateSignup = (data) => {
-  const schema = Joi.object({
-    userName: Joi.string().min(3).max(30).required().messages({
+   Joi.object({
+       userName: Joi.string().min(3).max(30).required().messages({
       'string.empty': 'Username is required',
       'string.min': 'Username must be at least 3 characters long',
       'string.max': 'Username cannot exceed 30 characters',
@@ -16,7 +14,7 @@ const validateSignup = (data) => {
       'string.min': 'Name must be at least 2 characters long',
       'string.max': 'Name cannot exceed 50 characters',
     }),
-    email: Joi.string().pattern(emailRegex).required().messages({
+    email: Joi.string().required().messages({
       'string.empty': 'Email is required',
       'string.pattern.base': 'Please enter a valid email',
     }),
@@ -45,9 +43,15 @@ const validateSignup = (data) => {
       gender: Joi.string().required().messages({
         'string.empty': 'Gender is required',
       })
-  });
+    }).required()
 
-  return schema.validate(data, { abortEarly: false });
-};
 
-export default validateSignup;
+export const loginSchema =Joi.object({
+        email:generalFeilds.email,
+        password:generalFeilds.password,
+    }).required()
+
+    export const confirmEmailSchema = Joi.object().keys({
+      email: Joi.string().email().required(),
+      token: Joi.string().required(),
+    });

@@ -12,8 +12,7 @@ import donationRoutes from './routes/donationRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 
 // Import error handler middleware
-import authMiddleware from './middlewares/authMiddleware.js';
-import {errorHandler} from './middlewares/errorHandler.js';
+import {errorHandler} from './utils/errorHandler.js';
 
 // connect to DB
 import connectDB from './dbConfig/db.js';

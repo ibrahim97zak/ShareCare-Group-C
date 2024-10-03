@@ -10,12 +10,12 @@ import LocationSelect from './input/LocationSelect';
 const RegisterForm = () => {
   const [userInputs, setUserInputs] = useState({
     name: "",
-    username: "",
+    userName: "",
     email: "",
     password: "",
     confirmPassword: "",
     location: "",
-    userType: "",
+    role: "",
     phone: "", // Add phone number state
     gender: "", // Add gender state
   });
@@ -75,14 +75,14 @@ const RegisterForm = () => {
           <InputField
             type="text"
             placeholder="Username"
-            value={userInputs.username}
+            value={userInputs.userName}
             onChange={(e) =>
-              setUserInputs({ ...userInputs, username: e.target.value })
+              setUserInputs({ ...userInputs, userName: e.target.value })
             }
           />
-          {validationErrors.username && (
+          {validationErrors.userName && (
             <p className="text-red-600 text-xs pb-1">
-              {validationErrors.username}
+              {validationErrors.userName}
             </p>
           )}
           <InputField
@@ -198,11 +198,11 @@ const RegisterForm = () => {
               <label>
                 <input
                   type="radio"
-                  name="userType"
+                  name="role"
                   value="Donor"
-                  checked={userInputs.userType === "Donor"}
+                  checked={userInputs.role === "Donor"}
                   onChange={(e) =>
-                    setUserInputs({ ...userInputs, userType: e.target.value })
+                    setUserInputs({ ...userInputs, role: e.target.value })
                   }
                 />
                 <span className="ml-2">Donor</span>
@@ -210,20 +210,20 @@ const RegisterForm = () => {
               <label>
                 <input
                   type="radio"
-                  name="userType"
+                  name="role"
                   value="Beneficiary"
-                  checked={userInputs.userType === "Beneficiary"}
+                  checked={userInputs.role === "Beneficiary"}
                   onChange={(e) =>
-                    setUserInputs({ ...userInputs, userType: e.target.value })
+                    setUserInputs({ ...userInputs, role: e.target.value })
                   }
                 />
                 <span className="ml-2">Beneficiary</span>
               </label>
             </div>
           </div>
-          {validationErrors.userType && (
+          {validationErrors.role && (
             <p className="text-red-600 text-xs pb-1">
-              {validationErrors.userType}
+              {validationErrors.role}
             </p>
           )}
 
