@@ -109,17 +109,19 @@ export async function register(req, res) {
 
     const { userName, name, gender, email, password, confirmPassword, phone, role, location } = req.body;
 
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: 'Passwords do not match' });
+    }
+
     // Check if the user already exists
     const existingUser = await User.findOne({ $or: [{ email }, { userName }] });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    if (password !== confirmPassword) {
-      return res.status(400).json({ message: 'Passwords do not match' });
-    }
+    
     // Hash the password
-    const hashedPassword = await Bcrypt.hash(password, 10);
+    const hashedPassword = Bcrypt.hash(password, process.env.SALT_ROUNDS);
 
     // Create new user
     const newUser = new User({
@@ -261,7 +263,7 @@ export async function changePassword(req,res){
     if(newPassword !== confirmNewPassword){
       return res.status(400).json({ message: 'New password confirmation does not match new password' });
     }
-    const hashedPassword = await Bcrypt.hash(newPassword, 10);
+    const hashedPassword = await Bcrypt.hash(newPassword, process.env.SALT_ROUNDS);
     user.password = hashedPassword;
     await user.save();
     res.json("The password was changed successfully" + user);
@@ -299,7 +301,7 @@ export async function resetPassword(req, res) {
     }
 
     // Hash the password before saving
-    const hashedPassword = await Bcrypt.hash(password, 10);
+    const hashedPassword = await Bcrypt.hash(password, process.env.SALT_ROUNDS);
     user.password = hashedPassword;
 
     await user.save();
