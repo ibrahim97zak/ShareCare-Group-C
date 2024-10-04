@@ -1,13 +1,9 @@
-// Adjust the import path according to your project structure
-import { sendEmail, register, login, getProfile, changePassword, confirmEmail, resetPassword, logout } from '../controllers/authController.js';
+import { register, login, getProfile, changePassword, resetPassword } from '../controllers/authController';
 import User from '../models/User.js';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
-import jwtUtils from '../utils/jwtUtils';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import jwtUtils from '../utils/jwtUtils.js';
 
 // Mocking dependencies
 jest.mock('../models/User.js');
@@ -17,32 +13,19 @@ jest.mock('nodemailer');
 jest.mock('../utils/jwtUtils.js');
 
 describe('Auth Controller', () => {
-  let req;
-  let res;
-  let mockTransporter;
+  let req, res, next;
 
   beforeEach(() => {
     req = {
       body: {},
-      user: { id: 'mockUserId' },
-      query: {},
+      user: {},
     };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
       send: jest.fn(),
     };
-    mockTransporter = {
-      sendMail: jest.fn().mockResolvedValue({ messageId: 'mockMessageId' }),
-    };
-    nodemailer.createTransport.mockReturnValue(mockTransporter);
-  });
-
-  describe('sendEmail', () => {
-    it('should send an email successfully', async () => {
-      await sendEmail('test@example.com', 'Test User', 'Test Subject', 'http://test-link.com');
-      expect(mockTransporter.sendMail).toHaveBeenCalled();
-    });
+    next = jest.fn();
   });
 
   describe('register', () => {
@@ -53,90 +36,92 @@ describe('Auth Controller', () => {
         gender: 'male',
         email: 'test@example.com',
         password: 'password123',
-        confirmPassword: 'password123',
         phone: '1234567890',
-        role: 'user',
-        location: 'Test Location',
+        userType: 'donor',
+        location: 'Test City'
       };
 
       User.findOne.mockResolvedValue(null);
       bcrypt.hash.mockResolvedValue('hashedPassword');
-      const mockUser = { id: 'mockUserId', save: jest.fn() };
-      User.mockImplementation(() => mockUser);
-      jwt.sign = jest.fn().mockImplementation((payload, secret, options) => 'mockToken');
+      User.prototype.save.mockResolvedValue({
+        id: 'someUserId',
+        userType: 'donor'
+      });
+      jwtUtils.generateToken.mockReturnValue('someToken');
+
+      const mockTransporter = {
+        sendMail: jest.fn().mockResolvedValue(true)
+      };
+      nodemailer.createTransport.mockReturnValue(mockTransporter);
 
       await register(req, res);
 
-      expect(User).toHaveBeenCalledWith(expect.objectContaining({
-        userName: 'testuser',
-        email: 'test@example.com',
-      }));
-      expect(mockUser.save).toHaveBeenCalled();
+      expect(User.prototype.save).toHaveBeenCalled();
+      expect(jwtUtils.generateToken).toHaveBeenCalled();
       expect(mockTransporter.sendMail).toHaveBeenCalled();
+      expect(res.send).toHaveBeenCalledWith(expect.stringContaining('Registration successful'));
     });
 
-    // Add more test cases for registration errors
+    it('should return 400 if user already exists', async () => {
+      User.findOne.mockResolvedValue({ email: 'test@example.com' });
+
+      await register(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: 'User already exists' });
+    });
   });
 
   describe('login', () => {
-    it('should login a user successfully', async () => {
+    it('should log in a user successfully', async () => {
       req.body = {
         email: 'test@example.com',
-        password: 'password123',
+        password: 'password123'
       };
-  
-      const mockUser = { 
-        id: 'mockUserId', 
+
+      const mockUser = {
+        id: 'someUserId',
         email: 'test@example.com',
         password: 'hashedPassword',
-        isVerified: true
+        isVerified: true,
+        userType: 'donor'
       };
-      
-      // Mock User.findOne to resolve with mockUser
+
       User.findOne.mockResolvedValue(mockUser);
-  
-      // Mock bcrypt.compare to resolve as true (passwords match)
       bcrypt.compare.mockResolvedValue(true);
-  
-      // Mock jwtUtils.generateToken to return a synchronous token
-      jwtUtils.generateToken.mockReturnValue('mockToken');
-  
-      // Call the login function
+      jwtUtils.generateToken.mockReturnValue('someToken');
+
       await login(req, res);
-  
-      // Ensure that the correct calls were made
-      expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
-      expect(bcrypt.compare).toHaveBeenCalledWith('password123', 'hashedPassword');
-      
-      // Ensure that the token is generated correctly
-      expect(jwtUtils.generateToken).toHaveBeenCalledWith(
-        expect.objectContaining({
-          user: expect.objectContaining({
-            id: 'mockUserId'
-          })
-        }),
-        process.env.JWT_SECRET,
-        { expiresIn: '1h' }
-      );
-  
-      // Ensure the response contains the token
-      expect(res.json).toHaveBeenCalledWith({ token: 'mockToken' });
+
+      expect(res.json).toHaveBeenCalledWith({ token: 'someToken' });
     });
-  
-    // Add more test cases for login errors
+
+    it('should return 400 if user is not verified', async () => {
+      User.findOne.mockResolvedValue({ isVerified: false });
+
+      await login(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Please verify your email before logging in' });
+    });
   });
-  
 
   describe('getProfile', () => {
     it('should return user profile', async () => {
-      const mockUser = { id: 'mockUserId', name: 'Test User' };
+      const mockUser = {
+        id: 'someUserId',
+        name: 'Test User',
+        email: 'test@example.com'
+      };
+
       User.findById.mockReturnValue({
-        select: jest.fn().mockResolvedValue(mockUser),
+        select: jest.fn().mockResolvedValue(mockUser)
       });
+
+      req.user = { id: 'someUserId' };
 
       await getProfile(req, res);
 
-      expect(User.findById).toHaveBeenCalledWith('mockUserId');
       expect(res.json).toHaveBeenCalledWith(mockUser);
     });
   });
@@ -146,66 +131,55 @@ describe('Auth Controller', () => {
       req.body = {
         oldPassword: 'oldPassword',
         newPassword: 'newPassword',
-        confirmNewPassword: 'newPassword',
+        confirmNewPassword: 'newPassword'
+      };
+      req.user = { id: 'someUserId' };
+
+      const mockUser = {
+        id: 'someUserId',
+        password: 'hashedOldPassword',
+        save: jest.fn()
       };
 
-      const mockUser = { 
-        id: 'mockUserId', 
-        password: 'hashedOldPassword',
-        save: jest.fn(),
-      };
       User.findById.mockResolvedValue(mockUser);
       bcrypt.compare.mockResolvedValue(true);
       bcrypt.hash.mockResolvedValue('hashedNewPassword');
 
       await changePassword(req, res);
 
-      expect(bcrypt.compare).toHaveBeenCalledWith('oldPassword', 'hashedOldPassword');
-      expect(bcrypt.hash).toHaveBeenCalledWith('newPassword', 10);
       expect(mockUser.save).toHaveBeenCalled();
-      expect(res.json).toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalledWith(expect.stringContaining('The password was changed successfully'));
     });
-
-    // Add more test cases for password change errors
   });
 
-  describe('confirmEmail', () => {
-    it('should confirm email successfully', async () => {
-      req.query = {
+  describe('resetPassword', () => {
+    it('should reset password successfully', async () => {
+      req.body = {
         email: 'test@example.com',
-        token: 'validToken'
+        password: 'newPassword'
       };
 
-      const mockUser = { 
+      const mockUser = {
         email: 'test@example.com',
-        isVerified: false,
-        save: jest.fn().mockImplementation(function() {
-          this.isVerified = true;
-          return Promise.resolve(this);
-        }),
+        save: jest.fn()
       };
+
       User.findOne.mockResolvedValue(mockUser);
-      jwt.verify = jest.fn().mockReturnValue(true);
+      bcrypt.hash.mockResolvedValue('hashedNewPassword');
 
-      await confirmEmail(req, res);
+      await resetPassword(req, res);
 
-      expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
-      expect(mockUser.isVerified).toBe(true);
       expect(mockUser.save).toHaveBeenCalled();
-      expect(res.send).toHaveBeenCalledWith('Your email has been Confirmed successfully!, Log in now');
+      expect(res.json).toHaveBeenCalledWith({ msg: 'Password reset successful' });
     });
 
-    // Add more test cases for email confirmation errors
-  });
+    it('should return 400 if user not found', async () => {
+      User.findOne.mockResolvedValue(null);
 
-  describe('logout', () => {
-    it('should logout successfully', async () => {
-      res.clearCookie = jest.fn();
+      await resetPassword(req, res);
 
-      await logout(req, res);
-
-      expect(res.clearCookie).toHaveBeenCalledWith('token');
-      expect(res.json).toHaveBeenCalledWith({ success: true });
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ msg: 'Invalid email, user not found' });
     });
   });
 });

@@ -7,11 +7,11 @@ const DonationRequestSchema = new mongoose.Schema({
     ref: 'Beneficiary', 
     required: true 
   },
-  sender: [{
+  sender: {
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Donor', 
     default: null
-  }],
+  },
   receivedQuantity: { 
     type: Number, 
     default: 0 

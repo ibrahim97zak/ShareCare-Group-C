@@ -13,7 +13,6 @@ requestRouter.post(
   [
     authMiddleware,
     [
-      check('role','Benficeries only create requests').isIn(['beneficiary']),
       check('donationType', 'Donation type is required').not().isEmpty(),
       check('quantity', 'Quantity must be a positive number').isInt({ min: 1 }),
       check('location', 'Location is required').not().isEmpty(),
@@ -26,12 +25,12 @@ requestRouter.post(
 // @route   GET api/requests
 // @desc    Get all requests
 // @access  Public
-requestRouter.get('/getReguests', [check('role','Benficeries only can view requests').isIn(['beneficiary']),] , getRequests);
+requestRouter.get('/getReguests', getRequests);
 
 // @route   GET api/requests/:id
 // @desc    Get request by ID
 // @access  Public
-requestRouter.get('/:id', [check('role','Benficeries only can view requests').isIn(['beneficiary']),] ,getRequestById);
+requestRouter.get('/:id', getRequestById);
 
 // @route   PUT api/requests/:id
 // @desc    Update a request
@@ -54,16 +53,16 @@ requestRouter.put(
 // @route   DELETE api/requests/:id
 // @desc    Delete a request
 // @access  Private
-requestRouter.delete('/:id', authMiddleware, [check('role','Benficeries only can view requests').isIn(['beneficiary']),] , deleteRequest);
+requestRouter.delete('/:id', authMiddleware, deleteRequest);
 
 // @route   GET api/requests/user/me
 // @desc    Get requests by logged in beneficiary
 // @access  Private
-requestRouter.get('/user/me', authMiddleware, [check('role','Benficeries only can view requests').isIn(['beneficiary']),], getRequestsByBeneficiary);
+requestRouter.get('/user/me', authMiddleware, getRequestsByBeneficiary);
 
 // @route   GET api/requests/open
 // @desc    Get all open requests
 // @access  Public
-requestRouter.get('/status/open', [check('role','Benficeries only can view requests').isIn(['beneficiary']),] , getOpenRequests);
+requestRouter.get('/status/open', getOpenRequests);
 
 export default requestRouter;

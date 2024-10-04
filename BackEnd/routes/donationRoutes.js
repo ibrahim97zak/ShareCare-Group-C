@@ -13,7 +13,6 @@ donationRouter.post(
   [
     authMiddleware,
     [
-      check('role','Donors only create donations').isIn(['donor']),
       check('donationType', 'Donation type is required').not().isEmpty(),
       check('quantity', 'Quantity must be a positive number').isInt({ min: 1 }),
       check('location', 'Location is required').not().isEmpty(),
@@ -26,12 +25,12 @@ donationRouter.post(
 // @route   GET api/donations
 // @desc    Get all donations
 // @access  Public
-donationRouter.get('/getDonations', [check('role','Donors only view donations').isIn(['donor'])] ,getDonations);
+donationRouter.get('/getDonations', getDonations);
 
 // @route   GET api/donations/:id
 // @desc    Get donation by ID
 // @access  Public
-donationRouter.get('/Donation/:id', [check('role','Donors only view donations').isIn(['donor'])] , getDonationById);
+donationRouter.get('/Donation/:id', getDonationById);
 
 // @route   PUT api/donations/:id
 // @desc    Update a donation
@@ -41,7 +40,6 @@ donationRouter.put(
   [
     authMiddleware,
     [
-      check('role','Donors only modify donations').isIn(['donor']),
       check('donationType', 'Donation type is required').optional().not().isEmpty(),
       check('quantity', 'Quantity must be a positive number').optional().isInt({ min: 1 }),
       check('location', 'Location is required').optional().not().isEmpty(),
@@ -55,6 +53,6 @@ donationRouter.put(
 // @route   DELETE api/donations/:id
 // @desc    Delete a donation
 // @access  Private
-donationRouter.delete('/:id', authMiddleware, [check('role','Donors only delete donations').isIn(['donor'])] ,deleteDonation);
+donationRouter.delete('/:id', authMiddleware, deleteDonation);
 
 export default donationRouter;

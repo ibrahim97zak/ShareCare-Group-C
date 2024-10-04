@@ -1,5 +1,4 @@
 import { body, param, validationResult } from 'express-validator';
-import User from '../models/User.js';
 
 // Utility function to handle validation results
 const handleValidationErrors = (req, res, next) => {
@@ -16,14 +15,7 @@ export const validateRegistration = [
     .isLength({ min: 3, max: 30 })
     .withMessage('Username must be between 3 and 30 characters')
     .matches(/^[a-zA-Z0-9_]+$/)
-    .withMessage('Username can only contain letters, numbers, and underscores')
-    .custom(async (value) => {
-      const user = await User.findOne({ userName: value });
-      if (user) {
-        throw new Error('Username is already taken');
-      }
-      return true;
-    }),
+    .withMessage('Username can only contain letters, numbers, and underscores'),
   body('email')
     .isEmail()
     .withMessage('Must be a valid email address')
@@ -33,13 +25,7 @@ export const validateRegistration = [
     .withMessage('Password must be at least 8 characters long')
     .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/)
     .withMessage('Password must contain at least one lowercase letter, one uppercase letter, one numeric digit, and one special character'),
-  body('confirmPassword').custom((value, { req }) => {
-    if (value !== req.body.password) {
-      throw new Error('Passwords do not match');
-    }
-    return true;
-  }),
-    body('role')
+  body('role')
     .isIn(['Donor', 'Beneficiary'])
     .withMessage('User type must be either Donor or Beneficiary'),
   body('name')
@@ -50,6 +36,10 @@ export const validateRegistration = [
     .trim()
     .notEmpty()
     .withMessage('Location is required'),
+    body('gender')
+    .trim()
+    .notEmpty()
+    .withMessage('gender is required'),
   handleValidationErrors
 ];
 
