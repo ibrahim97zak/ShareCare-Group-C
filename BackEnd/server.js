@@ -17,10 +17,11 @@ import notificationRoutes from './routes/notificationRoutes.js';
 
 // Import error handler middleware
 import authMiddleware from './middlewares/authMiddleware.js';
-import {errorHandler} from './middlewares/errorHandler.js';
+import errorHandler from './middlewares/errorHandler.js';
 
 // connect to DB
 import connectDB from './dbConfig/db.js';
+import { initializeSocketIO } from './utils/notificationUtils.js';
 
 // Load environment variables
 config();
@@ -30,6 +31,8 @@ const app = express();
 
 const server = http.createServer(app);
 const io = new socketIo(server);
+
+initializeSocketIO(server);
 
 // Middleware
 app.use(cors());
@@ -50,9 +53,9 @@ app.use(errorHandler);
 
 
 // Socket.io connection handling
-io.on('connection', (socket) => {
-    console.log('A client connected');
-  });
+/**io.on('mongodb+srv://sahem:2024@sahem.uhod4.mongodb.net/', (socket) => {
+    console.log('A user connected:', socket.id);
+});**/
 
 // Start server
 const PORT = process.env.PORT || 5000;
