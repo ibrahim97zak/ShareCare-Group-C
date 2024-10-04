@@ -25,6 +25,7 @@ const jwtUtils = {
         throw new Error('jwt must be provided');
       }
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log('decoded:', decoded);
       return decoded;
     } catch (error) {
       console.error('Error verifying token:', error);

@@ -96,7 +96,7 @@ export async function sendEmail(to, userName, subject, verificationLink) {
   }
 }
 
-export async function register(req, res) {
+export async function register(req, res,next) {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -116,7 +116,9 @@ export async function register(req, res) {
 
     // Hash the password
     const hashedPassword = await Bcrypt.hash(password, 10);
-
+    // profile pic
+    const boyProfilePic= `https://avatar.iran.liara.run/public/boy?username=${userName}`;
+    const girlProfilePic= `https://avatar.iran.liara.run/public/girl?username=${userName}`;
     // Create new user
     const newUser = new User({
       userName,
@@ -127,7 +129,8 @@ export async function register(req, res) {
       phone,
       role,
       location,
-      isVerified: false
+      isVerified: false,
+      profilePicture: gender === "Male" ? boyProfilePic : girlProfilePic
     });
 
     // Save the user
@@ -141,15 +144,6 @@ export async function register(req, res) {
       return res.status(500).json({ message: 'Error generating token' });
     }
 
-    // Set the token as a cookie
-    const maxAge = parseInt(process.env.JWT_EXPIRES_IN);
-    res.cookie('jwtToken', token, {
-      httpOnly: true, // Set to true to prevent JavaScript access
-      secure: true, // Set to true if using HTTPS
-      sameSite: 'strict', // Set to 'strict' to prevent CSRF attacks
-      maxAge: maxAge // Set the cookie to expire when the token expires
-    });
-
     // Send verification email
     const verificationLink = `http://localhost:5000/api/auth/confirm-email?email=${newUser.email}&token=${token}`;
     await sendEmail(newUser.email, newUser.userName, 'Email Verification', verificationLink);
@@ -161,7 +155,7 @@ export async function register(req, res) {
   }
 }
 
-export async function login(req, res) {
+export async function login(req, res,next) {
   try {
     const { email, password } = req.body;
 
@@ -188,13 +182,16 @@ export async function login(req, res) {
     const token = await jwtUtils.generateToken({ user: { id: user.id, role: user.role } });
 
     // Store the token in cookies
+    res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     res.cookie('jwtToken', token, {
       httpOnly: true, // Set to true to prevent JavaScript access
       secure: false, // Set to true if using HTTPS
-      sameSite: 'strict', // Set to 'strict' to prevent CSRF attacks
+      sameSite: 'None', // Set to 'strict' to prevent CSRF attacks
       maxAge: parseInt(process.env.JWT_EXPIRES_IN) // Set the cookie to expire when the token expires
     });
-
+    res.header('Access-Control-Allow-Credentials', true);
     res.json({ message: 'User  logged in successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error during user login', error: error.message });
@@ -238,71 +235,9 @@ export async function confirmEmail(req, res) {
 
 
 export async function logout(req, res) {
+  const token = req.cookies.jwtToken;
+  console.log('Token before deletion:', token);
   res.clearCookie('token');
   res.json({ success: true });
 }
-
-// export async function forgotPassword(req, res) {
-//   try {
-//     const { email } = req.body;
-
-//     // Find the user
-//     const user = await User.findOne({ email });
-
-//     if (!user) {
-//       return res.status(400).json({ message: 'User not found' });
-//     }
-
-//     // Generate JWT token
-//     const token = jwtUtils.generateToken({
-//       user: {
-//         id: user.id,
-//         role: user.role
-//       }
-//     });
-
-//     // Send password reset email
-//     const verificationLink = `http://localhost:3000/reset-password?email=${user.email}&token=${token}`;
-//     await sendEmail(user.email, user.userName, 'Password Reset', verificationLink);
-
-//     res.json({ message: 'Password reset email sent successfully' });
-//   } catch (error) {
-//     res.status(500).json({ message: 'Server error during password reset', error: error.message });
-//   }
-// }
-
-// export async function resetPassword(req, res) {
-//   try {
-//     const { email, token, newPassword, confirmPassword } = req.body;
-
-//     // Verify the token
-//     if (!jwtUtils.verifyToken(token)) {
-//       return res.status(400).json({ message: 'Invalid or expired token' });
-//     }
-
-//     // Find the user with the provided email
-//     const user = await User.findOne({ email });
-
-//     if (!user) {
-//       return res.status(400).json({ message: 'User not found' });
-//     }
-
-//     // Check if the new password and confirm password match
-//     if (newPassword !== confirmPassword) {
-//       return res.status(400).json({ message: 'Passwords do not match' });
-//     }
-
-//     // Hash the new password
-//     const hashedPassword = await Bcrypt.hash(newPassword, 10);
-
-//     // Update the user's password
-//     user.password = hashedPassword;
-//     await user.save();
-
-//     res.json({ message: 'Password reset successfully' });
-//   } catch (error) {
-//     res.status(500).json({ message: 'Server error during password reset', error: error.message });
-//   }
-// }
-
 

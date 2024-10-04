@@ -37,6 +37,7 @@ const LoginForm = () => {
       // Send a POST request to the login API
       const response = await axios.post("http://localhost:5000/api/auth/login", formData, {
         withCredentials: true, // This allows cookies to be set if your API is configured to use them
+        credentials: 'include' // Add this line
       });
   
       // Handle successful login

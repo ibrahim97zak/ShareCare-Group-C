@@ -6,6 +6,7 @@
     "@tremor/react": "^3.18.2",
     "clsx": "^2.1.1",
     "cookie-parser": "^1.4.6",
+    "joi": "^17.13.3",
     "tailwind-merge": "^2.5.2",
     "tailwind-variants": "^0.2.1"
   },

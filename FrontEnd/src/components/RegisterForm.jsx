@@ -10,12 +10,12 @@ import LocationSelect from './input/LocationSelect';
 const RegisterForm = () => {
   const [userInputs, setUserInputs] = useState({
     name: "",
-    username: "",
+    userName: "",
     email: "",
     password: "",
     confirmPassword: "",
     location: "",
-    userType: "",
+    role: "",
     phone: "", // Add phone number state
     gender: "", // Add gender state
   });
