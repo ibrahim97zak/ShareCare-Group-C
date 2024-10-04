@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import DonationOffer from '../models/DonationOffer.js';
 import Notification from '../models/Notification.js';
 import mongoose from 'mongoose';
+import { notifyDonationDeleted, notifyDonationFulfilled, notifyDonationUpdated } from '../utils/notificationUtils.js';
 
 export async function createDonation(req, res) {
   try {
@@ -28,6 +29,8 @@ export async function createDonation(req, res) {
         onModel: 'Donation'
       });
     }
+    // notify Donor
+    notifyDonationFulfilled(req.user.id, donationType);
 
     res.status(201).json(newDonation);
   } catch (err) {
@@ -88,6 +91,9 @@ export async function updateDonation(req, res) {
     donation.status = status || donation.status;
     donation.updatedAt = Date.now();
 
+    // notify 
+    notifyDonationUpdated(req.user.id, donationType);
+
     await donation.save();
     res.json(donation);
   } catch (err) {
@@ -112,6 +118,9 @@ export async function deleteDonation(req, res) {
     }
 
     await Donation.deleteOne({ _id: req.params.id });
+    //notify
+    notifyDonationDeleted(req.user.id, donation.donationType);
+
     res.json({ message: 'Donation removed' });
   } catch (err) {
     console.error(err.message);

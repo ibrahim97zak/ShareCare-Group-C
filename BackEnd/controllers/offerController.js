@@ -1,6 +1,7 @@
 import DonationOffer from '../models/DonationOffer.js';
 import Donation from '../models/Donation.js';
 import Donor from '../models/Donor.js';
+import { notifyOfferUpdated } from '../utils/notificationUtils.js';
 
 // @desc    Create a new Donation Offer
 // @route   POST /api/donation-offers
@@ -34,6 +35,9 @@ export async function createOffer(req, res) {
     // Optionally update the donor's available donations
     donor.availableDonations.push(donationId);
     await donor.save();
+
+    // notify the offer
+    notifyNewOffer(donorId);
 
     res.status(201).json(offer);
   } catch (err) {
@@ -101,6 +105,9 @@ export async function updateOffer(req, res) {
     offer.updatedAt = Date.now();
 
     await offer.save();
+    //notify the offer
+    notifyOfferUpdated(offer.donorId);
+
     res.json(offer);
   } catch (err) {
     console.error(err.message);
@@ -133,7 +140,10 @@ export async function deleteOffer(req, res) {
       donor.availableDonations.pull(offer.donationId);
       await donor.save();
     }
-
+    
+    //notify the offer
+    notifyOfferDeleted(offer.donorId);
+    
     res.json({ message: 'Offer removed' });
   } catch (err) {
     console.error(err.message);

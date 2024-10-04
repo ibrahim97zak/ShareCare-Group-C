@@ -1,6 +1,7 @@
 import Request  from '../models/DonationRequest.js';
 import User from '../models/User.js';
 import Notification from '../models/Notification.js';
+import {notifyRequestDeleted, notifyRequestUpdated } from '../utils/notificationUtils.js';
 
 export async function createRequest(req, res) {
   try {
@@ -12,6 +13,9 @@ export async function createRequest(req, res) {
       location,
       description
     });
+
+    // Notify the beneficery
+    notifyNewRequest(donors.id);
 
     await newRequest.save();
 
@@ -26,7 +30,7 @@ export async function createRequest(req, res) {
         onModel: 'Request'
       });
     }
-
+    
     res.status(201).json(newRequest);
   } catch (err) {
     console.error(err.message);
@@ -81,6 +85,9 @@ export async function updateRequest(req, res) {
     request.updatedAt = Date.now();
 
     await request.save();
+    // notify the beneficery
+    notifyRequestUpdated(req.user.id);
+
     res.json(request);
   } catch (err) {
     console.error(err.message);
@@ -104,6 +111,10 @@ export async function deleteRequest(req, res) {
     }
 
     await request.remove();
+
+    //notify the beneficery
+    notifyRequestDeleted(req.user.id);
+
     res.json({ message: 'Request removed' });
   } catch (err) {
     console.error(err.message);

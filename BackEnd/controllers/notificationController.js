@@ -1,6 +1,7 @@
 import Notification from '../models/Notification.js';
 import User from '../models/User.js';
 import nodemailer from 'nodemailer';
+import { sendEmailNotification, sendInAppNotification } from '../utils/notificationUtils.js';
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail', 
@@ -13,7 +14,7 @@ const transporter = nodemailer.createTransport({
 // @desc    Create a new notification
 // @route   POST /api/notifications
 // @access  Private
-export const createNotification = async (req, res) => {
+export const createInAppNotification = async (req, res) => {
   try {
     const { userId, type, content } = req.body;
 
@@ -23,6 +24,29 @@ export const createNotification = async (req, res) => {
       content,
     });
 
+    sendInAppNotification(userId, content);
+    await newNotification.save();
+
+    res.status(201).json(newNotification);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+
+export const createEmailNotification = async (req, res) => {
+  try {
+    const { userId, type, content } = req.body;
+
+    const newNotification = new Notification({
+      userId,
+      type,
+      content,
+    });
+    const user = User.findById(userId);
+    const email = user.email;
+    sendEmailNotification(email, type, content);
     await newNotification.save();
 
     res.status(201).json(newNotification);
@@ -84,12 +108,14 @@ export const notifyMatch = async (req, res) => {
 
     const emailContent = `A match has been found!\nDetails: ${matchedDetails}`;
 
-    await transporter.sendMail({
+    sendEmailNotification(requestUser.email, 'Match Found!', emailContent);
+
+    /**await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: requestUser.email,
       subject: 'Match Found!',
       text: `Hi ${requestUser.name},\n${emailContent}`,
-    });
+    });**/
 
     const notificationForRequester = new Notification({
       userId: requestUserId,
@@ -100,12 +126,15 @@ export const notifyMatch = async (req, res) => {
 
     await notificationForRequester.save();
 
-    await transporter.sendMail({
+    sendEmailNotification(offerUser.email, 'Match Found!', emailContent);
+
+    
+    /**await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: offerUser.email,
       subject: 'Match Found!',
       text: `Hi ${offerUser.name},\n${emailContent}`,
-    });
+    });**/
 
     const notificationForOfferer = new Notification({
       userId: offerUserId,
