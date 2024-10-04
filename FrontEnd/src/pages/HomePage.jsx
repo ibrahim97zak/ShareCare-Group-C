@@ -9,10 +9,8 @@ const HomePage = () => {
   const [userType, setUserType] = useState('donor');
   return (
     <div>
-      <NavigationBar userType={userType}/>
       <Banner/>
       {userType === 'donor' ?(<RequestsList/>) : (<DonationsList/>)}
-      <Footer/>
     </div>
   )
 }
