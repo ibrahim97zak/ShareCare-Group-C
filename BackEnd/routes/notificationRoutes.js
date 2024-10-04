@@ -1,5 +1,5 @@
 import express from 'express';
-import { createNotification, getNotificationsByUser, markEmailAsSent, notifyMatch } from '../controllers/notificationController.js';
+import { createInAppNotification, createEmailNotification, getNotificationsByUser, markEmailAsSent, notifyMatch } from '../controllers/notificationController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 
 const notificationRouter = express.Router();
@@ -7,7 +7,9 @@ const notificationRouter = express.Router();
 // @route   POST /api/notifications
 // @desc    Create a new notification
 // @access  Private
-notificationRouter.post('/', authMiddleware, createNotification);
+notificationRouter.post('/', authMiddleware, createInAppNotification);
+
+notificationRouter.post('/email', authMiddleware, createEmailNotification);
 
 // @route   GET /api/notifications/user/:userId
 // @desc    Get all notifications for a user
