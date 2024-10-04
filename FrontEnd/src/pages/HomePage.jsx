@@ -6,7 +6,7 @@ import Footer from '../components/Footer';
 import RequestsList from '../components/RequestsList';
 
 const HomePage = () => {
-  const [userType, setUserType] = useState('donor');
+  const [userType, setUserType] = useState('b');
   return (
     <div>
       <Banner/>

@@ -3,7 +3,7 @@ const DonationService = {
      if (!searchTerm) return list;
      
      return list.filter((item) =>
-       item.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       item.donationType.toLowerCase().includes(searchTerm.toLowerCase()) ||
        item.location.toLowerCase().includes(searchTerm.toLowerCase())
      );
    }

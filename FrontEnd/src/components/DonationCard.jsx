@@ -16,9 +16,12 @@ const DonationCard = ({ donation }) => {
   };
    return (
       <div className="bg-white shadow-md rounded-lg p-4 m-4 w-80">
-      <h2 className="text-xl font-semibold">{donation.type}</h2>
-      <p> 
-        {isExpanded ? donation.description : `${donation.description.slice(0, 100)}...`}
+      <h2 className="text-xl font-semibold">{donation.donationType}</h2>
+      {donation.description && (
+      <p>
+        {isExpanded 
+          ? donation.description 
+          : `${donation.description.slice(0, 100)}...`}
         <span
           className="text-green-600 cursor-pointer"
           onClick={toggleDescription}
@@ -26,6 +29,7 @@ const DonationCard = ({ donation }) => {
           {isExpanded ? " Read Less" : " Read More"}
         </span>
       </p>
+      )}
       <button className="text-gray-600" onClick={handleDonorClick} > <span className="font-bold">Donor: </span> {donation.donor}</button>
       <p className="text-gray-600"> <span className="font-bold">Quantity: </span> {donation.quantity}</p>
       <p className="text-gray-600"> <span className="font-bold">Location: </span> {donation.location}</p>
