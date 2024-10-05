@@ -192,7 +192,7 @@ export async function login(req, res,next) {
       maxAge: parseInt(process.env.JWT_EXPIRES_IN) // Set the cookie to expire when the token expires
     });
     res.header('Access-Control-Allow-Credentials', true);
-    res.json({ message: 'User  logged in successfully' });
+    res.json({ message: 'User  logged in successfully' ,token: token});
   } catch (error) {
     res.status(500).json({ message: 'Server error during user login', error: error.message });
   }

@@ -6,6 +6,8 @@ import PasswordInput from "./input/PasswordInput";
 import validateSignup from "../utils/validateSignup";
 import logo from "../assets/images/SAHEM-logo.png";
 import LocationSelect from './input/LocationSelect';
+import axios from "axios";
+
 
 const RegisterForm = () => {
   const [userInputs, setUserInputs] = useState({
@@ -21,29 +23,52 @@ const RegisterForm = () => {
   });
   // eslint-disable-next-line no-unused-vars
   const [error, setError] = useState(null);
-  const [validationErrors, setValidationErrors] = useState({});
+  const [validationErrors, setValidationErrors] = useState({
+    name: "",
+    userName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    location: "",
+    role: "",
+    phone: "",
+    gender: "", 
+  });
 
 
-  const handleSignUp = (e) => {
+  const handleSignUp = async  (e) => {
     e.preventDefault();
 
-    const formData = { ...userInputs };
+  const formData = { ...userInputs };
 
-    const { error } = validateSignup(formData);
+  const { error } = validateSignup(formData);
 
-    if (error) {
-      const validationErrors = {};
-      error.details.forEach((err) => {
-        validationErrors[err.path[0]] = err.message;
-      });
-      setValidationErrors(validationErrors);
-      return;
-    }
+  if (error) {
+    const validationErrors = {};
+    error.details.forEach((err) => {
+      validationErrors[err.path[0]] = err.message;
+    });
+    setValidationErrors(validationErrors);
+    return;
+  }
 
-    setValidationErrors({});
-    setError(null);
+  setValidationErrors({});
+  setError(null);
 
-    console.log("Form submitted successfully", formData);
+  try {
+    const response = await axios.post('http://localhost:5000/api/auth/register', formData);
+    const data = response.data;
+    console.log('Form submitted successfully', data);
+    // You can also redirect the user to the login page or any other page
+    window.location.href = "/login";
+  } catch (error) {
+    if (error.response) {
+      console.error('Error submitting form:', error.response.data.message);
+    } else {
+      console.error('Error submitting form:', error.message);
+    };
+    setError(error.response.data.message);
+  }
   };
 
   return (
@@ -226,7 +251,11 @@ const RegisterForm = () => {
               {validationErrors.role}
             </p>
           )}
-
+          {error && (
+            <p className="text-red-600 text-xs pb-1">
+              {error}
+            </p>
+          )}
           <button
             type="submit"
             className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full"

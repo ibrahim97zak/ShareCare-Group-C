@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import InputField from "./input/InputField";
 import PasswordInput from "./input/PasswordInput";
@@ -12,50 +12,51 @@ const LoginForm = () => {
     password: "",
   });
   const [error, setError] = useState(null);
-  const [validationErrors, setValidationErrors] = useState({});
+  const [validationErrors, setValidationErrors] = useState({
+    email: "",
+    password: "",
+  });
+  useEffect(() => {
+    if (Object.keys(validationErrors).every((key) => validationErrors[key] === "")) {
+      setError(null);
+    }
+  }, [validationErrors])
   const handleLogin = async (e) => {
     e.preventDefault();
   
     const formData = { ...userInputs };
   
-    // Validate form inputs
-    const { error } = validateLogin(formData);
-  
-    if (error) {
-      const validationErrors = {};
-      error.details.forEach((err) => {
-        validationErrors[err.path[0]] = err.message;
-      });
-      setValidationErrors(validationErrors);
-      return;
-    }
-  
-    setValidationErrors({});
-    setError(null);
-  
     try {
-      // Send a POST request to the login API
-      const response = await axios.post("http://localhost:5000/api/auth/login", formData, {
-        withCredentials: true, // This allows cookies to be set if your API is configured to use them
-        credentials: 'include' // Add this line
-      });
+      // Validate form inputs
+      const { error } = validateLogin(formData);
   
-      // Handle successful login
-      if (response.status === 200) {
-        // Assuming the response contains a token
-        const token = response.data.token;
+      if (error) {
+        const validationErrors = {};
+        error.details.forEach((err) => {
+          validationErrors[err.path[0]] = err.message;
+        });
+        setValidationErrors(validationErrors);
+        console.log(validationErrors);
+      } else {
+        try {
+          // Send a POST request to the login API
+          const response = await axios.post("http://localhost:5000/api/auth/login", formData, {
+            withCredentials: true, // This allows cookies to be set if your API is configured to use them
+            credentials: 'include' // Add this line
+          });
   
-        // Option 1: Store the token in localStorage
-        localStorage.setItem("authToken", token);
-  
-        // Option 2: If the token is set in cookies by the server, no need to store it manually
-  
-        // Optionally redirect to another page
-        window.location.href = "/ProfileDetails";
+          // Handle successful login
+          if (response.status === 200) {
+            // window.location.href = "/ProfileDetails";
+            console.log(response.request.response)
+          }
+        } catch (err) {
+          setError(err.response.data.message);
+          console.log(err.response.data.message)
+        }
       }
     } catch (err) {
-      // Handle error (e.g., invalid credentials)
-      setError("Invalid email or password. Please try again.");
+      setError(err.message);
     }
   };
   
