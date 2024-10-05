@@ -19,7 +19,7 @@ const router = express.Router();
 router.post('/offer', authenticate, authorize('Donor'), validationMiddleware.validateCreateDonationOffer, handleValidationErrors, donationController.createDonationOffer);
 router.post('/request', authenticate, authorize('Beneficiary'), validationMiddleware.validateCreateDonationRequest, handleValidationErrors, donationController.createDonationRequest);
 
-router.get('/', authenticate, donationController.getDonations);
+router.get('/',donationController.getDonations);
 router.get('/:id', authenticate, validationMiddleware.validateDonationId, handleValidationErrors, donationController.getDonationById);
 
 router.put('/:id', authenticate, validationMiddleware.validateDonationId, handleValidationErrors, donationController.updateDonation);

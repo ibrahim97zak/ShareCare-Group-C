@@ -5,8 +5,10 @@ import InputField from "./input/InputField";
 import PasswordInput from "./input/PasswordInput";
 import validateLogin from "../utils/validateLogin";
 import axios from "axios";
+import { userContext } from "./context/UserProvider";
 
 const LoginForm = () => {
+  const { setIsLoggedIn } = userContext();
   const [userInputs, setUserInputs] = useState({
     email: "",
     password: "",
@@ -39,19 +41,16 @@ const LoginForm = () => {
         withCredentials: true, // This allows cookies to be set if your API is configured to use them
         credentials: 'include' // Add this line
       });
-  
+      console.log(response);
       // Handle successful login
       if (response.status === 200) {
         // Assuming the response contains a token
-        const token = response.data.token;
-  
-        // Option 1: Store the token in localStorage
-        localStorage.setItem("authToken", token);
-  
-        // Option 2: If the token is set in cookies by the server, no need to store it manually
-  
+        // // Option 1: Store the token in localStorage
+        localStorage.setItem("authToken", response.data.token);
+        setIsLoggedIn(true);
+      //  console.log(response);
         // Optionally redirect to another page
-        window.location.href = "/ProfileDetails";
+        window.location.href = "/";
       }
     } catch (err) {
       // Handle error (e.g., invalid credentials)

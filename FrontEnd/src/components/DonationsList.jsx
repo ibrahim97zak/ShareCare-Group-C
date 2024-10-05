@@ -11,19 +11,21 @@ const DonationsList = () => {
    const displayedDonations = filteredDonations.length === 0 ? donations : filteredDonations;
    useEffect(()=>{
       async function fetchDonations() {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          throw new Error('Authentication token not found');
+        }
+          console.log("from d",token)
         try{ 
-         axios.get('http://localhost:5000/api/donations') // Replace with your API URL
-            .then(response => {
-               setDonations(response.data); // Update state with fetched donations
-             })
-           .catch(error => console.log(error));
+          const response = await axios.get('http://localhost:5000/api/donations');
+          // Update state with fetched donations
+          setDonations(response.data);
         }
         catch(error){
           console.log(error)
         }
         }
       fetchDonations();
-
     },[])
     console.log(donations);
   return (

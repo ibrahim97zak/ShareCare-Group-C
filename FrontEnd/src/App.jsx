@@ -5,8 +5,10 @@ import ProfileDetails from './components/ProfileDetails'
 import RequestDonationForm from './components/RequestDonationForm'
 import HomePage from './pages/HomePage'
 import Layout from './components/Layout'
+import UserProvider from './components/context/UserProvider'
 
 const routes =(
+  <UserProvider>
   <Router>
     <Layout>
       <Routes>
@@ -19,6 +21,7 @@ const routes =(
       </Routes>
     </Layout>
 </Router>
+</UserProvider>
 )
 const App = ()=> {
   return (

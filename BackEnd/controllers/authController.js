@@ -186,15 +186,16 @@ export async function login(req, res,next) {
     res.header('Access-Control-Allow-Credentials', true);
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     res.cookie('jwtToken', token, {
-      httpOnly: true, // Set to true to prevent JavaScript access
+      httpOnly: false, // Set to true to prevent JavaScript access
       secure: false, // Set to true if using HTTPS
       sameSite: 'None', // Set to 'strict' to prevent CSRF attacks
       maxAge: parseInt(process.env.JWT_EXPIRES_IN) // Set the cookie to expire when the token expires
     });
     res.header('Access-Control-Allow-Credentials', true);
-    res.json({ message: 'User  logged in successfully' });
+    console.log(token)
+    res.json({ message: 'User  logged in successfully' ,token});
   } catch (error) {
-    res.status(500).json({ message: 'Server error during user login', error: error.message });
+    res.status(500).json({ message: 'Server error during user login', error: error.message});
   }
 }
 
