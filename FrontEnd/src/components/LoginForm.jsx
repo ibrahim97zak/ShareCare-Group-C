@@ -47,7 +47,7 @@ const LoginForm = () => {
   
           // Handle successful login
           if (response.status === 200) {
-            // window.location.href = "/ProfileDetails";
+            window.location.href = "/ProfileDetails";
             console.log(response.request.response)
           }
         } catch (err) {
