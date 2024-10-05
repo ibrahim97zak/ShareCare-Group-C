@@ -1,25 +1,19 @@
-// routes/userRoutes.js
-
 import express from 'express';
-import {
-  createUser,
-  getUsers,
-  getUserById,
-  updateUser,
-  deleteUser
-} from '../controllers/userController.js';
-import { validateCreateUser, validateUpdateUser } from '../middlewares/validationMiddleware.js';
+import * as userController from '../controllers/userController.js';
+import * as userValidation from '../middlewares/validationMiddleware.js';
+import { authenticate, authorize } from '../middlewares/authMiddleware.js';
+import { handleValidationErrors } from '../utils/errorHandler.js';
 
 const router = express.Router();
 
-router.post('/', validateCreateUser, createUser);
+router.post('/', authenticate, handleValidationErrors, userValidation.validateCreateUser, userController.createUser);
 
-router.get('/', getUsers);
+router.get('/', authenticate, handleValidationErrors, userController.getUsers);
 
-router.get('/:id', validateUpdateUser, getUserById);
+router.get('/:id', authenticate, handleValidationErrors, userValidation.validateUpdateUser, userController.getUserById);
 
-router.put('/:id', validateUpdateUser, updateUser);
+router.put('/:id', authenticate, handleValidationErrors, userValidation.validateUpdateUser, userController.updateUser);
 
-router.delete('/:id', validateUpdateUser, deleteUser);
+router.delete('/:id', authenticate, handleValidationErrors, authorize('Admin'), userValidation.validateUpdateUser, userController.deleteUser);
 
 export default router;

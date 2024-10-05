@@ -29,7 +29,7 @@ export const signupSchema =
     location: Joi.string().required().messages({
       'string.empty': 'Location is required',
     }),
-    role: Joi.string().valid('Donor', 'Beneficiary').required().messages({
+    role: Joi.string().valid('Donor', 'Beneficiary', 'Admin').required().messages({
       'string.empty': 'User type is required',
       'string.invalid': 'Invalid user type',
     }),
