@@ -1,11 +1,10 @@
 import { Server } from 'socket.io';
 import nodemailer from 'nodemailer';
+import {io} from '../server.js';
 
-let io;
+//let io;
 
 export const initializeSocketIO = (server) => {
-  // Initialize Socket.IO with the server
-   io = new Server(server);
 
   // Setup socket.io connection event
   io.on('connection', (socket) => {
