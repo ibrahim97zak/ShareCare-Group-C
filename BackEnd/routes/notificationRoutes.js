@@ -11,6 +11,7 @@ notificationRouter.post('/', authMiddleware, createInAppNotification);
 
 notificationRouter.post('/email', authMiddleware, createEmailNotification);
 
+
 // @route   GET /api/notifications/user/:userId
 // @desc    Get all notifications for a user
 // @access  Private
