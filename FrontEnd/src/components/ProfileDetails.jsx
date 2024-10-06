@@ -48,7 +48,7 @@ const ProfileDetails = () => {
               activeTab === "active" ? "bg-green-500 text-white" : "bg-gray-200"
             }`}
           >
-            Active {user.role === "Donor" ? "Donations" : "Requests"}
+            Active {user.role === "Donor" ? "Requests" : "Donations"}
           </button>
           <button
             onClick={() => setActiveTab("history")}

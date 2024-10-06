@@ -5,7 +5,7 @@ import React from 'react';
 const HistoryTab = ({ activeItems }) => {
   return (
     <div>
-      <h2 className="text-lg font-bold mb-4">History</h2>
+      <h2 className="text-lg font-bold mb-4">Donations History</h2>
       <ul>
         {activeItems.map((item) => (
           <li
