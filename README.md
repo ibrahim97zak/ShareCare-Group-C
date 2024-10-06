@@ -43,7 +43,6 @@ The Donation Management System is a full-stack application designed to streamlin
 ### Advanced Design Patterns
 - **Singleton Pattern**: Ensures a single instance of the database connection throughout the application, promoting efficient resource management.
 - **Observer Pattern**: Enables a real-time notification system, where users are automatically updated about relevant events.
-- 
 ## System Architecture
 The system follows a **RESTful architecture** with a **Model-View-Controller (MVC)** structure, separating concerns across:
 - **Models** for data and relationships (e.g., Donor, Beneficiary, DonationOffer, DonationRequest, Notification).
