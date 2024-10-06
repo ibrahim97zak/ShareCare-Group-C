@@ -17,7 +17,13 @@ const RequestDonationForm = () => {
   const [location, setLocation] = useState('');
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
-
+  const requestData = {
+    beneficiaryId: '123456789', // Example beneficiary ID
+    item: 'Food Supplies',
+    quantity: 100,
+    description: 'Requesting food supplies for 100 people',
+    // Add other fields as needed by your model
+  };
 console.log(user._id);
   const handleSubmit = async(event) => {
     event.preventDefault();
@@ -48,7 +54,7 @@ console.log(user._id);
     };
 
     // Fetch token from localStorage or sessionStorage
-    const token = Cookies.get('token')
+    const token = localStorage.getItem('authToken');
     console.log(token)
     // Make the POST request
     const response = await fetch('http://localhost:5000/api/donations/request', {

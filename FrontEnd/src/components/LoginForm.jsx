@@ -58,7 +58,7 @@ const LoginForm = () => {
           await setUser(response.data.user); // Ensure user is set
           // Set login status
           setIsLoggedIn(true);
-          console.log(response.data.user)
+          console.log(Cookies.get('token'))
           }
         } catch (err) {
           setError(err.response.data.message);
