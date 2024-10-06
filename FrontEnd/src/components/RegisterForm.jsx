@@ -73,17 +73,13 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="flex items-center justify-center mt-10">
-      <div className="w-96 border rounded bg-white px-7 py-10">
-        <form onSubmit={handleSignUp}>
-          <div className="flex items-center justify-center mb-1">
-            <h4 className="text-2xl">Sign Up to</h4>
-            <img
-              src={logo}
-              alt="SAHEM logo"
-              className="w-20 h-20 object-contain ml-2"
-            />
-          </div>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 space-y-6">
+      {/* Header */}
+      <div className="flex justify-center items-center mb-4">
+        <h4 className="text-2xl font-semibold text-gray-700">Sign Up to</h4>
+        <img src={logo} alt="SAHEM logo" className="w-16 h-16 object-contain ml-2" />
+      </div>
 
           <InputField
             type="text"
@@ -195,55 +191,45 @@ const RegisterForm = () => {
             </div>
           </div>
           {validationErrors.gender && (
-            <p className="text-red-600 text-xs pb-1">
-              {validationErrors.gender}
-            </p>
+            <p className="text-red-600 text-xs mt-1">{validationErrors.gender}</p>
           )}
+        </div>
 
-          {/* Location Selection */}
-          <LocationSelect
-            value={userInputs.location}
-            onChange={(e) =>
-              setUserInputs({ ...userInputs, location: e.target.value })
-            }
-          />
-          {validationErrors.location && (
-            <p className="text-red-600 text-xs pb-1">
-              {validationErrors.location}
-            </p>
-          )}
+        {/* Location Selection */}
+        <LocationSelect
+          value={userInputs.location}
+          onChange={(e) => setUserInputs({ ...userInputs, location: e.target.value })}
+        />
+        {validationErrors.location && (
+          <p className="text-red-600 text-xs mt-1">{validationErrors.location}</p>
+        )}
 
-          {/* User Type Selection */}
-          <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              User Type:
+        {/* User Type Selection */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">User Type</label>
+          <div className="flex space-x-4">
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="userType"
+                value="Donor"
+                checked={userInputs.userType === 'Donor'}
+                onChange={(e) => setUserInputs({ ...userInputs, userType: e.target.value })}
+                className="form-radio text-green-500"
+              />
+              <span className="ml-2 text-gray-600">Donor</span>
             </label>
-            <div className="flex items-center space-x-4">
-              <label>
-                <input
-                  type="radio"
-                  name="role"
-                  value="Donor"
-                  checked={userInputs.role === "Donor"}
-                  onChange={(e) =>
-                    setUserInputs({ ...userInputs, role: e.target.value })
-                  }
-                />
-                <span className="ml-2">Donor</span>
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="role"
-                  value="Beneficiary"
-                  checked={userInputs.role === "Beneficiary"}
-                  onChange={(e) =>
-                    setUserInputs({ ...userInputs, role: e.target.value })
-                  }
-                />
-                <span className="ml-2">Beneficiary</span>
-              </label>
-            </div>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="userType"
+                value="Beneficiary"
+                checked={userInputs.userType === 'Beneficiary'}
+                onChange={(e) => setUserInputs({ ...userInputs, userType: e.target.value })}
+                className="form-radio text-green-500"
+              />
+              <span className="ml-2 text-gray-600">Beneficiary</span>
+            </label>
           </div>
           {validationErrors.role && (
             <p className="text-red-600 text-xs pb-1">{validationErrors.role}</p>

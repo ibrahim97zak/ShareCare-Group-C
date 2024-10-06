@@ -2,7 +2,6 @@
 import Joi from 'joi';
 
 const DonationFormValidator = Joi.object({
-  donationType: Joi.string().required().valid('request', 'offer'),
   donationCategory: Joi.string().required().valid(
     'clothes',
     'food',
@@ -12,7 +11,7 @@ const DonationFormValidator = Joi.object({
     'furniture'
   ),
   description: Joi.string().required().min(10).max(200),
-  quantity: Joi.number().required().integer().min(1),
+  // quantity: Joi.number().required().integer().min(1),
   location: Joi.string().required(),
 });
 

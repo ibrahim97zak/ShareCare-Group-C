@@ -5,10 +5,14 @@ import InputField from "./input/InputField";
 import PasswordInput from "./input/PasswordInput";
 import validateLogin from "../utils/validateLogin";
 import axios from "axios";
+import { useUserContext } from "./context/UserProvider";
+import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
 
 const LoginForm = () => {
+  const { setIsLoggedIn,setUser,user,isLoggedIn} = useUserContext();
+  const navigate = useNavigate();
   const [userInputs, setUserInputs] = useState({
     email: "",
     password: "",
@@ -65,7 +69,11 @@ const LoginForm = () => {
       setError(err.message);
     }
   };
-  
+  useEffect(() => {
+    if (isLoggedIn) {
+        navigate('/'); // Navigate to the home page
+    }
+}, [isLoggedIn, navigate]);
 
 
   return (
