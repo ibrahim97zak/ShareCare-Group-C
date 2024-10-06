@@ -143,5 +143,3 @@ If you'd like to contribute, please fork the repository and use a feature branch
 
 ## License
 This project is licensed under the MIT License.
-
-## Demo
