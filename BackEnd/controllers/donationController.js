@@ -311,3 +311,30 @@ export const getSentDonationsByDonorId = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getAllOffers = async (req, res, next) => {
+  try {
+    const offers = await Donation.find({ donationRole: 'Offer' })
+      .populate('donor', 'name')  
+      .populate('receiver', 'name');  
+    return res.status(200).json(offers);
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching offers", error: error.message });
+    console.error(err);
+    next(err);
+  }
+};
+
+export const getAllRequests = async (req, res, next) => {
+  try {
+    const requests = await Donation.find({ donationRole: 'Request' })
+      .populate('beneficiary', 'name')  
+      .populate('sender', 'name'); 
+
+    return res.status(200).json(requests);
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching requests", error: error.message });
+    console.error(err);
+    next(err);
+  }
+};
