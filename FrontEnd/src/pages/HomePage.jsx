@@ -10,13 +10,12 @@ const HomePage = () => {
   const { isLoggedIn, user } = useUserContext();
   console.log(isLoggedIn);
   console.log(user);
-  if (!user.role) {
-    return <div>Loading...</div>;
-  }
   return (
     <div>
       <Banner />
-      {user.role === "Donor" ? <RequestsList /> : <DonationsList />}
+      {isLoggedIn && (
+      user.role === "Donor" ? <RequestsList /> : <DonationsList />
+    )}
     </div>
   );
 };

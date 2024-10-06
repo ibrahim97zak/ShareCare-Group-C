@@ -7,7 +7,7 @@ import DonationFormValidator from '../utils/DonationFormValidator';
 import { useNavigate } from 'react-router-dom';
 import { useUserContext } from '../context/UserProvider';
 import Cookies from 'js-cookie';
-
+import axios from "axios"; 
 const RequestDonationForm = () => {
   const {user} = useUserContext();
   const [donationCategory, setDonationCategory] = useState('');
@@ -43,28 +43,29 @@ console.log(user._id);
     return;
   }
   try {
-    // Prepare form data
+    
+    // const formData = {
+    //   beneficiary:'66fb535fbafba9c76b5fe086',  // Replace with the actual beneficiary ObjectId
+    //   quantity: 50,  // Always send quantity, default to 1 for beneficiary
+    //   donationRole: user.role === 'Donor' ? 'Offer' : 'Request',  // Set donationType based on user type
+    //   goal: goal > 0 ? true : false,        // Convert goal to boolean
+    //   receivedQuantity: 0,                  // Default value for receivedQuantity
+    //   donationCategory,                     // From form
+    //   description,                          // From form
+    //   location,           // Initialize received quantity to 0 (optional)
+    //   donationType:donationCategory
+    // };
     const formData = {
-      donationCategory,
-      description,
+      beneficiaryId:user._id,  // Assuming the beneficiary ID is available
+      donationType:donationCategory,
       location,
-      quantity: user.role === 'Donor' ? quantity : undefined, // Send only if donor
-      goal: user.role === 'Beneficiary' ? goal : undefined,
-      beneficiaryId:user._id,  // Send only if beneficiary
+      quantity:80,  // Quantity should be a number
     };
-
     // Fetch token from localStorage or sessionStorage
     const token = localStorage.getItem('authToken');
     console.log(token)
     // Make the POST request
-    const response = await fetch('http://localhost:5000/api/donations/request', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`, // Pass the auth token
-      },
-      body: JSON.stringify(formData), // Convert formData to JSON
-    });
+    const response = await axios.post('http://localhost:5000/api/donations/request',formData);
 
     const result = await response.json();
 

@@ -2,6 +2,7 @@ import React,{useState,useEffect} from 'react';
 import RequestCard from './RequestCard';
 import FilterBar from './FilterBar';
 import DonationService from './DonationService';
+import axios from 'axios';
 
 const RequestsList = () => {
    const [searchTerm, setSearchTerm] = useState('');
@@ -11,9 +12,10 @@ const RequestsList = () => {
    useEffect(()=>{
     async function fetchRequests() {
       try{ 
-       axios.get('http://localhost:5000/api/getReguests') // Replace with your API URL
+       axios.get('http://localhost:5000/api/donations/requests') // Replace with your API URL
           .then(response => {
              setRequests(response.data); // Update state with fetched donations
+             console.log(response.data)
            })
          .catch(error => console.log(error));
       }
@@ -31,7 +33,10 @@ const RequestsList = () => {
         <>
       <FilterBar searchTerm={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
         <div className="flex flex-wrap justify-center">
-          {displayedRequests.map(request => (
+          {displayedRequests
+          .filter(request => 
+             request.goal === false)
+          .map(request => (
             <RequestCard key={request.id} request={request} />
           ))}
       </div>
