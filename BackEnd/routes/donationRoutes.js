@@ -14,13 +14,18 @@ const router = express.Router();
 router.post('/offer', authenticate, authorize('Donor'), validationMiddleware.validateCreateDonationOffer, handleValidationErrors, donationController.createDonationOffer); // donor can creates offer
 router.post('/request', authenticate, authorize('Beneficiary'), validationMiddleware.validateCreateDonationRequest, handleValidationErrors, donationController.createDonationRequest); // beneficiary can creates request
 
+router.get('/offers', authenticate, donationController.getAllOffers); // get all donation offers in db
+router.get('/requests', authenticate, donationController.getAllRequests); // get all donation requests in db
+
 router.get('/', authenticate, donationController.getDonations); // get all donations in the database whatever type
 router.get('/:id', authenticate, validationMiddleware.validateDonationId, handleValidationErrors, donationController.getDonationById); // get a specific donation by it's id
 
 router.get('/:userId/requests', authenticate, donationController.getDonationRequests); // get all donation requests by user id
-router.get('/:userId/received-donations', authenticate, donationController.getReceivedDonationsByBeneficiaryId); // get all received donations for beneficiary by user id
+router.get('/:userId/received-donations', authenticate, authorize('Beneficiary'), donationController.getReceivedDonationsByBeneficiaryId); // get all received donations for beneficiary by user id
+
 router.get('/:userId/offers', authenticate, donationController.getDonationOffers); // get all donation offers by user id
-router.get('/:userId/sent-donations', authenticate, donationController.getSentDonationsByDonorId); // get all sent donations for donor by user id
+router.get('/:userId/sent-donations', authenticate, authorize('Donor'), donationController.getSentDonationsByDonorId); // get all sent donations for donor by user id
+
 router.get('/:userId/donations', authenticate, handleValidationErrors, donationController.getDonationsByUserId); // get all donations from all types by user id
 
 router.put('/:id', authenticate, authorize('Donor'), validationMiddleware.validateDonationId, handleValidationErrors, donationController.updateOffer); // donor can update it's offer
