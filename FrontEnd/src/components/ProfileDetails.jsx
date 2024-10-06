@@ -6,14 +6,13 @@ import NotificationsTab from '../components/profileElements/NotificationsTab';
 import ChartsTab from './charts/ChartsTab';
 import calculateChartData from '../utils/chartData';
 import UserPanelController from '../components/profileElements/UserPanelController';
+import { useUser } from '../useContext/setUserContext.jsx';
 
 const ProfileDetails = () => {
-  const user = {
-    name: "John Doe",
-    email: "john@example.com",
-    userType: "Donor",
-    profilePicture: "https://via.placeholder.com/100",
-  };
+  const { user } = useUser ();
+  if (!user) {
+    return <div>Loading...</div>;
+  }
 
   const activeItems = [
     { id: 1, type: "Food", quantity: "10", status: "Active", for: "Donation" },

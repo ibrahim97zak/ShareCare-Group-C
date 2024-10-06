@@ -5,6 +5,8 @@ import InputField from "./input/InputField";
 import PasswordInput from "./input/PasswordInput";
 import validateLogin from "../utils/validateLogin";
 import axios from "axios";
+import Cookies from 'js-cookie';
+
 
 const LoginForm = () => {
   const [userInputs, setUserInputs] = useState({
@@ -47,6 +49,9 @@ const LoginForm = () => {
   
           // Handle successful login
           if (response.status === 200) {
+            const token = response.data.token; // assuming the token is returned in the response data
+            console.log(response.data.id)
+          Cookies.set('id',response.data.id, { expires: 1 });
             window.location.href = "/ProfileDetails";
             console.log(response.request.response)
           }
