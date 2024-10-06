@@ -2,15 +2,19 @@ import React, { useState } from "react";
 import logo from "../assets/logo.png";
 import { FaSearch } from "react-icons/fa";
 import { useUserContext } from "../context/UserProvider";
+import { useNavigate } from "react-router-dom";
 
 const NavigationBar = () => {
   const { isLoggedIn, setIsLoggedIn, user } = useUserContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown visibility
-
+  const navigate = useNavigate();
   const handleLogout = () => {
     setIsLoggedIn(false); // Set isLoggedIn to false to simulate logout
     setIsDropdownOpen(false); // Close the dropdown after logging out
   };
+  const handleProfile = () =>{
+    navigate('/ProfileDetails');
+  }
   return (
     <nav className="bg-white shadow-md fixed w-full z-50 top-0">
       <div className="container mx-auto px-6 py-3 flex justify-between items-center">
@@ -19,7 +23,7 @@ const NavigationBar = () => {
             user.role === "Donor" ? (
               <>
                 <a
-                  href="/DonationForm"
+                 onClick={()=> navigate('/DonationForm')}
                   className="ml-6 text-gray-700 hover:text-gray-900"
                 >
                   Donate
@@ -27,8 +31,8 @@ const NavigationBar = () => {
               </>
             ) : (
               <a
-                href="/DonationForm"
                 className="ml-6 text-gray-700 hover:text-gray-900"
+                onClick={()=> navigate('/DonationForm')}
               >
                 Request
               </a>
@@ -61,7 +65,7 @@ const NavigationBar = () => {
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg py-2 z-50">
                   <a
-                    href="/ProfileDetails"
+                    onClick={handleProfile}
                     className="block px-4 py-2 hover:bg-gray-100"
                   >
                     Profile

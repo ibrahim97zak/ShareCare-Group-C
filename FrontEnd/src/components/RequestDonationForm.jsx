@@ -5,9 +5,11 @@ import InputField from './input/InputField';
 import SelectDonationCategory from './input/SelectDonationCategory';
 import DonationFormValidator from '../utils/DonationFormValidator';
 import { useNavigate } from 'react-router-dom';
+import { useUserContext } from '../context/UserProvider';
+import Cookies from 'js-cookie';
 
 const RequestDonationForm = () => {
-  const [userType, setUserType] = useState('beneficiary');
+  const {user} = useUserContext();
   const [donationCategory, setDonationCategory] = useState('');
   const [description, setDescription] = useState('');
   const [quantity, setQuantity] = useState('');
@@ -16,26 +18,62 @@ const RequestDonationForm = () => {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+console.log(user._id);
+  const handleSubmit = async(event) => {
     event.preventDefault();
+
     const { error } = DonationFormValidator.validate({
       donationCategory,
       description,
       location,
     });
     if (error) {
-      setErrors(error.details.reduce((acc, curr) => {
+    setErrors(
+      error.details.reduce((acc, curr) => {
         acc[curr.path] = curr.message;
         return acc;
-      }, {}));
+      }, {})
+    );
+    return;
+  }
+  try {
+    // Prepare form data
+    const formData = {
+      donationCategory,
+      description,
+      location,
+      quantity: user.role === 'Donor' ? quantity : undefined, // Send only if donor
+      goal: user.role === 'Beneficiary' ? goal : undefined,
+      beneficiaryId:user._id,  // Send only if beneficiary
+    };
+
+    // Fetch token from localStorage or sessionStorage
+    const token = Cookies.get('token')
+    console.log(token)
+    // Make the POST request
+    const response = await fetch('http://localhost:5000/api/donations/request', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, // Pass the auth token
+      },
+      body: JSON.stringify(formData), // Convert formData to JSON
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      // Handle successful submission
+      alert(`Request created successfully for donation: ${result.savedRequest}`);
+      // navigate('/'); // Navigate to homepage or any other page
     } else {
-      // Handle form submission here
-      console.log({
-        donationCategory,
-        description,
-        location,
-      });
+      // Handle backend errors
+      alert(`Error: ${result.error}`);
     }
+  } catch (err) {
+    console.error('Error during request submission:', err);
+    alert('An unexpected error occurred. Please try again.');
+  }
   };
   const handleClose = () => {
     navigate('/');
@@ -70,7 +108,7 @@ const RequestDonationForm = () => {
               <p className="text-red-500 text-sm">{errors.description}</p>
             )}
           </div>
-          {userType === 'donor' && (
+          {user.role === 'Donor' && (
             <div className="mb-4">
               <label className="block text-gray-700 font-medium mb-2" htmlFor="quantity">
                 Quantity:
@@ -86,7 +124,7 @@ const RequestDonationForm = () => {
               )}
             </div>
           )}
-            {userType === 'beneficiary' && (
+            {user.role === 'Beneficiary' && (
             <div className="mb-4">
               <label className="block text-gray-700 font-medium mb-2" htmlFor="goal">
                 Goal Amount:

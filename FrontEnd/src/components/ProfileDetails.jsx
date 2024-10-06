@@ -10,7 +10,7 @@ import { useUserContext } from "../context/UserProvider";
 
 const ProfileDetails = () => {
   const { user } = useUserContext();
-  console.log(user);
+  console.log(user.name);
 
   const activeItems = [
     { id: 1, type: "Food", quantity: "10", status: "Active", for: "Donation" },
