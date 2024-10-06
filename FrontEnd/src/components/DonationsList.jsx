@@ -31,12 +31,13 @@ const DonationsList = () => {
   return (
    <div className="flex flex-col items-center justify-center p-20 bg-gray-100">
       <h1 className="text-3xl font-semibold mb-6">Donations List</h1>
-      {donations.length > 0 ? (
+      {displayedDonations.length > 0 ? (
         <>
         <FilterBar searchTerm={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
         <div className="flex flex-wrap justify-center">
           {displayedDonations
-           .filter((donation) => donation.status === 'available')
+           .filter(donation => 
+             donation.status === 'available' && donation.donationRole === "Offer")
           .map(donation => (
           <DonationCard key={donation.id} donation={donation} />
           ))}

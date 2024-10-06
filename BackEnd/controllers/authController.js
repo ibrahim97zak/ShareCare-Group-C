@@ -193,7 +193,7 @@ export async function login(req, res,next) {
     });
     res.header('Access-Control-Allow-Credentials', true);
     console.log(token)
-    res.json({ message: 'User  logged in successfully' ,token});
+    res.json({ message: 'User  logged in successfully' ,token,user});
   } catch (error) {
     res.status(500).json({ message: 'Server error during user login', error: error.message});
   }

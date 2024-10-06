@@ -1,8 +1,9 @@
 import React,{useState} from 'react'
 import bannerImg from '../assets/don.jpg'
+import {useUserContext} from '../components/context/UserProvider'
 const Banner = () => {
 
-   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const { isLoggedIn } = useUserContext();
 
   return (
    <div className="relative  h-screen overflow-hidden">

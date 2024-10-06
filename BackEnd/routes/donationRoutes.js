@@ -14,7 +14,7 @@ const router = express.Router();
 router.post('/offer', authenticate, authorize('Donor'), validationMiddleware.validateCreateDonationOffer, handleValidationErrors, donationController.createDonationOffer); // donor can creates offer
 router.post('/request', authenticate, authorize('Beneficiary'), validationMiddleware.validateCreateDonationRequest, handleValidationErrors, donationController.createDonationRequest); // beneficiary can creates request
 
-router.get('/', authenticate, donationController.getDonations); // get all donations in the database whatever type
+router.get('/', donationController.getDonations); // get all donations in the database whatever type
 router.get('/:id', authenticate, validationMiddleware.validateDonationId, handleValidationErrors, donationController.getDonationById); // get a specific donation by it's id
 
 router.get('/:userId/requests', authenticate, donationController.getDonationRequests); // get all donation requests by user id

@@ -1,18 +1,22 @@
-import React,{useState} from 'react'
+import React,{useState,useEffect} from 'react'
 import NavigationBar from '../components/NavigationBar'
 import Banner from '../components/Banner'
 import DonationsList from '../components/DonationsList';
 import Footer from '../components/Footer';
 import RequestsList from '../components/RequestsList';
-import {userContext} from '../components/context/UserProvider';
+import {useUserContext} from '../components/context/UserProvider';
+
 const HomePage = () => {
-  const { isLoggedIn } = userContext();
-  const [userType, setUserType] = useState('b');
+  const { isLoggedIn,user } = useUserContext();
   console.log(isLoggedIn);
+  console.log(user);
+   if (!user.role) {
+    return <div>Loading...</div>;
+    }
   return (
     <div>
       <Banner/>
-      {userType === 'donor' ?(<RequestsList/>) : (<DonationsList/>)}
+      {user.role === 'Donor' ?(<RequestsList/>) : (<DonationsList/>)}
     </div>
   )
 }

@@ -1,14 +1,16 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useState ,useEffect} from "react";
 import { Link } from "react-router-dom";
 import InputField from "./input/InputField";
 import PasswordInput from "./input/PasswordInput";
 import validateLogin from "../utils/validateLogin";
 import axios from "axios";
-import { userContext } from "./context/UserProvider";
+import { useUserContext } from "./context/UserProvider";
+import { useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
-  const { setIsLoggedIn } = userContext();
+  const { setIsLoggedIn,setUser,user,isLoggedIn} = useUserContext();
+  const navigate = useNavigate();
   const [userInputs, setUserInputs] = useState({
     email: "",
     password: "",
@@ -41,23 +43,30 @@ const LoginForm = () => {
         withCredentials: true, // This allows cookies to be set if your API is configured to use them
         credentials: 'include' // Add this line
       });
-      console.log(response);
       // Handle successful login
       if (response.status === 200) {
-        // Assuming the response contains a token
-        // // Option 1: Store the token in localStorage
-        localStorage.setItem("authToken", response.data.token);
-        setIsLoggedIn(true);
-      //  console.log(response);
-        // Optionally redirect to another page
-        window.location.href = "/";
+        const handleLogin = async () => {
+          // Store token and set user state
+          localStorage.setItem("authToken", response.data.token);
+          await setUser(response.data.user); // Ensure user is set
+  
+          // Set login status
+          setIsLoggedIn(true);
+  
+      };
+  
+      handleLogin();
       }
     } catch (err) {
       // Handle error (e.g., invalid credentials)
       setError("Invalid email or password. Please try again.");
     }
   };
-  
+  useEffect(() => {
+    if (isLoggedIn) {
+        navigate('/'); // Navigate to the home page
+    }
+}, [isLoggedIn, navigate]);
 
 
   return (

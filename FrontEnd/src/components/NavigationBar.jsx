@@ -1,17 +1,12 @@
 import React,{ useState }  from 'react'
 import logo from '../assets/logo.png'
 import { FaSearch } from 'react-icons/fa'; 
+import { useUserContext} from '../components/context/UserProvider'
 
-
-const NavigationBar = ({userType}) => {
-
-   const [isLoggedIn, setIsLoggedIn] = useState(true); // Change to false to simulate logged-out state
+const NavigationBar = () => {
+   const { isLoggedIn,setIsLoggedIn,user } = useUserContext();
    const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown visibility
 
-   // User data (could be fetched from an API)
-   const user = {
-     name: 'John Doe',
-   };
    const handleLogout = () => {
       setIsLoggedIn(false); // Set isLoggedIn to false to simulate logout
       setIsDropdownOpen(false); // Close the dropdown after logging out
@@ -20,7 +15,7 @@ const NavigationBar = ({userType}) => {
    <nav className="bg-white shadow-md fixed w-full z-50 top-0">
       <div className="container mx-auto px-6 py-3 flex justify-between items-center">
       <div className="flex items-center">
-        { isLoggedIn ? userType === 'donor' ? 
+        { isLoggedIn ? user.role === 'Donor' ? 
           (<>
            <a href="/DonationForm" className="ml-6 text-gray-700 hover:text-gray-900">Donate</a>
            </>
