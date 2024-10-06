@@ -54,6 +54,7 @@ The backend is responsible for handling authentication, database operations, and
 - Node.js & Express - For server-side and API management
 - MongoDB - As the database to store and manage donation data
 - JWT - For secure user authentication
+- Bearer Key - Used for secure API access and authentication
 
 **Frontend:**
 - React - For building user interfaces
