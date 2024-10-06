@@ -52,6 +52,7 @@ const LoginForm = () => {
             const token = response.data.token; // assuming the token is returned in the response data
             console.log(response.data.id)
           Cookies.set('id',response.data.id, { expires: 1 });
+          Cookies.set('token', token, { expires: 1 }); // store the token in a cookie
             window.location.href = "/ProfileDetails";
             console.log(response.request.response)
           }

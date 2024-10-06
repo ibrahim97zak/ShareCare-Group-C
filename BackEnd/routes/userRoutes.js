@@ -10,7 +10,7 @@ router.post('/', authenticate, handleValidationErrors, userValidation.validateCr
 
 router.get('/', authenticate, handleValidationErrors, userController.getUsers);
 
-router.get('/:id', authenticate, handleValidationErrors, userValidation.validateUpdateUser, userController.getUserById);
+router.get('/:id', handleValidationErrors, userValidation.validateUpdateUser, userController.getUserById);
 
 router.put('/:id', authenticate, handleValidationErrors, userValidation.validateUpdateUser, userController.updateUser);
 

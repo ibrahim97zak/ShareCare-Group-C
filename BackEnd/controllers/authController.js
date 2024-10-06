@@ -185,7 +185,7 @@ export async function login(req, res,next) {
     res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
     res.header('Access-Control-Allow-Credentials', true);
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    res.cookie('jwtToken', token, {
+    res.cookie('Authorization', `Bearer ${token}`, {
       httpOnly: true, // Set to true to prevent JavaScript access
       secure: false, // Set to true if using HTTPS
       sameSite: 'None', // Set to 'strict' to prevent CSRF attacks

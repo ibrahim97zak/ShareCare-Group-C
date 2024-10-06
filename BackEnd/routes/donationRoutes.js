@@ -19,8 +19,8 @@ router.get('/:id', authenticate, validationMiddleware.validateDonationId, handle
 
 router.get('/:userId/requests', authenticate, donationController.getDonationRequests); // get all donation requests by user id
 router.get('/:userId/received-donations', authenticate, donationController.getReceivedDonationsByBeneficiaryId); // get all received donations for beneficiary by user id
-router.get('/:userId/offers', authenticate, donationController.getDonationOffers); // get all donation offers by user id
-router.get('/:userId/sent-donations', authenticate, donationController.getSentDonationsByDonorId); // get all sent donations for donor by user id
+router.get('/:userId/offers', authenticate, authorize('Donor'), donationController.getDonationOffers); // get all donation offers by user id
+router.get('/:userId/sent-donations', authenticate,authorize('Beneficiary'), donationController.getSentDonationsByDonorId); // get all sent donations for donor by user id
 router.get('/:userId/donations', authenticate, handleValidationErrors, donationController.getDonationsByUserId); // get all donations from all types by user id
 
 router.put('/:id', authenticate, authorize('Donor'), validationMiddleware.validateDonationId, handleValidationErrors, donationController.updateOffer); // donor can update it's offer
