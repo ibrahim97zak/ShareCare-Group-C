@@ -7,6 +7,7 @@
   - [Donation Offer and Request Management](#donation-offer-and-request-management)
   - [Notification System](#notification-system)
   - [User Management](#user-management)
+  - [Advanced Design Patterns](#advanced-design-patterns)
 - [System Architecture](#system-architecture)
 - [Technology Stack](#technology-stack)
 - [Installation and Setup](#installation-and-setup)
