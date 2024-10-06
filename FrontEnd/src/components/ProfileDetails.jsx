@@ -39,7 +39,7 @@ const ProfileDetails = () => {
   }
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-gray-100 min-h-screen mt-7">
       <ProfileInfo user={user} />
       <div className="bg-white p-4 rounded-lg shadow-md">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
