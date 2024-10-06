@@ -100,6 +100,7 @@ Check out the demo of the Donation Management System below:
   - Submit Requests: Log in to submit requests for items you need.
   - Take Offers: View available donation offers and take those that match your needs.
 ### For Admins:
+  - Manage Users: Admins have the ability to monitor user registrations, access user data, and delete user information as needed.
   - Monitor Donations: Keep track of all offers and requests within the system by charts.
 ## API Endpoints
 - **Authentication:** `/api/auth`
