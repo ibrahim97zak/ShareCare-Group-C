@@ -1,58 +1,36 @@
 import express from 'express';
-import { check } from 'express-validator';
-import { createDonation, getDonations, getDonationById, updateDonation, deleteDonation } from '../controllers/donationController.js';
-import authMiddleware from '../middlewares/authMiddleware.js';
+import { validationResult } from 'express-validator';
 
-const donationRouter = express.Router();
+import * as donationController from '../controllers/donationController.js';
 
-// @route   POST api/donations
-// @desc    Create a new donation
-// @access  Private
-donationRouter.post(
-  '/createDonation',
-  [
-    authMiddleware,
-    [
-      check('donationType', 'Donation type is required').not().isEmpty(),
-      check('quantity', 'Quantity must be a positive number').isInt({ min: 1 }),
-      check('location', 'Location is required').not().isEmpty(),
-      check('availabilityDate', 'availabilityDate is required').not().isEmpty().isDate(),
-    ]
-  ],
-  createDonation
-);
+import * as validationMiddleware from '../middlewares/validationMiddleware.js';
+import { authenticate, authorize } from '../middlewares/authMiddleware.js';
 
-// @route   GET api/donations
-// @desc    Get all donations
-// @access  Public
-donationRouter.get('/getDonations', getDonations);
+import { handleValidationErrors } from '../utils/errorHandler.js';
 
-// @route   GET api/donations/:id
-// @desc    Get donation by ID
-// @access  Public
-donationRouter.get('/Donation/:id', getDonationById);
+const router = express.Router();
 
-// @route   PUT api/donations/:id
-// @desc    Update a donation
-// @access  Private
-donationRouter.put(
-  '/:id',
-  [
-    authMiddleware,
-    [
-      check('donationType', 'Donation type is required').optional().not().isEmpty(),
-      check('quantity', 'Quantity must be a positive number').optional().isInt({ min: 1 }),
-      check('location', 'Location is required').optional().not().isEmpty(),
-      check('availabilityDate', 'availabilityDate is required').not().isEmpty().isDate(),
-      check('status', 'Status is required').optional().isIn(['available', 'reserved', 'completed'])
-    ]
-  ],
-  updateDonation
-);
 
-// @route   DELETE api/donations/:id
-// @desc    Delete a donation
-// @access  Private
-donationRouter.delete('/:id', authMiddleware, deleteDonation);
+router.post('/offer', authenticate, authorize('Donor'), validationMiddleware.validateCreateDonationOffer, handleValidationErrors, donationController.createDonationOffer); // donor can creates offer
+router.post('/request', authenticate, authorize('Beneficiary'), validationMiddleware.validateCreateDonationRequest, handleValidationErrors, donationController.createDonationRequest); // beneficiary can creates request
 
-export default donationRouter;
+router.get('/', authenticate, donationController.getDonations); // get all donations in the database whatever type
+router.get('/:id', authenticate, validationMiddleware.validateDonationId, handleValidationErrors, donationController.getDonationById); // get a specific donation by it's id
+
+router.get('/:userId/requests', authenticate, donationController.getDonationRequests); // get all donation requests by user id
+router.get('/:userId/received-donations', authenticate, donationController.getReceivedDonationsByBeneficiaryId); // get all received donations for beneficiary by user id
+router.get('/:userId/offers', authenticate, donationController.getDonationOffers); // get all donation offers by user id
+router.get('/:userId/sent-donations', authenticate, donationController.getSentDonationsByDonorId); // get all sent donations for donor by user id
+router.get('/:userId/donations', authenticate, handleValidationErrors, donationController.getDonationsByUserId); // get all donations from all types by user id
+
+router.put('/:id', authenticate, authorize('Donor'), validationMiddleware.validateDonationId, handleValidationErrors, donationController.updateOffer); // donor can update it's offer
+router.delete('/:id', authenticate, validationMiddleware.validateDonationId, handleValidationErrors, donationController.deleteDonation); // user can delete it's donation
+
+router.post('/take-offer', authenticate, authorize('Beneficiary'), validationMiddleware.validateTakeOffer, handleValidationErrors, donationController.takeOffer); // beneficiary can take an offer
+router.post('/fulfill-request', authenticate, authorize('Donor'), validationMiddleware.validateFulfillRequest, handleValidationErrors, donationController.fulfillRequest); // donor can fulfill a request
+
+router.put('/request/:id', authenticate, authorize('Beneficiary'), donationController.updateRequest); // beneficiary can update it's request
+router.post('/match', authenticate, authorize('Admin'), donationController.matchRequestWithOffer); // to generate matching notification, this api is resposible of finding the matching between donations
+
+
+export default router;

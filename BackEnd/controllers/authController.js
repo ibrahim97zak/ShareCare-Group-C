@@ -1,23 +1,114 @@
-import User  from '../models/User.js';
-import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
 import Bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
-import Donor from '../models/Donor.js';
-import Beneficiary from '../models/Beneficiary.js';
 import { validationResult } from 'express-validator';
 import jwtUtils from '../utils/jwtUtils.js';
 
+export async function sendEmail(to, userName, subject, verificationLink) {
+  // Define the HTML body for the email
+  var html = `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <title>Email from Sahre-Care (Sahim)</title>
+      <style>
+          body {
+              font-family: Arial, sans-serif;
+              background-color: #f4f4f4;
+              margin: 0;
+              padding: 0;
+              color: #333333;
+          }
+          .container {
+              max-width: 600px;
+              margin: 20px auto;
+              background-color: #ffffff;
+              padding: 20px;
+              border: 1px solid #dddddd;
+              box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+          }
+          .header {
+              background-color: #007BFF;
+              color: #ffffff;
+              padding: 10px;
+              text-align: center;
+          }
+          .header h1 {
+              margin: 0;
+              font-size: 24px;
+          }
+          .content {
+              padding: 20px;
+              line-height: 1.6;
+          }
+          .footer {
+              text-align: center;
+              font-size: 12px;
+              color: #888888;
+              margin-top: 20px;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">
+              <h1>Sahre-Care (Sahim)</h1>
+          </div>
+          <div class="content">
+              <p>Dear ${userName},</p>
+              <p>We are excited to inform you about ${subject}.</p>
+              <p>${verificationLink}</p>
+              <p>Thank you for choosing Sahre-Care (Sahim).</p>
+              <p>Best regards,<br>Sahre-Care (Sahim) Team</p>
+          </div>
+          <div class="footer">
+              <p>Sahre-Care (Sahim), All rights reserved.<br>123 Knowledge Street, Education City</p>
+              <p><a href="#">Unsubscribe</a></p>
+          </div>
+      </div>
+  </body>
+  </html>
+  `;
 
-export async function register(req, res) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.EMAIL_PASSWORD
+    }
+  });
+
+  try {
+    let info = await transporter.sendMail({
+      from: { name: 'Sahre-Care (Sahim)', address: process.env.EMAIL },
+      to: to,
+      subject: subject,
+      html: html,
+    });
+    console.log("Message sent: %s", info.messageId);
+  } catch (error) {
+    console.error("Error sending email:", error.message);
+  }
+}
+
+export async function register(req, res,next) {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { userName, name, gender, email, password, phone, role, location } = req.body;
+    const { userName, name, gender, email, password, confirmPassword, phone, role, location } = req.body;
 
     // Check if the user already exists
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: 'Passwords do not match' });
+    }
     const existingUser = await User.findOne({ $or: [{ email }, { userName }] });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
@@ -25,7 +116,9 @@ export async function register(req, res) {
 
     // Hash the password
     const hashedPassword = await Bcrypt.hash(password, 10);
-
+    // profile pic
+    const boyProfilePic= `https://avatar.iran.liara.run/public/boy?username=${userName}`;
+    const girlProfilePic= `https://avatar.iran.liara.run/public/girl?username=${userName}`;
     // Create new user
     const newUser = new User({
       userName,
@@ -35,210 +128,115 @@ export async function register(req, res) {
       password: hashedPassword,
       phone,
       role,
-      location
+      location,
+      isVerified: false,
+      profilePicture: gender === "Male" ? boyProfilePic : girlProfilePic
     });
 
     // Save the user
     await newUser.save();
 
-    // Generate JWT token
-const token = jwtUtils.generateToken({
-  user: {
-    id: newUser.id,
-    role: newUser.role
-  }
-},
-process.env.JWT_SECRET, // Replace with your actual secret key
-{ expiresIn: '1h' } // Optional: set expiration time
-);
-
-/**const token = jwt.sign(
-  {
-    user: {
-      id: newUser.id,
-      role: newUser.role
+    let token;
+    try {
+      token = await jwtUtils.generateToken({ user: { id: newUser.id, role: newUser.role } });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Error generating token' });
     }
-  },
-  process.env.JWT_SECRET, // Replace with your actual secret key
-  { expiresIn: '1h' } // Optional: set expiration time
-); **/
 
+    // Send verification email
+    const verificationLink = `http://localhost:5000/api/auth/confirm-email?email=${newUser.email}&token=${token}`;
+    await sendEmail(newUser.email, newUser.userName, 'Email Verification', verificationLink);
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.ethereal.email',
-  port: 587,
-  auth: {
-      user: process.env.EMAIL,
-      pass: process.env.EMAIL_PASSWORD
-  }
-});
-
-const verificationLink = `http://localhost:5000/api/auth/confirm-email?email=${email}&token=${token}`;
-await transporter.sendMail({
-  from: process.env.EMAIL,
-  to: email,
-  subject: 'Email Verification',
-  text: `Click the following link to verify your email: ${verificationLink}`
-});
-
-res.send('Registration successful! Please check your email for verification.');
-
+    res.json({ message: 'User created successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Server error during registration', error: error.message });
+    console.error(error);
+    res.status(500).json({ message: 'Server error during user creation' });
+  }
+}
+
+export async function login(req, res,next) {
+  try {
+    const { email, password } = req.body;
+
+    // Find the user
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+
+    // Check if the user is verified
+    if (!user.isVerified) {
+      return res.status(400).json({ message: 'User is not verified' });
+    }
+
+    // Compare the password
+    const isValidPassword = await Bcrypt.compare(password, user.password);
+
+    if (!isValidPassword) {
+      return res.status(400).json({ message: 'Invalid password' });
+    }
+
+    // Generate a token for the user
+    const token = await jwtUtils.generateToken({ user: { id: user.id, role: user.role } });
+
+    // Store the token in cookies
+    res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.cookie('jwtToken', token, {
+      httpOnly: true, // Set to true to prevent JavaScript access
+      secure: false, // Set to true if using HTTPS
+      sameSite: 'None', // Set to 'strict' to prevent CSRF attacks
+      maxAge: parseInt(process.env.JWT_EXPIRES_IN) // Set the cookie to expire when the token expires
+    });
+    res.header('Access-Control-Allow-Credentials', true);
+    res.json({ message: 'User  logged in successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error during user login', error: error.message });
   }
 }
 
 export async function confirmEmail(req, res) {
-  const { email,token } = req.query;
-
-  // Find the user with the provided email and token
-  const user = await User.findOne({ email});
-
-  if (!user) {
-    return res.status(400).send('Invalid token or email.');
-  }
-
-  // Token is valid, verify the user
-  if(jwtUtils.verifyToken(token)){
-  user.isVerified = true; // Assuming you have a 'verified' field
-  user.verificationToken = undefined; // Clear the token after verification
-  }
-  await user.save();
-
-  res.send('Your email has been Confirmed successfully!');
-}
-
-
-export async function login(req, res) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { email, password } = req.body;
-
   try {
-    let user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+    const { email, token } = req.query; // Access query parameters
+    if (!token) {
+      return res.status(400).json({ message: 'jwt must be provided' });
+    }
+    // Verify the token
+    try {
+      const decoded = await jwtUtils.verifyToken(token);
+      console.log('Decoded token:', decoded);
+    } catch (error) {
+      console.error('Error verifying token:', error);
+      return res.status(500).json({ message: 'Error verifying token' });
     }
 
-    if (!user.isVerified) {
-      return res.status(400).json({ message: 'Please verify your email before logging in' });
-    }
-
-    const isMatch = await Bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
-
-    const payload = {
-      user: {
-        id: user.id,
-        role: user.role
+    // Update the user's verification status
+    try {
+      const user = await User.findOneAndUpdate({ email }, { isVerified: true }, { new: true });
+      if (!user) {
+        console.error('User not found');
+        return res.status(400).json({ message: 'User not found' });
       }
-    };
-
-    const token = jwtUtils.generateToken(payload,
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' },
-      //(err, token) => {
-       // if (err) throw err;
-       //}
-      );
-      res.json({ token });
-      
-    /**jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' },
-      (err, token) => {
-        if (err) throw err;
-        res.json({ token });
-      }
-    );**/
-
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error, login failed');
-  }
-}
-
-export async function getProfile(req, res) {
-  try {
-    const user = await User.findById(req.user.id).select('-password');
-    res.json(user);
-  } catch (err) {
-    res.status(500).send('Server error, get profile failed :' + err.message);
-  }
-}
-
-export async function changePassword(req,res){
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { oldPassword, newPassword, confirmNewPassword} = req.body;
-  try {
-    let user = await User.findById(req.user.id);
-    const isMatch = await Bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      console.log('User updated:', user);
+    } catch (error) {
+      console.error('Error updating user:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
     }
-    if(newPassword !== confirmNewPassword){
-      return res.status(400).json({ message: 'New password confirmation does not match new password' });
-    }
-    const hashedPassword = await Bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
-    await user.save();
-    res.json("The password was changed successfully" + user);
-  } catch (err) {
-    res.status(500).send('Server error, change password failed' + err.message);
-  }
-}
 
-
-// Verify Email Function
-async function verifyEmail(email) {
-  try {
-    let user = await User.findOne({ email });
-    if (!user) {
-      return "No associated user with this email"; // Email not found
-    }
-    return user; // Email found, return the user object
+    res.status(200).json({ message: 'Email verified successfully' });
   } catch (error) {
-    throw new Error('Error verifying email');
+    console.error('Error confirming email:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 }
 
-export async function resetPassword(req, res) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { email, password } = req.body;
-  try {
-    // Verify the email
-    let user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ msg: 'Invalid email, user not found' });
-    }
-
-    // Hash the password before saving
-    const hashedPassword = await Bcrypt.hash(password, 10);
-    user.password = hashedPassword;
-
-    await user.save();
-    res.json({ msg: 'Password reset successful' });
-  } catch (err) {
-    res.status(500).send('Server error, reset password failed: ' + err.message);
-  }
-}
 
 export async function logout(req, res) {
+  const token = req.cookies.jwtToken;
+  console.log('Token before deletion:', token);
   res.clearCookie('token');
   res.json({ success: true });
 }
-

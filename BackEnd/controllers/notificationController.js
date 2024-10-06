@@ -34,28 +34,6 @@ export const createInAppNotification = async (req, res) => {
   }
 };
 
-
-export const createEmailNotification = async (req, res) => {
-  try {
-    const { userId, type, content } = req.body;
-
-    const newNotification = new Notification({
-      userId,
-      type,
-      content,
-    });
-    const user = User.findById(userId);
-    const email = user.email;
-    sendEmailNotification(email, type, content);
-    await newNotification.save();
-
-    res.status(201).json(newNotification);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-};
-
 // @desc    Get all notifications for a user
 // @route   GET /api/notifications/user/:userId
 // @access  Private
@@ -108,14 +86,12 @@ export const notifyMatch = async (req, res) => {
 
     const emailContent = `A match has been found!\nDetails: ${matchedDetails}`;
 
-    sendEmailNotification(requestUser.email, 'Match Found!', emailContent);
-
-    /**await transporter.sendMail({
+    await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: requestUser.email,
       subject: 'Match Found!',
       text: `Hi ${requestUser.name},\n${emailContent}`,
-    });**/
+    });
 
     const notificationForRequester = new Notification({
       userId: requestUserId,
@@ -124,17 +100,15 @@ export const notifyMatch = async (req, res) => {
       emailSent: true,
     });
 
+    sendEmailNotification(requestUser.email, 'Match Found!', emailContent);
     await notificationForRequester.save();
 
-    sendEmailNotification(offerUser.email, 'Match Found!', emailContent);
-
-    
-    /**await transporter.sendMail({
+    await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: offerUser.email,
       subject: 'Match Found!',
       text: `Hi ${offerUser.name},\n${emailContent}`,
-    });**/
+    });
 
     const notificationForOfferer = new Notification({
       userId: offerUserId,
@@ -143,6 +117,7 @@ export const notifyMatch = async (req, res) => {
       emailSent: true,
     });
 
+    sendEmailNotification(offerUser.email, 'Match Found!', emailContent);
     await notificationForOfferer.save();
 
     res.status(201).json({
