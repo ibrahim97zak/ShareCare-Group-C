@@ -11,6 +11,7 @@
 - [Technology Stack](#technology-stack)
 - [Installation and Setup](#installation-and-setup)
 - [Demo](#demo)
+- [Usage](#usage)
 - [API Endpoints](#api-endpoints)
 - [Contributing](#contributing)
 - [License](#license)
