@@ -1,4 +1,3 @@
-// middlewares/errorHandler.js
 import { validationResult } from 'express-validator';
 
 export const asyncHandler = (fn)=>{
