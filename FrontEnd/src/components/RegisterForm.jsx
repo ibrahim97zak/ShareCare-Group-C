@@ -1,13 +1,12 @@
 // RegisterForm.js
-import { useState } from 'react';
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import InputField from "./input/InputField";
 import PasswordInput from "./input/PasswordInput";
 import validateSignup from "../utils/validateSignup";
 import logo from "../assets/images/SAHEM-logo.png";
-import LocationSelect from './input/LocationSelect';
+import LocationSelect from "./input/LocationSelect";
 import axios from "axios";
-
 
 const RegisterForm = () => {
   const [userInputs, setUserInputs] = useState({
@@ -32,43 +31,45 @@ const RegisterForm = () => {
     location: "",
     role: "",
     phone: "",
-    gender: "", 
+    gender: "",
   });
 
-
-  const handleSignUp = async  (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
 
-  const formData = { ...userInputs };
+    const formData = { ...userInputs };
 
-  const { error } = validateSignup(formData);
+    const { error } = validateSignup(formData);
 
-  if (error) {
-    const validationErrors = {};
-    error.details.forEach((err) => {
-      validationErrors[err.path[0]] = err.message;
-    });
-    setValidationErrors(validationErrors);
-    return;
-  }
+    if (error) {
+      const validationErrors = {};
+      error.details.forEach((err) => {
+        validationErrors[err.path[0]] = err.message;
+      });
+      setValidationErrors(validationErrors);
+      return;
+    }
 
-  setValidationErrors({});
-  setError(null);
+    setValidationErrors({});
+    setError(null);
 
-  try {
-    const response = await axios.post('http://localhost:5000/api/auth/register', formData);
-    const data = response.data;
-    console.log('Form submitted successfully', data);
-    // You can also redirect the user to the login page or any other page
-    window.location.href = "/login";
-  } catch (error) {
-    if (error.response) {
-      console.error('Error submitting form:', error.response.data.message);
-    } else {
-      console.error('Error submitting form:', error.message);
-    };
-    setError(error.response.data.message);
-  }
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/register",
+        formData
+      );
+      const data = response.data;
+      console.log("Form submitted successfully", data);
+      // You can also redirect the user to the login page or any other page
+      window.location.href = "/login";
+    } catch (error) {
+      if (error.response) {
+        console.error("Error submitting form:", error.response.data.message);
+      } else {
+        console.error("Error submitting form:", error.message);
+      }
+      setError(error.response.data.message);
+    }
   };
 
   return (
@@ -93,9 +94,7 @@ const RegisterForm = () => {
             }
           />
           {validationErrors.name && (
-            <p className="text-red-600 text-xs pb-1">
-              {validationErrors.name}
-            </p>
+            <p className="text-red-600 text-xs pb-1">{validationErrors.name}</p>
           )}
           <InputField
             type="text"
@@ -174,7 +173,7 @@ const RegisterForm = () => {
                   type="radio"
                   name="gender"
                   value="Male"
- checked={userInputs.gender === "Male"}
+                  checked={userInputs.gender === "Male"}
                   onChange={(e) =>
                     setUserInputs({ ...userInputs, gender: e.target.value })
                   }
@@ -247,15 +246,9 @@ const RegisterForm = () => {
             </div>
           </div>
           {validationErrors.role && (
-            <p className="text-red-600 text-xs pb-1">
-              {validationErrors.role}
-            </p>
+            <p className="text-red-600 text-xs pb-1">{validationErrors.role}</p>
           )}
-          {error && (
-            <p className="text-red-600 text-xs pb-1">
-              {error}
-            </p>
-          )}
+          {error && <p className="text-red-600 text-xs pb-1">{error}</p>}
           <button
             type="submit"
             className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full"
