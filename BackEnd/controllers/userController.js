@@ -1,42 +1,4 @@
 import User from '../models/User.js';
-import Donor from '../models/Donor.js';
-import Beneficiary from '../models/Beneficiary.js';
-
-export const createUser = async (req, res, next) => {
-  try {
-    const { role, ...userData } = req.body;
-
-    const existingUser = await User.findOne({ userName: userData.userName });
-    if (existingUser) {
-      return res.status(400).json({ success: false, error: 'Username already exists' });
-    }
-
-    let newUser;
-
-    if (!role) {
-      return res.status(400).json({ success: false, error: 'Role is required' });
-    }
-
-    switch (role) {
-      case 'Donor':
-        newUser = new Donor({ ...userData, role });  
-        break;
-      case 'Beneficiary':
-        newUser = new Beneficiary({ ...userData, role });  
-        break;
-      case 'Admin':
-        newUser = new User({ ...userData, role });  
-        break;
-      default:
-        return res.status(400).json({ success: false, error: 'Invalid role' });
-    }
-
-    const savedUser = await newUser.save();
-    res.status(201).json({ success: true, user: savedUser });
-  } catch (err) {
-    next(err);  
-  }
-};
 
 export const getUsers = async (req, res, next) => {
   try {

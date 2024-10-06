@@ -1,29 +1,6 @@
 import mongoose from 'mongoose';
 import { body, param, validationResult } from 'express-validator';
 
-export const validateCreateUser = [
-  body('userName')
-    .exists().withMessage('User name is required')
-    .isString().withMessage('User name must be a string')
-    .isLength({ min: 3 }).withMessage('User name must be at least 3 characters long'),
-  
-  body('email')
-    .exists().withMessage('Email is required')
-    .isEmail().withMessage('Must be a valid email'),
-
-  body('role')
-    .exists().withMessage('Role is required')
-    .isIn(['Donor', 'Beneficiary', 'Admin']).withMessage('Role must be Donor, Beneficiary, or Admin'),
-
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ success: false, errors: errors.array() });
-    }
-    next();
-  }
-];
-
 export const validateUpdateUser = [
   param('id')
     .exists().withMessage('User ID is required')

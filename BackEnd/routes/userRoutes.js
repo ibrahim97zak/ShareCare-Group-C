@@ -6,7 +6,6 @@ import { handleValidationErrors } from '../utils/errorHandler.js';
 
 const router = express.Router();
 
-router.post('/', authenticate, handleValidationErrors, userValidation.validateCreateUser, userController.createUser);
 
 router.get('/', handleValidationErrors, userController.getUsers);
 
