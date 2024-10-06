@@ -5,6 +5,7 @@ import Donation from '../models/Donation.js';
 import Beneficiary from '../models/Beneficiary.js'; 
 import Donor from '../models/Donor.js';
 import User from '../models/User.js'; 
+import { CreateEmailNotification, createInAppNotification, notifyMatch } from './notificationController.js';
 
 export const createDonationOffer = async (req, res, next) => {
   try {
@@ -19,7 +20,8 @@ export const createDonationOffer = async (req, res, next) => {
     donor.offers.push(savedOffer._id);
     await donor.save();
 
-    res.status(201).json({ message: 'Donation offer created', savedOffer, donorName: donor.name });
+    const result =  await createInAppNotification(req,res);
+    res.status(201).json({ message: 'Donation offer created', savedOffer, donorName: donor.name , result});
   } catch (err) {
     next(err);
   }
@@ -37,8 +39,8 @@ export const createDonationRequest = async (req, res, next) => {
 
     beneficiary.requests.push(savedRequest._id);
     await beneficiary.save();
-
-    res.status(201).json({ message: 'Request created', savedRequest, beneficiaryName: beneficiary.name });
+    const result =  await createInAppNotification(req,res);
+    res.status(201).json({ message: 'Request created', savedRequest, beneficiaryName: beneficiary.name , result});
   } catch (err) {
     next(err);
   }
@@ -80,7 +82,8 @@ export const updateOffer = async (req, res, next) => {
     const donor = await Donor.findById(updatedDonation.donor);
     const beneficiary = await Beneficiary.findById(updatedDonation.receiver);
 
-    res.json({ updatedDonation, donorName: donor?.name, beneficiaryName: beneficiary?.name });
+    const result =  await createInAppNotification(req,res);
+    res.json({ updatedDonation, donorName: donor?.name, beneficiaryName: beneficiary?.name , result});
   } catch (err) {
     next(err); 
   }
@@ -96,7 +99,8 @@ export const deleteDonation = async (req, res, next) => {
 
     await Donation.findByIdAndDelete(req.params.id);
 
-    res.json({ message: 'Donation deleted successfully', donorName: donor?.name, beneficiaryName: beneficiary?.name });
+    const result =  await createInAppNotification(req,res);
+    res.json({ message: 'Donation deleted successfully', donorName: donor?.name, beneficiaryName: beneficiary?.name , result});
   } catch (err) {
     next(err);
   }
@@ -120,7 +124,9 @@ export const takeOffer = async (req, res, next) => {
     beneficiary.receivedDonations.push(offer._id);
     await beneficiary.save();
 
-    res.json({ message: 'Offer accepted by beneficiary', offer, beneficiaryName: beneficiary.name });
+    const result1 =  await createInAppNotification(req,res);
+    const result2 =  await CreateEmailNotification(req,res);
+    res.json({ message: 'Offer accepted by beneficiary', offer, beneficiaryName: beneficiary.name, result1, result2 });
   } catch (err) {
     next(err);
   }
@@ -149,7 +155,8 @@ export const fulfillRequest = async (req, res, next) => {
     donor.donations.push(request._id);
     await donor.save();
 
-    res.json({ message: 'Request fulfilled by donor', request, donorName: donor.name });
+    const result =  await createInAppNotification(req,res);
+    res.json({ message: 'Request fulfilled by donor', request, donorName: donor.name, result });
   } catch (err) {
     next(err);
   }
@@ -166,7 +173,8 @@ export const matchRequestWithOffer = async (req, res, next) => {
       const beneficiary = await Beneficiary.findById(request.beneficiary);
       const donor = await Donor.findById(offer.donor);
 
-      res.status(200).json({ message: 'Match found', request, offer, beneficiaryName: beneficiary?.name, donorName: donor?.name });
+      const result =  await notifyMatch(req,res);
+      res.status(200).json({ message: 'Match found', request, offer, beneficiaryName: beneficiary?.name, donorName: donor?.name, result });
     } else {
       res.status(400).json({ message: 'No match found' });
     }
@@ -191,7 +199,8 @@ export const updateRequest = async (req, res, next) => {
 
     const beneficiary = await Beneficiary.findById(request.beneficiary);
 
-    res.status(200).json({ message: 'Request updated successfully', request, beneficiaryName: beneficiary?.name });
+    const result =  await notifyUpdateRequest(req,res);
+    res.status(200).json({ message: 'Request updated successfully', request, beneficiaryName: beneficiary?.name , result });
   } catch (err) {
     next(err);
   }

@@ -2,24 +2,24 @@ import express, { json } from 'express';
 import { connect } from 'mongoose';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import cookieParser from "cookie-parser";
 import { config } from 'dotenv';
 import http from 'http';
-import { Server} from 'socket.io';
-import mongoose from 'mongoose';
-
-
+import { Server } from 'socket.io';
 
 // Import routes
 import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import donationRoutes from './routes/donationRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 
 // Import error handler middleware
-import authMiddleware from './middlewares/authMiddleware.js';
-import errorHandler from './middlewares/errorHandler.js';
+import {errorHandler} from './utils/errorHandler.js';
 
 // connect to DB
 import connectDB from './dbConfig/db.js';
+
+
 import { initializeSocketIO, sendInAppNotification } from './utils/notificationUtils.js';
 
 // Load environment variables
@@ -34,8 +34,13 @@ const io = new Server(server);
 //initializeSocketIO(server);
 
 // Middleware
-app.use(cors());
-app.use(bodyParser.json());
+app.use(cors({
+  origin: "http://localhost:5173", // Replace with your React app's URL
+  credentials: true, // Allow cookies or authentication tokens to be sent
+}));
+
+app.use(express.json()); // to parse the incoming requests with JSON payloads(from req.body)
+app.use(cookieParser())//to handle cookies and be able to access them
 
 //connectDB();
 
@@ -43,10 +48,10 @@ app.use(bodyParser.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/donations', donationRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/notifications', notificationRoutes);
 
 // middlewares
-app.use(authMiddleware);
 app.use(errorHandler);
 
 connectDB();

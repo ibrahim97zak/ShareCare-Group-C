@@ -1,7 +1,7 @@
 import Notification from '../models/Notification.js';
 import User from '../models/User.js';
 import nodemailer from 'nodemailer';
-import { sendEmailNotification, sendInAppNotification } from '../utils/notificationUtils.js';
+import { notifyRequestUpdated, sendEmailNotification, sendInAppNotification } from '../utils/notificationUtils.js';
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail', 
@@ -33,6 +33,28 @@ export const createInAppNotification = async (req, res) => {
     res.status(500).send('Server error');
   }
 };
+
+
+export const CreateEmailNotification = async (req, res) => {
+  try {
+    const { userId, type, content } = req.body;
+
+    const newNotification = new Notification({
+      userId,
+      type,
+      content,
+    });
+
+    sendEmailNotification(userId, type, content);
+    await newNotification.save();
+
+    res.status(201).json(newNotification);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+}
+
 
 // @desc    Get all notifications for a user
 // @route   GET /api/notifications/user/:userId
@@ -74,56 +96,53 @@ export const markEmailAsSent = async (req, res) => {
 // @route   POST /api/notifications/match
 // @access  Private
 export const notifyMatch = async (req, res) => {
+  const { requestUserId, offerUserId, matchedDetails } = req.body;
+
   try {
-    const { requestUserId, offerUserId, matchedDetails } = req.body;
+      const requestUser = await User.findById(requestUserId);
+      const offerUser = await User.findById(offerUserId);
 
-    const requestUser = await User.findById(requestUserId);
-    const offerUser = await User.findById(offerUserId);
+      if (!requestUser || !offerUser) {
+          return res.status(404).json({ message: 'User not found' });
+      }
 
-    if (!requestUser || !offerUser) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+      // Send email to both users
+      await Promise.all([
+          nodemailer.createTransport().sendMail({
+              to: requestUser.email,
+              subject: 'You have a match!',
+              text: matchedDetails
+          }),
+          nodemailer.createTransport().sendMail({
+              to: offerUser.email,
+              subject: 'You have a match!',
+              text: matchedDetails
+          }),
+      ]);
 
-    const emailContent = `A match has been found!\nDetails: ${matchedDetails}`;
+      // Create and save notifications
+      const notifications = await Promise.all([
+          new Notification({ userId: requestUserId, content: matchedDetails }).save(),
+          new Notification({ userId: offerUserId, content: matchedDetails }).save(),
+      ]);
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: requestUser.email,
-      subject: 'Match Found!',
-      text: `Hi ${requestUser.name},\n${emailContent}`,
-    });
+      return res.status(201).json({
+          message: 'Notification emails sent to both users and notifications created.',
+          notifications,
+      });
+  } catch (error) {
+      console.error(error.message);
+      return res.status(500).send('Server error');
+  }
+};
 
-    const notificationForRequester = new Notification({
-      userId: requestUserId,
-      type: 'Match',
-      content: emailContent,
-      emailSent: true,
-    });
 
-    sendEmailNotification(requestUser.email, 'Match Found!', emailContent);
-    await notificationForRequester.save();
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: offerUser.email,
-      subject: 'Match Found!',
-      text: `Hi ${offerUser.name},\n${emailContent}`,
-    });
-
-    const notificationForOfferer = new Notification({
-      userId: offerUserId,
-      type: 'Match',
-      content: emailContent,
-      emailSent: true,
-    });
-
-    sendEmailNotification(offerUser.email, 'Match Found!', emailContent);
-    await notificationForOfferer.save();
-
-    res.status(201).json({
-      message: 'Notification emails sent to both users and notifications created.',
-      notifications: [notificationForRequester, notificationForOfferer],
-    });
+export const notifyUpdateRequest = async (req, res) => {
+  try {
+    const { userId, type, content } = req.body;
+    await notifyRequestUpdated(userId);
+    res.status(201).json({ message: 'Notification sent' });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');

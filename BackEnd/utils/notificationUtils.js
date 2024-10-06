@@ -52,7 +52,7 @@ export const sendInAppNotification = (userId, message) => {
 export const sendEmailNotification = async (email, subject, text) => {
   try {
     await transporter.sendMail({
-      from: '"ShareCare" <noreply@sharecare.com>',
+      from: process.env.EMAIL_USER,
       to: email,
       subject: subject,
       text: text
