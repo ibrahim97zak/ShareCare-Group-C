@@ -5,9 +5,9 @@ import InputField from "./input/InputField";
 import PasswordInput from "./input/PasswordInput";
 import validateLogin from "../utils/validateLogin";
 import axios from "axios";
-import { useUserContext } from "./context/UserProvider";
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { useUserContext } from "../context/UserProvider";
 
 
 const LoginForm = () => {
@@ -54,11 +54,11 @@ const LoginForm = () => {
           // Handle successful login
           if (response.status === 200) {
             const token = response.data.token; // assuming the token is returned in the response data
-            console.log(response.data.id)
-          Cookies.set('id',response.data.id, { expires: 1 });
           Cookies.set('token', token, { expires: 1 }); // store the token in a cookie
-            window.location.href = "/ProfileDetails";
-            console.log(response.request.response)
+          await setUser(response.data.user); // Ensure user is set
+          // Set login status
+          setIsLoggedIn(true);
+          console.log(response.data.user)
           }
         } catch (err) {
           setError(err.response.data.message);

@@ -6,10 +6,11 @@ import NotificationsTab from "../components/profileElements/NotificationsTab";
 import ChartsTab from "./charts/ChartsTab";
 import calculateChartData from "../utils/chartData";
 import UserPanelController from "../components/profileElements/UserPanelController";
-import { useUser } from "../useContext/setUserContext.jsx";
+import { useUserContext } from "../context/UserProvider";
 
 const ProfileDetails = () => {
-  const { user } = useUser();
+  const { user } = useUserContext();
+  console.log(user);
 
   const activeItems = [
     { id: 1, type: "Food", quantity: "10", status: "Active", for: "Donation" },
