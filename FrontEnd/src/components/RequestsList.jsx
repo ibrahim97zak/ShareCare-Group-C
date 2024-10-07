@@ -11,13 +11,14 @@ const RequestsList = () => {
    const displayedRequests = filteredRequests.length === 0 ? requests : filteredRequests;
    useEffect(()=>{
     async function fetchRequests() {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
       try{ 
-       axios.get('http://localhost:5000/api/donations/requests') // Replace with your API URL
-          .then(response => {
-             setRequests(response.data); // Update state with fetched donations
-             console.log(response.data)
-           })
-         .catch(error => console.log(error));
+        const response = await axios.get('http://localhost:5000/api/donations/requests');
+        // Update state with fetched donations
+        setRequests(response.data);
       }
       catch(error){
         console.log(error)
@@ -26,6 +27,8 @@ const RequestsList = () => {
     fetchRequests();
 
   },[])
+  
+
   return (
    <div className="flex flex-col items-center justify-center p-20 bg-gray-100">
    <h1 className="text-3xl font-semibold mb-6">Requests List</h1>
