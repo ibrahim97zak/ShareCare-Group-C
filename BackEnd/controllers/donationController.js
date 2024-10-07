@@ -41,8 +41,8 @@ export const createDonationOffer = async (req, res, next) => {
     donor.offers.push(savedOffer._id);
     await donor.save();
 
-    const result =  await createInAppNotification(req,res);
-    res.status(201).json({ message: 'Donation offer created', savedOffer, donorName: donor.name , result});
+    // const result =  await createInAppNotification(req,res);
+    res.status(201).json({ message: 'Donation offer created', savedOffer, donorName: donor.name});
   } catch (err) {
     next(err);
   }
@@ -50,13 +50,13 @@ export const createDonationOffer = async (req, res, next) => {
 
 export const createDonationRequest = async (req, res, next) => {
   try {
-    const { userId, donationType, location, goal,description  } = req.body;
+    const { userId, donationType, location, quantity,description  } = req.body;
 
     // Log the userId value
     console.log('userId:', userId);
 
     // Validate request data
-    if (!userId || !donationType || !location || !goal || !description   ) {
+    if (!userId || !donationType || !location || !quantity || !description   ) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -73,8 +73,8 @@ export const createDonationRequest = async (req, res, next) => {
       beneficiary: userId,
       donationType,
       location,
-      goal,
-      quantity:0,
+      quantity,
+      receivedQuantity:0,
       description 
     });
     const savedRequest = await newRequest.save();
@@ -175,8 +175,8 @@ export const takeOffer = async (req, res, next) => {
     beneficiary.receivedDonations.push(offer._id);
     await beneficiary.save();
 
-    const result1 =  await createInAppNotification(req,res);
-    const result2 =  await CreateEmailNotification(req,res);
+    // const result1 =  await createInAppNotification(req,res);
+    // const result2 =  await CreateEmailNotification(req,res);
     res.json({ message: 'Offer accepted by beneficiary', offer, beneficiaryName: beneficiary.name, result1, result2 });
   } catch (err) {
     next(err);

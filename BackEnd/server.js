@@ -1,5 +1,3 @@
-// server.js
-
 import express, { json } from 'express';
 import { connect } from 'mongoose';
 import cors from 'cors';
@@ -16,7 +14,7 @@ import donationRoutes from './routes/donationRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 
 // Import error handler middleware
-import { errorHandler } from './utils/errorHandler.js';
+import {errorHandler} from './utils/errorHandler.js';
 
 // connect to DB
 import connectDB from './dbConfig/db.js';
@@ -37,9 +35,6 @@ const io = new Server(server);
 
 // Middleware
 app.use(cors({
-    origin: "http://localhost:5173", // Replace with your React app's URL
-    credentials: true, // Allow cookies or authentication tokens to be sent
-}));
   origin: "http://localhost:5173", // Replace with your React app's URL
   credentials: true, // Allow cookies or authentication tokens to be sent
 }));
@@ -47,12 +42,6 @@ app.use(cors({
 app.use(express.json()); // to parse the incoming requests with JSON payloads(from req.body)
 app.use(cookieParser())//to handle cookies and be able to access them
 
-try {
-    connectDB();
-} catch (error) {
-    console.error('Error connecting to database:', error);
-    process.exit(1); // Exit the process with a non-zero status code
-}
 //connectDB();
 
 
@@ -65,7 +54,7 @@ app.use('/api/notifications', notificationRoutes);
 // middlewares
 app.use(errorHandler);
 
-
+connectDB();
 
 // Socket.io connection handling
 io.on('connection', (socket) => {

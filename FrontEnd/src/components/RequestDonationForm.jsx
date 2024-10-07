@@ -53,7 +53,7 @@ const RequestDonationForm = () => {
     };
 
     if (user.role === "Beneficiary") {
-      formData.goal = quantity;
+      formData.quantity = quantity;
     } else {
       formData.quantity = quantity;
     }

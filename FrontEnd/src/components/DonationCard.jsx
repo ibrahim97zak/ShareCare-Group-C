@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import {useState} from 'react';
 import ProfileModal from './ProfileModal';
 import SweetAlertComponent from "./SweetAlertComponent ";
 

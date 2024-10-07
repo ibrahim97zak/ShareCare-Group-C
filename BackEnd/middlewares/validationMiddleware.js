@@ -63,7 +63,7 @@ export const validateCreateDonationRequest = [
   body('userId').isMongoId().withMessage('Invalid beneficiary ID'),
   body('donationType').notEmpty().withMessage('Donation type is required'),
   body('location').notEmpty().withMessage('Location is required'),
-  body('goal').isInt({ gt: 0 }).withMessage('goal must be a positive integer'),
+  body('quantity').isInt({ gt: 0 }).withMessage('Quantity must be a positive integer'),
   body('description').notEmpty().isString().withMessage('Description must be a string'),
   ];
 

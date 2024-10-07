@@ -6,7 +6,7 @@ import { handleValidationErrors } from '../utils/errorHandler.js';
 
 const notificationRoutes = express.Router();
 
-notificationRoutes.post('/', authenticate, handleValidationErrors, validateNotification, notificationController.createInAppNotification);
+notificationRoutes.post('/', authenticate, handleValidationErrors, notificationController.createInAppNotification);
 
 notificationRoutes.get('/:userId', handleValidationErrors, notificationController.getNotificationsByUser);
 
