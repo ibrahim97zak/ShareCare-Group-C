@@ -107,9 +107,9 @@ Check out the demo of the Donation Management System below:
 ![requests](https://github.com/user-attachments/assets/1d6750f9-1336-4ea8-a9fb-768999d81843)
 ### Offers List
 ![offers](https://github.com/user-attachments/assets/050c22d7-b2c3-4be1-821d-14f3b3c16d2d)
-### Beneficiary Request an Offer 
+### Beneficiary Take an Offer 
 ![card-offers](https://github.com/user-attachments/assets/a7af9511-bf55-4441-9404-9ae473c1821b)
-### Donor can Donate
+### Donor can Fulfill Request
 ![enter](https://github.com/user-attachments/assets/66c4bd85-4325-482f-bc5b-a2bb49b87e56)
 ### Submit a Donation
 ![thankyou](https://github.com/user-attachments/assets/96a7392c-f221-4020-94f8-051a70dc87d3)
