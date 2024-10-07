@@ -42,7 +42,6 @@ const LoginForm = () => {
           validationErrors[err.path[0]] = err.message;
         });
         setValidationErrors(validationErrors);
-        console.log(validationErrors);
       } else {
         try {
           // Send a POST request to the login API
@@ -58,11 +57,9 @@ const LoginForm = () => {
           await setUser(response.data.user); // Ensure user is set
           // Set login status
           setIsLoggedIn(true);
-          console.log(Cookies.get('token'))
           }
         } catch (err) {
           setError(err.response.data.message);
-          console.log(err.response.data.message)
         }
       }
     } catch (err) {

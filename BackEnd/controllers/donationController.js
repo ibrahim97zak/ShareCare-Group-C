@@ -8,13 +8,34 @@ import User from '../models/User.js';
 
 export const createDonationOffer = async (req, res, next) => {
   try {
-    const { donorId, ...offerData } = req.body;
+    const { userId, donationType, location, quantity,description } = req.body;
 
-    const newOffer = new DonationOffer(offerData);
+    // Validate request data
+    if (!userId || !donationType || !location || !quantity|| !description) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Validate user ID
+    const isValidUserId = mongoose.Types.ObjectId.isValid(userId);
+    if (!isValidUserId) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
+
+    // Create a new donation offer
+    const newOffer = new DonationOffer({
+      donor: userId,
+      donationType,
+      location,
+      quantity,
+      description
+    });
     const savedOffer = await newOffer.save();
 
-    const donor = await Donor.findById(donorId);
-    if (!donor) return res.status(404).json({ error: 'Donor not found' });
+    // Find the donor and update their offers
+    const donor = await Donor.findById(userId);
+    if (!donor) {
+      return res.status(404).json({ error: 'Donor not found' });
+    }
 
     donor.offers.push(savedOffer._id);
     await donor.save();
@@ -27,19 +48,51 @@ export const createDonationOffer = async (req, res, next) => {
 
 export const createDonationRequest = async (req, res, next) => {
   try {
-    const { beneficiaryId, ...requestData } = req.body;
-` `
-    const newRequest = new DonationRequest(requestData);
+    const { userId, donationType, location, goal,description  } = req.body;
+
+    // Log the userId value
+    console.log('userId:', userId);
+
+    // Validate request data
+    if (!userId || !donationType || !location || !goal || !description   ) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Validate beneficiary ID
+    const isValidUserId = mongoose.Types.ObjectId.isValid(userId);
+    console.log('isValidUserId:', isValidUserId);
+
+    if (!isValidUserId) {
+      return res.status(400).json({ error: 'Invalid beneficiary ID' });
+    }
+
+    // Create a new donation request
+    const newRequest = new DonationRequest({
+      beneficiary: userId,
+      donationType,
+      location,
+      goal,
+      quantity:0,
+      description 
+    });
     const savedRequest = await newRequest.save();
 
-    const beneficiary = await Beneficiary.findById(beneficiaryId);
-    if (!beneficiary) return res.status(404).json({ error: 'Beneficiary not found' });
+    // Find the beneficiary and update their requests
+    const beneficiary = await Beneficiary.findById(userId);
+    console.log('beneficiary:', beneficiary);
+
+    if (!beneficiary) {
+      return res.status(404).json({ error: 'Beneficiary not found' });
+    }
 
     beneficiary.requests.push(savedRequest._id);
     await beneficiary.save();
 
+    // Return the created request and beneficiary name
     res.status(201).json({ message: 'Request created', savedRequest, beneficiaryName: beneficiary.name });
   } catch (err) {
+    // Log the error and pass it to the next error handler
+    console.error('Error creating donation request:', err);
     next(err);
   }
 };

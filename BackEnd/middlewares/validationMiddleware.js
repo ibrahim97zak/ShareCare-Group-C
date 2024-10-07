@@ -6,7 +6,7 @@ export const validateCreateUser = [
     .exists().withMessage('User name is required')
     .isString().withMessage('User name must be a string')
     .isLength({ min: 3 }).withMessage('User name must be at least 3 characters long'),
-  
+
   body('email')
     .exists().withMessage('Email is required')
     .isEmail().withMessage('Must be a valid email'),
@@ -52,18 +52,21 @@ export const validateUpdateUser = [
 ];
 
 export const validateCreateDonationOffer = [
-  body('donorId').isMongoId().withMessage('Invalid donor ID'),
+  body('userId').isMongoId().withMessage('Invalid donor ID'),
   body('donationType').notEmpty().withMessage('Donation type is required'),
   body('location').notEmpty().withMessage('Location is required'),
   body('quantity').isInt({ gt: 0 }).withMessage('Quantity must be a positive integer'),
+  body('description').notEmpty().isString().withMessage('Description must be a string'),
 ];
 
 export const validateCreateDonationRequest = [
-  body('beneficiaryId').isMongoId().withMessage('Invalid beneficiary ID'),
+  body('userId').isMongoId().withMessage('Invalid beneficiary ID'),
   body('donationType').notEmpty().withMessage('Donation type is required'),
   body('location').notEmpty().withMessage('Location is required'),
-  body('quantity').isInt({ gt: 0 }).withMessage('Quantity must be a positive integer'),
-];
+  body('goal').isInt({ gt: 0 }).withMessage('goal must be a positive integer'),
+  body('description').notEmpty().isString().withMessage('Description must be a string'),
+  ];
+
 
 export const validateDonationId = [
   param('id').isMongoId().withMessage('Invalid donation ID'),
@@ -96,5 +99,5 @@ export const validateNotification = (req, res, next) => {
     return res.status(400).json({ error: 'Notification content is required and must be a string' });
   }
 
-  next(); 
+  next();
 };

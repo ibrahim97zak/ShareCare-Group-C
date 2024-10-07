@@ -18,8 +18,8 @@ const DonationRequestSchema = new mongoose.Schema({
     default: 0 
   },
   goal: {
-    type: Boolean,
-    default: false
+    type: Number,
+    required: true
   },
 });
 

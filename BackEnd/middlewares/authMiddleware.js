@@ -13,7 +13,6 @@ export const authenticate = async (req, res, next) => {
     return next(new Error("invalid bearer key", { cause: 400 }));
   }
   const token = authorization.split(process.env.BEARERKEY)[1];
-  console.log('token:', token);
 
   if (!token) {
     return next(new Error("invalid token", { cause: 400 }));
@@ -28,6 +27,8 @@ export const authenticate = async (req, res, next) => {
     return next(new Error("not registered user", { cause: 401 }));
   }
   req.user = user;
+  console.log('req.user:', req.user); // Add this logging statement
+
   req.isAdmin = user.role === roles.Admin;
   req.isDonor = user.role === roles.User[0];
   req.isBeneficiary = user.role === roles.User[1];

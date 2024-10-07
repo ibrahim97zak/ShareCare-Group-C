@@ -11,8 +11,8 @@ import { handleValidationErrors } from '../utils/errorHandler.js';
 const router = express.Router();
 
 
-router.post('/offer', authenticate, authorize('Donor'), validationMiddleware.validateCreateDonationOffer, handleValidationErrors, donationController.createDonationOffer); // donor can creates offer
-router.post('/request', authenticate, authorize('Beneficiary'), validationMiddleware.validateCreateDonationRequest, handleValidationErrors, donationController.createDonationRequest); // beneficiary can creates request
+router.post('/offer', validationMiddleware.validateCreateDonationOffer, handleValidationErrors, donationController.createDonationOffer); // donor can creates offer
+router.post('/request', validationMiddleware.validateCreateDonationRequest, handleValidationErrors, donationController.createDonationRequest); // beneficiary can creates request
 
 router.get('/offers', authenticate, donationController.getAllOffers); // get all donation offers in db
 router.get('/requests', authenticate, donationController.getAllRequests); // get all donation requests in db

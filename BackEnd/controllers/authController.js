@@ -155,23 +155,22 @@ export async function register(req, res,next) {
   }
 }
 
-export async function login(req, res,next) {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find the user
+    // Validate email and password
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // Authenticate user credentials
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({ message: 'User not found' });
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Check if the user is verified
-    if (!user.isVerified) {
-      return res.status(400).json({ message: 'User is not verified' });
-    }
-
-    // Compare the password
     const isValidPassword = await Bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
@@ -179,26 +178,17 @@ export async function login(req, res,next) {
     }
 
     // Generate a token for the user
-    const token = await jwtUtils.generateToken({ user: { id: user.id, role: user.role } });
-
-    // Store the token in cookies
-    res.header('Access-Control-Allow-Origin', 'http://localhost:5173');
-    res.header('Access-Control-Allow-Credentials', true);
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    res.cookie('Authorization', `Bearer ${token}`, {
-      httpOnly: true, // Set to true to prevent JavaScript access
-      secure: false, // Set to true if using HTTPS
-      sameSite: 'None', // Set to 'strict' to prevent CSRF attacks
-      maxAge: parseInt(process.env.JWT_EXPIRES_IN) // Set the cookie to expire when the token expires
+    const token = await  jwtUtils.generateToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
     });
-    res.header('Access-Control-Allow-Credentials', true);
-    console.log(token)
-    res.json({ message: 'User  logged in successfully' ,token,user});
-  } catch (error) {
-    res.status(500).json({ message: 'Server error during user login', error: error.message});
-  }
-}
 
+    // Return the token in the response
+    res.json({ message: 'User  logged in successfully' ,token,user});  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 export async function confirmEmail(req, res) {
   try {
     const { email, token } = req.query; // Access query parameters
