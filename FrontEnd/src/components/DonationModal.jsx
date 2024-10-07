@@ -19,6 +19,7 @@ const DonationModal = ({ isOpen, onClose,donationType,remainingAmount,id,receive
     else{
       SweetAlertComponent.success('Thank you!', 'Your donation has been submitted successfully!')
       .then(() => {
+        
         async function updateRequest() {
           try{ 
            axios.put(`http://localhost:5000/api/donations/request/${id}`,{newQuantity:selectedAmount+receivedQuantity}) // Replace with your API URL

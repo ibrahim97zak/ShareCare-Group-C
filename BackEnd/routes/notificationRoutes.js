@@ -8,7 +8,7 @@ const notificationRoutes = express.Router();
 
 notificationRoutes.post('/', authenticate, handleValidationErrors, validateNotification, notificationController.createInAppNotification);
 
-notificationRoutes.get('/:userId', authenticate, handleValidationErrors, notificationController.getNotificationsByUser);
+notificationRoutes.get('/:userId', handleValidationErrors, notificationController.getNotificationsByUser);
 
 notificationRoutes.post('/email', authenticate, handleValidationErrors, notificationController.CreateEmailNotification);
 

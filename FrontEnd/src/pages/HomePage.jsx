@@ -14,8 +14,12 @@ const HomePage = () => {
     <div>
       <Banner />
       {isLoggedIn && (
-      user.role === "Donor" ? <RequestsList /> : <DonationsList />
-    )}
+        user.role === "Donor" ? (
+          <RequestsList />
+        ) : user.role === "Beneficiary" ? (
+          <DonationsList />
+        ) : null // Don't display anything for Admin
+      )}
     </div>
   );
 };

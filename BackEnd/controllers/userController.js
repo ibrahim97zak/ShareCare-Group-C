@@ -57,10 +57,6 @@ export const getUserById = async (req, res, next) => {
   }
 };
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/Muhammad-back
 export const updateUser = async (req, res) => {
   const { id } = req.params;
   const updates = req.body;

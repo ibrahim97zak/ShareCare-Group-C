@@ -5,11 +5,15 @@ import BarCharts from './BarCharts';
 
 ChartJS.register(ArcElement, Tooltip, Legend, DoughnutController);
 
-const ChartsTab = ({ chartData }) => {
+const ChartsTab = ({ chartData,role,items }) => {
   const data = {
     labels: chartData.labels,
     datasets: [{
-      label: 'Donations',
+      label:role === "Donor" 
+      ? "Offers" 
+      : role === "Beneficiary" 
+      ? "Requests" 
+      : "Offers & Requests" ,
       data: chartData.datasets[0].data,
       backgroundColor: chartData.datasets[0].backgroundColor,
       hoverOffset: 4
@@ -38,7 +42,7 @@ const ChartsTab = ({ chartData }) => {
       <Doughnut data={data} options={options} />
       </div>
       <div className="col-span-2">
-        <BarCharts />
+        <BarCharts items={items} />
       </div>
     </div>
       

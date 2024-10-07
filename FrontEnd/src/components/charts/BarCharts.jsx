@@ -1,115 +1,93 @@
 import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
-const BarCharts = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState('All'); // State to track the selected data type
 
-  // Simulate the logged-in user (this can come from your auth state)
-  const currentUser = {
-    id: 1,
-    name: 'Admin User',
-    userType: 'Admin', // Change this to test with 'User' or other roles
-  };
+const BarCharts = ({items}) => {
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedType, setSelectedType] = useState('All');
 
   useEffect(() => {
-    // Fake data
-    const fakeUsers = [
+    // Example data from the user
+    const donationRequests = [
       {
-        id: 1,
-        name: 'John Doe',
-        userName: 'johndoe',
-        email: 'johndoe@example.com',
-        location: 'New York',
-        userType: 'Admin',
-        phone: '123-456-7890',
-        gender: 'Male',
-        donations: [
-          { type: 'Cash', quantity: 100 },
-          { type: 'Food', quantity: 50 },
-          { type: 'Clothing', quantity: 20 },
-        ],
+        beneficiary: "66ff1843c7ee8c185f07fbd5",
+        createdAt: "2024-10-07T15:57:49.885Z",
+        donationRole: "Request",
+        donationType: "food",
+        quantity: 10,
       },
       {
-        id: 2,
-        name: 'Jane Doe',
-        userName: 'janedoe',
-        email: 'janedoe@example.com',
-        location: 'Los Angeles',
-        userType: 'User',
-        phone: '987-654-3210',
-        gender: 'Female',
-        donations: [
-          { type: 'Cash', quantity: 200 },
-          { type: 'Food', quantity: 30 },
-          { type: 'Toys', quantity: 10 },
-        ],
+        beneficiary: "66ff1843c7ee8c185f07fbd5",
+        createdAt: "2024-10-07T14:57:32.583Z",
+        donationRole: "Request",
+        donationType: "food",
+        quantity: 10,
       },
       {
-        id: 3,
-        name: 'Bob Smith',
-        userName: 'bobsmith',
-        email: 'bobsmith@example.com',
-        location: 'Chicago',
-        userType: 'Moderator',
-        phone: '555-123-4567',
-        gender: 'Male',
-        donations: [
-          { type: 'Cash', quantity: 150 },
-          { type: 'Food', quantity: 40 },
-          { type: 'Clothing', quantity: 30 },
-        ],
+        beneficiary: "66ff1843c7ee8c185f07fbd5",
+        createdAt: "2024-10-07T14:32:20.080Z",
+        description: "Canned food",
+        donationRole: "Request",
+        donationType: "clothes",
+        quantity: 5,
       },
+      {
+        beneficiary: "66ff1843c7ee8c185f07fbd5",
+        createdAt: "2024-10-06T14:32:20.080Z",
+        description: "Canned food",
+        donationRole: "Request",
+        donationType: "food",
+        quantity: 15,
+      }
     ];
 
-    setUsers(fakeUsers);
+    setRequests(donationRequests);
     setLoading(false);
   }, []);
 
-  // Filter data based on the selected type and user type
-  const filteredData = users.reduce((acc, user) => {
-    // Check if the current user is admin or the same as the logged-in user
-    if (currentUser.userType === 'Admin' || currentUser.id === user.id) {
-      user.donations.forEach((donation) => {
-        if (selectedType === 'All' || donation.type === selectedType) {
-          const existingDonation = acc.find((item) => item.type === donation.type);
-          if (existingDonation) {
-            existingDonation.quantity += donation.quantity;
-          } else {
-            acc.push({
-              type: donation.type,
-              quantity: donation.quantity,
-            });
-          }
-        }
-      });
-    }
-    return acc;
-  }, []);
+  // Function to aggregate donations by date
+  const aggregateDonationsByDate = (items) => {
+    return items.reduce((acc, item) => {
+      // Format date to YYYY-MM-DD
+      const date = new Date(item.createdAt).toISOString().split('T')[0]; // Format to 'YYYY-MM-DD'
+      const { quantity } = item;
+
+      // Check if the date is already in the accumulated data
+      const existingEntry = acc.find(item => item.date === date);
+      if (existingEntry) {
+        existingEntry.quantity += quantity; // If the date exists, sum the quantities
+      } else {
+        acc.push({ date, quantity }); // If the date doesn't exist, add a new entry
+      }
+
+      return acc;
+    }, []);
+  };
+
+  const aggregatedData = aggregateDonationsByDate(items);
+
+  // Filter data based on selected type (currently this doesn't affect the aggregation, you can expand it later if needed)
+  const filteredData = selectedType === 'All' ? aggregatedData : aggregatedData.filter(item => item.type === selectedType);
 
   return (
     <div className="bar-chart-container">
-      <h3 className="text-lg font-bold">Select Data to Display</h3>
+      <h3 className="text-lg font-bold">Requests Over Time</h3>
 
-      {/* Dropdown for selecting donation type */}
       <select
         className="mb-4 p-2 border border-gray-300 rounded"
         value={selectedType}
         onChange={(e) => setSelectedType(e.target.value)}
       >
         <option value="All">All</option>
-        <option value="Cash">Cash</option>
-        <option value="Food">Food</option>
-        <option value="Clothing">Clothing</option>
-        <option value="Toys">Toys</option>
+        {/* You can add other donation types if you want the dropdown */}
       </select>
 
       {loading ? (
         <p>Loading...</p>
       ) : (
         <BarChart width={500} height={300} data={filteredData}>
-          <XAxis dataKey="type" />
+          <XAxis dataKey="date" />
           <YAxis />
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
           <Tooltip />
@@ -120,5 +98,6 @@ const BarCharts = () => {
     </div>
   );
 };
+
 
 export default BarCharts;
