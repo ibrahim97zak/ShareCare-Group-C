@@ -75,7 +75,8 @@ export const createDonationRequest = async (req, res, next) => {
       location,
       quantity,
       receivedQuantity:0,
-      description 
+      description,
+      goal:false
     });
     const savedRequest = await newRequest.save();
 
