@@ -1,39 +1,72 @@
 import { useState, useEffect } from "react";
 import ProfileInfo from "../components/profileElements/ProfileInfo";
 import ActiveTab from "../components/profileElements/ActiveTab";
-import HistoryTab from "../components/profileElements/HistoryTab";
 import NotificationsTab from "../components/profileElements/NotificationsTab";
 import ChartsTab from "./charts/ChartsTab";
 import calculateChartData from "../utils/chartData";
 import UserPanelController from "../components/profileElements/UserPanelController";
 import { useUserContext } from "../context/UserProvider";
+import axios from 'axios';
 
 const ProfileDetails = () => {
   const { user } = useUserContext();
-  console.log(user.name);
-
-  const activeItems = [
-    { id: 1, type: "Food", quantity: "10", status: "Active", for: "Donation" },
-    {
-      id: 2,
-      type: "Clothes",
-      quantity: "5",
-      status: "Active",
-      for: "Donation",
-    },
-    { id: 3, type: "Books", quantity: "8", status: "Active", for: "Donation" },
-  ];
-
-  const notifications = [
-    { id: 1, message: "New request for donation", date: "2024-09-15" },
-    { id: 2, message: "Your donation is completed", date: "2024-09-10" },
-  ];
-
   const [activeTab, setActiveTab] = useState("active");
+  const [activeItems,setActiveItems] = useState([]);
+  console.log(activeItems);
 
+  const groupedItems = activeItems.reduce((acc, item) => {
+    const { donationType, quantity } = item;
+
+    if (acc[donationType]) {
+      acc[donationType] += quantity;  // Add to existing quantity
+    } else {
+      acc[donationType] = quantity;   // Initialize the quantity
+    }
+
+    return acc;
+  }, {});
   useEffect(() => {
     console.log("activeTab:", activeTab);
   }, [activeTab]);
+  useEffect(()=>{
+    async function fetchDonationsAdmin() {
+      try{ 
+        const response = await axios.get('http://localhost:5000/api/donations/');
+        // Update state with fetched donations
+        setActiveItems(response.data);
+      }
+      catch(error){
+        console.log(error)
+      }
+      }
+      async function fetchDonationsDonor() {
+        try{ 
+          const response = await axios.get(`http://localhost:5000/api/donations/${user._id}/offers`);
+          setActiveItems(response.data.donationOffers);
+        }
+        catch(error){
+          console.log(error)
+        }
+        }
+        async function fetchRequestBeneficiary() {
+          try{ 
+            const response = await axios.get(`http://localhost:5000/api/donations/${user._id}/requests`);
+            setActiveItems(response.data.donationRequests);
+          }
+          catch(error){
+            console.log(error)
+          }
+          }
+      if(user.role === 'Donor'){
+        fetchDonationsDonor();
+      }
+      else if(user.role === 'Admin'){
+        fetchDonationsAdmin();
+      }
+      else{
+        fetchRequestBeneficiary();
+      }
+  },[])
   if (!user) {
     return <div>Loading...</div>;
   }
@@ -49,17 +82,12 @@ const ProfileDetails = () => {
               activeTab === "active" ? "bg-green-500 text-white" : "bg-gray-200"
             }`}
           >
-            Active {user.role === "Donor" ? "Requests" : "Donations"}
-          </button>
-          <button
-            onClick={() => setActiveTab("history")}
-            className={`px-4 py-2 rounded ${
-              activeTab === "history"
-                ? "bg-green-500 text-white"
-                : "bg-gray-200"
-            }`}
-          >
-            History
+            Active {
+            user.role === "Donor" 
+           ? "Offers" 
+           : user.role === "Beneficiary" 
+             ? "Requests" 
+             : "Offers & Requests"}
           </button>
           <button
             onClick={() => setActiveTab("notifications")}
@@ -90,17 +118,16 @@ const ProfileDetails = () => {
         </div>
 
         {activeTab === "active" && (
-          <ActiveTab activeItems={activeItems} user={user} />
+          <ActiveTab user={user} activeItems={activeItems} />
         )}
-        {activeTab === "history" && <HistoryTab activeItems={activeItems} />}
         {activeTab === "notifications" && (
-          <NotificationsTab notifications={notifications} />
+          <NotificationsTab userId={user._id}/>
         )}
         {activeTab === "charts" && (
-          <ChartsTab chartData={calculateChartData(activeItems)} />
+          <ChartsTab chartData={calculateChartData(groupedItems,user.role)} role={user.role} items={activeItems}/>
         )}
         {activeTab === "users" &&
-          (user.role === "admin" ? (
+          (user.role === "Admin" ? (
             <UserPanelController />
           ) : (
             <div>You do not have permission to access this page.</div>

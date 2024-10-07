@@ -1,12 +1,13 @@
 import React, { useState} from "react";
 import Modal from 'react-modal';
 import SweetAlertComponent from "./SweetAlertComponent ";
+import axios from 'axios';
 
-const DonationModal = ({ isOpen, onClose,donationType,remainingAmount}) => {
+const DonationModal = ({ isOpen, onClose,donationType,remainingAmount,id,receivedQuantity}) => {
 
   const donationAmounts = [10, 100, 200, 300, 500, 1000];
   const [selectedAmount, setSelectedAmount] = useState(null);
-
+   console.log("id",id);
   if (!isOpen) return null;
   const handleSubmit = () => {
     if (!selectedAmount || Number(selectedAmount) <= 0) {
@@ -18,6 +19,20 @@ const DonationModal = ({ isOpen, onClose,donationType,remainingAmount}) => {
     else{
       SweetAlertComponent.success('Thank you!', 'Your donation has been submitted successfully!')
       .then(() => {
+        
+        async function updateRequest() {
+          try{ 
+           axios.put(`http://localhost:5000/api/donations/request/${id}`,{newQuantity:selectedAmount+receivedQuantity}) // Replace with your API URL
+              .then(response => {
+                 console.log(response.data)
+               })
+             .catch(error => console.log(error));
+          }
+          catch(error){
+            console.log(error)
+          }
+          }
+        updateRequest();
         onClose(); });
     }
   };

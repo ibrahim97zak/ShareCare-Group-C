@@ -17,7 +17,7 @@ const DonationsList = () => {
         }
           console.log("from d",token)
         try{ 
-          const response = await axios.get('http://localhost:5000/api/donations');
+          const response = await axios.get('http://localhost:5000/api/donations/offers');
           // Update state with fetched donations
           setDonations(response.data);
         }
@@ -37,7 +37,7 @@ const DonationsList = () => {
         <div className="flex flex-wrap justify-center">
           {displayedDonations
            .filter(donation => 
-             donation.status === 'available' && donation.donationRole === "Offer")
+             donation.status === 'available' )
           .map(donation => (
           <DonationCard key={donation.id} donation={donation} />
           ))}

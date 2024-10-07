@@ -30,7 +30,7 @@ const DonationCard = ({ donation }) => {
         </span>
       </p>
       )}
-      <button className="text-gray-600" onClick={handleDonorClick} > <span className="font-bold">Donor: </span> {donation.donor}</button>
+      <button className="text-gray-600" onClick={handleDonorClick} > <span className="font-bold">Donor: </span> {donation.donor?.name || 'Unknown'}</button>
       <p className="text-gray-600"> <span className="font-bold">Quantity: </span> {donation.quantity}</p>
       <p className="text-gray-600"> <span className="font-bold">Location: </span> {donation.location}</p>
       <button

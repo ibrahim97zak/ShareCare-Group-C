@@ -41,7 +41,7 @@ export const createUser = async (req, res, next) => {
 export const getUsers = async (req, res, next) => {
   try {
     const users = await User.find();
-    res.json(users);
+    res.status(200).json(users);
   } catch (err) {
     next(err); 
   }
@@ -56,7 +56,6 @@ export const getUserById = async (req, res, next) => {
     next(err); 
   }
 };
-
 
 export const updateUser = async (req, res) => {
   const { id } = req.params;

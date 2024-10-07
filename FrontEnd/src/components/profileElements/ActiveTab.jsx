@@ -1,10 +1,17 @@
-/* eslint-disable react/prop-types */
+import React,{useState,useEffect} from 'react';
+import axios from 'axios';
 
-const ActiveTab = ({ activeItems, user }) => {
+const ActiveTab = ({activeItems,user}) => {
   return (
     <div>
       <h2 className="text-lg font-bold mb-4">
-        Active {user.userType === "Donor" ? "Donations" : "Requests"}
+        Active {
+        user.role === "Donor" 
+        ? "Offers" 
+        : user.role === "Beneficiary" 
+          ? "Requests" 
+          : "Offers and Requests"
+        }
       </h2>
       <ul>
         {activeItems.map((item) => (
@@ -12,9 +19,13 @@ const ActiveTab = ({ activeItems, user }) => {
             key={item.id}
             className="bg-white p-4 rounded-lg shadow-md mb-4"
           >
-            <h3 className="text-lg font-bold">{item.type}</h3>
+            <h3 className="text-lg font-bold">{item.donationType}</h3>
+            <p>{item.description}</p>
+            <p>Location: {item.location}</p>
             <p>Quantity: {item.quantity}</p>
-            <p>Status: {item.status}</p>
+            {item.receivedQuantity >= 0 && (
+              <p>Received Quantity: {item.receivedQuantity}</p>
+            )}
           </li>
         ))}
       </ul>

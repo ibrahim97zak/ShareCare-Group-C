@@ -1,11 +1,14 @@
-const calculateChartData = (activeItems) => {
-  const donationsData = activeItems.filter((item) => item.for === "Donation");
+const calculateChartData = (groupedItems,role) => {
   const chartData = {
-    labels: donationsData.map((item) => item.type),
+    labels: Object.keys(groupedItems),
     datasets: [
       {
-        label: "Donations",
-        data: donationsData.map((item) => item.quantity),
+        label:role === "Donor" 
+        ? "Offers" 
+        : role === "Beneficiary" 
+        ? "Requests" 
+        : "Offers & Requests" ,
+        data: Object.values(groupedItems),
         backgroundColor: [
           "rgba(255, 99, 132, 0.2)",
           "rgba(54, 162, 235, 0.2)",

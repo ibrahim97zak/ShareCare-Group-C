@@ -4,16 +4,12 @@ import { validateNotification } from '../middlewares/validationMiddleware.js';
 import { authenticate, authorize } from '../middlewares/authMiddleware.js';
 import { handleValidationErrors } from '../utils/errorHandler.js';
 
-const router = express.Router();
+const notificationRoutes = express.Router();
 
-router.post('/', authenticate, handleValidationErrors, validateNotification, notificationController.createNotification);
+notificationRoutes.post('/', authenticate, handleValidationErrors, validateNotification, notificationController.createInAppNotification);
 
-router.get('/:userId', authenticate, handleValidationErrors, notificationController.getUserNotifications);
+notificationRoutes.get('/:userId', handleValidationErrors, notificationController.getNotificationsByUser);
 
-router.put('/:notificationId/read', authenticate, handleValidationErrors, notificationController.markAsRead);
+notificationRoutes.post('/email', authenticate, handleValidationErrors, notificationController.CreateEmailNotification);
 
-router.put('/:notificationId', authenticate, handleValidationErrors, validateNotification, notificationController.updateNotification); 
-
-router.delete('/:notificationId', authenticate, handleValidationErrors, notificationController.deleteNotification);
-
-export default router;
+export default notificationRoutes;

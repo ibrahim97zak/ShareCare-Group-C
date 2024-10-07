@@ -19,28 +19,27 @@ const NavigationBar = () => {
     <nav className="bg-white shadow-md fixed w-full z-50 top-0">
       <div className="container mx-auto px-6 py-3 flex justify-between items-center">
         <div className="flex items-center">
-          {isLoggedIn ? (
-            user.role === "Donor" ? (
-              <>
-                <a
-                 onClick={()=> navigate('/DonationForm')}
-                  className="ml-6 text-gray-700 hover:text-gray-900"
-                >
-                  Donate
-                </a>
-              </>
-            ) : (
-              <a
-                className="ml-6 text-gray-700 hover:text-gray-900"
-                onClick={()=> navigate('/DonationForm')}
-              >
-                Request
-              </a>
-            )
-          ) : (
-            <div></div>
-          )}
-        </div>
+        {isLoggedIn ? (
+          user.role === "Donor" ? (
+            // Show "Donate" button for Donor
+            <a
+              onClick={() => navigate('/DonationForm')}
+              className="ml-6 text-gray-700 hover:text-gray-900 cursor-pointer"
+            >
+              Donate
+            </a>
+          ) : user.role === "Beneficiary" ? (
+            // Show "Request" button for Beneficiary
+            <a
+              onClick={() => navigate('/DonationForm')}
+              className="ml-6 text-gray-700 hover:text-gray-900 cursor-pointer"
+            >
+              Request
+            </a>
+          ) : null // Don't display anything for Admin
+        ) : null // Don't display anything if not logged in
+        }
+</div>
 
         <div className="hidden md:flex  items-center text-green-600 text-xl ">
           <img src={logo} alt="Logo" className="h-10 w-auto" />
