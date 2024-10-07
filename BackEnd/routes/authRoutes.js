@@ -1,5 +1,6 @@
 import express from 'express';
-import { register, login, confirmEmail, logout } from '../controllers/authController.js';
+const donationRoutes = express.Router();
+import { register, confirmEmail, login,logout} from '../controllers/authController.js'; // import authController from '../controllers/authController';
 import * as validators from '../validators/AuthValidation.js';
 import validation from '../validators/validation.js';
 import { asyncHandler } from "../utils/errorHandler.js"

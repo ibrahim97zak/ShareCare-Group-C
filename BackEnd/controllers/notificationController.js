@@ -1,14 +1,22 @@
 import Notification from '../models/Notification.js';
-import User from '../models/User.js'; 
-import mongoose from 'mongoose';
+import User from '../models/User.js';
+import nodemailer from 'nodemailer';
+import { notifyRequestUpdated, sendEmailNotification, sendInAppNotification } from '../utils/notificationUtils.js';
 
-export const createNotification = async (req, res, next) => {
+const transporter = nodemailer.createTransport({
+  service: 'Gmail', 
+  auth: {
+    user: process.env.EMAIL_USER, 
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+// @desc    Create a new notification
+// @route   POST /api/notifications
+// @access  Private
+export const createInAppNotification = async (req, res) => {
   try {
     const { userId, type, content } = req.body;
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ error: 'Invalid user ID format' });
-    }
 
     const newNotification = new Notification({
       userId,
@@ -16,103 +24,127 @@ export const createNotification = async (req, res, next) => {
       content,
     });
 
+    sendInAppNotification(userId, content);
     await newNotification.save();
 
-    await User.findByIdAndUpdate(
+    res.status(201).json(newNotification);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+
+export const CreateEmailNotification = async (req, res) => {
+  try {
+    const { userId, type, content } = req.body;
+
+    const newNotification = new Notification({
       userId,
-      { $push: { notifications: newNotification._id } }, 
-      { new: true }
-    );
+      type,
+      content,
+    });
 
-    res.status(201).json({ message: 'Notification created successfully', newNotification });
+    sendEmailNotification(userId, type, content);
+    await newNotification.save();
+
+    res.status(201).json(newNotification);
   } catch (err) {
-    next(err); 
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+}
+
+
+// @desc    Get all notifications for a user
+// @route   GET /api/notifications/user/:userId
+// @access  Private
+export const getNotificationsByUser = async (req, res) => {
+  try {
+    const notifications = await Notification.find({ userId: req.params.userId })
+      .sort({ createdAt: -1 });
+
+    res.json(notifications);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
   }
 };
 
-export const getUserNotifications = async (req, res, next) => {
+// @desc    Mark email as sent after sending a notification email
+// @route   PUT /api/notifications/:id/email-sent
+// @access  Private
+export const markEmailAsSent = async (req, res) => {
   try {
-    const { userId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ error: 'Invalid user ID format' });
-    }
-
-    const notifications = await Notification.find({ userId }).sort({ createdAt: -1 });
-    res.status(200).json(notifications);
-  } catch (err) {
-    next(err); 
-  }
-};
-
-export const markAsRead = async (req, res, next) => {
-  try {
-    const { notificationId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(notificationId)) {
-      return res.status(400).json({ error: 'Invalid notification ID format' });
-    }
-
-    const notification = await Notification.findByIdAndUpdate(
-      notificationId,
-      { isRead: true },
-      { new: true }
-    );
+    const notification = await Notification.findById(req.params.id);
 
     if (!notification) {
-      return res.status(404).json({ error: 'Notification not found' });
+      return res.status(404).json({ message: 'Notification not found' });
     }
 
-    res.status(200).json({ message: 'Notification marked as read', notification });
+    notification.emailSent = true;
+    await notification.save();
+
+    res.json(notification);
   } catch (err) {
-    next(err);
+    console.error(err.message);
+    res.status(500).send('Server error');
   }
 };
 
-export const updateNotification = async (req, res, next) => {
+// @desc    Match and Notify users
+// @route   POST /api/notifications/match
+// @access  Private
+export const notifyMatch = async (req, res) => {
+  const { requestUserId, offerUserId, matchedDetails } = req.body;
+
   try {
-    const { notificationId } = req.params;
-    const updateData = req.body;
+      const requestUser = await User.findById(requestUserId);
+      const offerUser = await User.findById(offerUserId);
 
-    if (!mongoose.Types.ObjectId.isValid(notificationId)) {
-      return res.status(400).json({ error: 'Invalid notification ID format' });
-    }
+      if (!requestUser || !offerUser) {
+          return res.status(404).json({ message: 'User not found' });
+      }
 
-    const updatedNotification = await Notification.findByIdAndUpdate(notificationId, updateData, { new: true });
+      // Send email to both users
+      await Promise.all([
+          nodemailer.createTransport().sendMail({
+              to: requestUser.email,
+              subject: 'You have a match!',
+              text: matchedDetails
+          }),
+          nodemailer.createTransport().sendMail({
+              to: offerUser.email,
+              subject: 'You have a match!',
+              text: matchedDetails
+          }),
+      ]);
 
-    if (!updatedNotification) {
-      return res.status(404).json({ error: 'Notification not found' });
-    }
+      // Create and save notifications
+      const notifications = await Promise.all([
+          new Notification({ userId: requestUserId, content: matchedDetails }).save(),
+          new Notification({ userId: offerUserId, content: matchedDetails }).save(),
+      ]);
 
-    res.status(200).json({ message: 'Notification updated successfully', updatedNotification });
-  } catch (err) {
-    next(err); 
+      return res.status(201).json({
+          message: 'Notification emails sent to both users and notifications created.',
+          notifications,
+      });
+  } catch (error) {
+      console.error(error.message);
+      return res.status(500).send('Server error');
   }
 };
 
-export const deleteNotification = async (req, res, next) => {
+
+
+export const notifyUpdateRequest = async (req, res) => {
   try {
-    const { notificationId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(notificationId)) {
-      return res.status(400).json({ error: 'Invalid notification ID format' });
-    }
-
-    const notification = await Notification.findById(notificationId);
-    if (!notification) {
-      return res.status(404).json({ error: 'Notification not found' });
-    }
-
-    await User.findByIdAndUpdate(
-      notification.userId,
-      { $pull: { notifications: notificationId } }, 
-      { new: true }
-    );
-
-    await Notification.findByIdAndDelete(notificationId);
-
-    res.status(200).json({ message: 'Notification deleted successfully' });
+    const { userId, type, content } = req.body;
+    await notifyRequestUpdated(userId);
+    res.status(201).json({ message: 'Notification sent' });
   } catch (err) {
-    next(err); 
+    console.error(err.message);
+    res.status(500).send('Server error');
   }
 };

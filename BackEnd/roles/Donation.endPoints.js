@@ -1,4 +1,4 @@
-import { roles } from "../../Middleware/auth.middleware.js";
+import { roles } from "../middlewares/authMiddleware.js";
 
 export const endPoint={
     create:[roles.Admin,roles.User.Donor],
