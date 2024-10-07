@@ -14,6 +14,6 @@ router.get('/:id', handleValidationErrors, userValidation.validateUpdateUser, us
 
 router.put('/:id', authenticate, handleValidationErrors, userValidation.validateUpdateUser, userController.updateUser);
 
-router.delete('/:id', authenticate, handleValidationErrors, authorize('Admin'), userValidation.validateUpdateUser, userController.deleteUser);
+router.delete('/:id', handleValidationErrors, userValidation.validateUpdateUser, userController.deleteUser);
 
 export default router;

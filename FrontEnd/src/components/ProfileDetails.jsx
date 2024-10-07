@@ -10,7 +10,7 @@ import { useUserContext } from "../context/UserProvider";
 
 const ProfileDetails = () => {
   const { user } = useUserContext();
-  console.log(user.name);
+  console.log(user);
 
   const activeItems = [
     { id: 1, type: "Food", quantity: "10", status: "Active", for: "Donation" },
@@ -49,17 +49,12 @@ const ProfileDetails = () => {
               activeTab === "active" ? "bg-green-500 text-white" : "bg-gray-200"
             }`}
           >
-            Active {user.role === "Donor" ? "Requests" : "Donations"}
-          </button>
-          <button
-            onClick={() => setActiveTab("history")}
-            className={`px-4 py-2 rounded ${
-              activeTab === "history"
-                ? "bg-green-500 text-white"
-                : "bg-gray-200"
-            }`}
-          >
-            History
+            Active {
+            user.role === "Donor" 
+           ? "Offers" 
+           : user.role === "Beneficiary" 
+             ? "Requests" 
+             : "Offers & Requests"}
           </button>
           <button
             onClick={() => setActiveTab("notifications")}
@@ -100,7 +95,7 @@ const ProfileDetails = () => {
           <ChartsTab chartData={calculateChartData(activeItems)} />
         )}
         {activeTab === "users" &&
-          (user.role === "admin" ? (
+          (user.role === "Admin" ? (
             <UserPanelController />
           ) : (
             <div>You do not have permission to access this page.</div>

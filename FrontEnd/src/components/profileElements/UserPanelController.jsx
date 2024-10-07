@@ -1,55 +1,38 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 const UserPanelController = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fake data
-    const fakeUsers = [
-      {
-        id: 1,
-        name: "John Doe",
-        username: "johndoe",
-        email: "johndoe@example.com",
-        location: "New York",
-        userType: "Admin",
-        phone: "123-456-7890",
-        gender: "Male",
-      },
-      {
-        id: 2,
-        name: "Jane Doe",
-        username: "janedoe",
-        email: "janedoe@example.com",
-        location: "Los Angeles",
-        userType: "User",
-        phone: "987-654-3210",
-        gender: "Female",
-      },
-      {
-        id: 3,
-        name: "Bob Smith",
-        username: "bobsmith",
-        email: "bobsmith@example.com",
-        location: "Chicago",
-        userType: "Moderator",
-        phone: "555-123-4567",
-        gender: "Male",
-      },
-    ];
-
-    setUsers(fakeUsers);
-    setLoading(false);
+    async function fetchUsers() {
+      try{ 
+        const response = await axios.get('http://localhost:5000/api/users/');
+        console.log(response.data)
+        setUsers(response.data);
+        setLoading(false);
+      }
+      catch(error){
+        console.log(error)
+      }
+      }
+      fetchUsers();
   }, []);
 
   const deleteUser = (userId) => {
-    setUsers(users.filter((user) => user.id !== userId));
+    const token = localStorage.getItem('authToken');
+    console.log(token)
+    const res =  axios.delete(`http://localhost:5000/api/users/${userId}`,  {
+      headers: {
+        Authorization: `Bearer ${token}`, // Send the token in the Authorization header
+      },
+    })
+    .then((res)=>{
+      alert("Successfully Deleted")
+    })
+    .catch(err => console.log(err))
   };
-  const deleteUserCallback = (userId) => {
-    deleteUser(userId);
-  };
-
   return (
     <div className="user-panel-controller p-1">
       {/* Add overflow-x-auto for horizontal scrolling on smaller screens */}
@@ -86,25 +69,25 @@ const UserPanelController = () => {
           <tbody>
             {users.map((user) => (
               <tr
-                key={user.id}
+                key={user._id}
                 className="bg-white border-b dark:bg-slate-100 dark:border-gray-700"
               >
                 <td className="px-6 py-4">{user.name}</td>
-                <td className="px-6 py-4 hidden md:table-cell">{user.username}</td>
+                <td className="px-6 py-4 hidden md:table-cell">{user.userName}</td>
                 <td className="px-6 py-4 hidden sm:table-cell">{user.email}</td>
                 <td className="px-6 py-4 hidden lg:table-cell">{user.location}</td>
-                <td className="px-6 py-4 hidden lg:table-cell">{user.userType}</td>
+                <td className="px-6 py-4 hidden lg:table-cell">{user.role}</td>
                 <td className="px-6 py-4 hidden xl:table-cell">{user.phone}</td>
                 <td className="px-6 py-4 hidden xl:table-cell">{user.gender}</td>
                 <td className="px-6 py-4">
                   <button
-                    onClick={deleteUserCallback.bind(null, user.id)}
+                    onClick={()=>deleteUser(user._id)}
                     className={`bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ${
-                      user.userType === "Admin"
+                      user.role === "Admin"
                         ? "bg-gray-300 cursor-not-allowed hover:bg-gray-300"
                         : ""
                     }`}
-                    disabled={user.userType === "Admin"}
+                    disabled={user.role === "Admin"}
                   >
                     Delete
                   </button>
