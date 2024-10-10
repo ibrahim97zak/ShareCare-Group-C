@@ -39,10 +39,11 @@ const ChartsTab = ({ chartData,role,items }) => {
       <h2 className="text-lg font-bold mb-4">Distribution Chart</h2>
       <div className="grid grid-cols-3 gap-4">
       <div className="col-span-1">
+        <h2 className="text-lg font-bold">Quantities based on donation type</h2>
       <Doughnut data={data} options={options} />
       </div>
       <div className="col-span-2">
-        <BarCharts items={items} />
+        <BarCharts items={items} role={role}/>
       </div>
     </div>
       
