@@ -18,6 +18,7 @@ const NavigationBar = () => {
   };
   const handleProfile = () =>{
     navigate('/ProfileDetails');
+    setIsDropdownOpen(!isDropdownOpen)
   }
   return (
     <nav className="bg-white shadow-md fixed w-full z-50 top-0">
@@ -28,7 +29,7 @@ const NavigationBar = () => {
             // Show "Donate" button for Donor
             <a
               onClick={() => navigate('/DonationForm')}
-              className="ml-6 text-gray-700 hover:text-gray-900 cursor-pointer"
+              className="ml-6 text-gray-700 hover:text-green-600 cursor-pointer"
             >
               Donate
             </a>
@@ -36,7 +37,7 @@ const NavigationBar = () => {
             // Show "Request" button for Beneficiary
             <a
               onClick={() => navigate('/DonationForm')}
-              className="ml-6 text-gray-700 hover:text-gray-900 cursor-pointer"
+              className="ml-6 text-gray-700 hover:text-green-600 cursor-pointer"
             >
               Request
             </a>
@@ -58,7 +59,7 @@ const NavigationBar = () => {
             <div className="relative">
               {/* Profile Name */}
               <div
-                className="cursor-pointer px-4 py-2 bg-green-600 text-white rounded-full"
+                className="cursor-pointer px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)} // Toggle dropdown
               >
                 {user.name} {/* Display user name */}

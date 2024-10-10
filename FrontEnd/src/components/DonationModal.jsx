@@ -3,11 +3,10 @@ import Modal from 'react-modal';
 import SweetAlertComponent from "./SweetAlertComponent ";
 import axios from 'axios';
 
-const DonationModal = ({ isOpen, onClose,donationType,remainingAmount,id,receivedQuantity}) => {
+const DonationModal = ({ isOpen, onClose,donationType,remainingAmount,id,receivedQuantity,updateReceivedQuantity}) => {
 
   const donationAmounts = [10, 100, 200, 300, 500, 1000];
   const [selectedAmount, setSelectedAmount] = useState(null);
-   console.log("id",id);
   if (!isOpen) return null;
   const handleSubmit = () => {
     if (!selectedAmount || Number(selectedAmount) <= 0) {
@@ -33,6 +32,7 @@ const DonationModal = ({ isOpen, onClose,donationType,remainingAmount,id,receive
           }
           }
         updateRequest();
+        updateReceivedQuantity(selectedAmount);
         onClose(); });
     }
   };
@@ -49,7 +49,7 @@ const DonationModal = ({ isOpen, onClose,donationType,remainingAmount,id,receive
         
         {/* Donation Amounts */}
      
-          { donationType === 'Money' ? (<div className="grid grid-cols-3 gap-4">
+          { donationType === 'money' ? (<div className="grid grid-cols-3 gap-4">
             {donationAmounts.map((amount, index) => (
             <button
               key={index}

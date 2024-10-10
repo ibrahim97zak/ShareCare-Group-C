@@ -144,15 +144,17 @@ export const updateOffer = async (req, res, next) => {
 
 export const deleteDonation = async (req, res, next) => {
   try {
+    console.log(req.params.id)
     const donation = await Donation.findById(req.params.id);
+    console.log(donation)
     if (!donation) return res.status(404).json({ message: 'Donation not found' });
 
-    const donor = await Donor.findById(donation.donor);
-    const beneficiary = await Beneficiary.findById(donation.receiver);
+    // const donor = await Donor.findById(donation.donor);
+    // const beneficiary = await Beneficiary.findById(donation.receiver);
 
     await Donation.findByIdAndDelete(req.params.id);
 
-    res.json({ message: 'Donation deleted successfully', donorName: donor?.name, beneficiaryName: beneficiary?.name });
+    res.json({ message: 'Donation deleted successfully'});
   } catch (err) {
     next(err);
   }

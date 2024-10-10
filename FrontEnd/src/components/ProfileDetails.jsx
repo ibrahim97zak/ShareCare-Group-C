@@ -25,6 +25,17 @@ const ProfileDetails = () => {
 
     return acc;
   }, {});
+  const deleteDonation = async (id) => {
+    try {
+      // Call the API to delete the item
+      await axios.delete(`http://localhost:5000/api/donations/${id}`);
+
+      // Update the state to remove the deleted item
+      setItems(items.filter(item => item.id !== id));
+    } catch (error) {
+      console.error("Error deleting item:", error);
+    }
+  };
   useEffect(() => {
     console.log("activeTab:", activeTab);
   }, [activeTab]);
@@ -118,7 +129,7 @@ const ProfileDetails = () => {
         </div>
 
         {activeTab === "active" && (
-          <ActiveTab user={user} activeItems={activeItems} />
+          <ActiveTab user={user} activeItems={activeItems}  handleDelete={deleteDonation}/>
         )}
         {activeTab === "notifications" && (
           <NotificationsTab userId={user._id}/>
