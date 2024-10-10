@@ -1,8 +1,11 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import logo from "../assets/logo.png";
 import { FaSearch } from "react-icons/fa";
 import { useUserContext } from "../context/UserProvider";
 import { useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
+
 
 const NavigationBar = () => {
   const { isLoggedIn, setIsLoggedIn, user } = useUserContext();
@@ -10,6 +13,7 @@ const NavigationBar = () => {
   const navigate = useNavigate();
   const handleLogout = () => {
     setIsLoggedIn(false); // Set isLoggedIn to false to simulate logout
+    Cookies.remove('token');
     setIsDropdownOpen(false); // Close the dropdown after logging out
   };
   const handleProfile = () =>{

@@ -36,11 +36,19 @@ const LoginForm = () => {
       // Validate form inputs
       const { error } = validateLogin(formData);
   
+      console.log('Error detail:', error);
       if (error) {
         const validationErrors = {};
         error.details.forEach((err) => {
-          validationErrors[err.path[0]] = err.message;
+          if (!validationErrors[err.path[0]]) {
+            validationErrors[err.path[0]] = [err.message];
+          } else {
+            validationErrors[err.path[0]].push(err.message);
+          }
+          
         });
+        console.log('Validation Errors:', validationErrors);
+
         setValidationErrors(validationErrors);
       } else {
         try {

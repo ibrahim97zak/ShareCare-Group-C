@@ -3,7 +3,10 @@ import Bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 import { validationResult } from 'express-validator';
 import jwtUtils from '../utils/jwtUtils.js';
+// import BeneficiaryFactory from '../models/FactoryDp/factories/BeneficiaryFactory.js';
+// import DonorFactory from '../models/FactoryDp/factories/DonorFactory.js';
 
+ 
 export async function sendEmail(to, userName, subject, verificationLink) {
   // Define the HTML body for the email
   var html = `
@@ -113,6 +116,14 @@ export async function register(req, res,next) {
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
+    // let userRole;
+    // if (role === 'Beneficiary') {
+    //   userRole = await BeneficiaryFactory.createRole();
+    // } else if (role === 'Donor') {
+    //   userRole = await DonorFactory.createRole();
+    // } else {
+    //   return res.status(400).json({ message: 'Invalid role' });
+    // }
 
     // Hash the password
     const hashedPassword = await Bcrypt.hash(password, 10);
@@ -167,8 +178,12 @@ export const login = async (req, res) => {
     // Authenticate user credentials
     const user = await User.findOne({ email });
 
+
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    if (!user.isVerified) {
+      return res.status(401).json({ error: 'Email is not verified' });
     }
 
     const isValidPassword = await Bcrypt.compare(password, user.password);
@@ -176,6 +191,7 @@ export const login = async (req, res) => {
     if (!isValidPassword) {
       return res.status(400).json({ message: 'Invalid password' });
     }
+
 
     // Generate a token for the user
     const token = await  jwtUtils.generateToken({

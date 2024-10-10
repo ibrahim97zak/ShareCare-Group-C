@@ -52,7 +52,7 @@ const RegisterForm = () => {
 
     setValidationErrors({});
     setError(null);
-
+    console.log(formData)
     try {
       const response = await axios.post(
         "http://localhost:5000/api/auth/register",
