@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useState, useEffect } from 'react';
 import ProgressBar from './ProgressBar';
 import DonationModal from './DonationModal';
@@ -17,8 +18,7 @@ const RequestCard = ({ request }) => {
 
   const handleDonateClick = () => {
     setIsModalOpen(true);
-    // Update the receivedQuantity state variable when the button is clicked
-    setReceivedQuantity(receivedQuantity + 1); // assuming the donation amount is 1
+  
   };
 
   const closeModal = () => {
@@ -28,8 +28,9 @@ const RequestCard = ({ request }) => {
   const toggleDescription = () => {
     setIsExpanded(!isExpanded);
   };
-
-  console.log("request");
+  const updateReceivedQuantity = (newQuantity) => {
+    setReceivedQuantity(prevQuantity => prevQuantity + newQuantity);
+  };
 
   return (
     <div className="bg-white shadow-md rounded-lg p-4 m-4 w-80">
@@ -59,10 +60,11 @@ const RequestCard = ({ request }) => {
       <DonationModal
         isOpen={isModalOpen}
         onClose={closeModal}
-        donationType={request.type}
+        donationType={request.donationType}
         remainingAmount={remainingAmount}
         id={request._id}
         receivedQuantity={request.receivedQuantity}
+        updateReceivedQuantity={updateReceivedQuantity}
       />
     </div>
   );

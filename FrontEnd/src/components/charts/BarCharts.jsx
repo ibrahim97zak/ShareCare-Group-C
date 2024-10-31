@@ -2,49 +2,9 @@ import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 
-const BarCharts = ({items}) => {
-  const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
+const BarCharts = ({items,role}) => {
+  const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState('All');
-
-  useEffect(() => {
-    // Example data from the user
-    const donationRequests = [
-      {
-        beneficiary: "66ff1843c7ee8c185f07fbd5",
-        createdAt: "2024-10-07T15:57:49.885Z",
-        donationRole: "Request",
-        donationType: "food",
-        quantity: 10,
-      },
-      {
-        beneficiary: "66ff1843c7ee8c185f07fbd5",
-        createdAt: "2024-10-07T14:57:32.583Z",
-        donationRole: "Request",
-        donationType: "food",
-        quantity: 10,
-      },
-      {
-        beneficiary: "66ff1843c7ee8c185f07fbd5",
-        createdAt: "2024-10-07T14:32:20.080Z",
-        description: "Canned food",
-        donationRole: "Request",
-        donationType: "clothes",
-        quantity: 5,
-      },
-      {
-        beneficiary: "66ff1843c7ee8c185f07fbd5",
-        createdAt: "2024-10-06T14:32:20.080Z",
-        description: "Canned food",
-        donationRole: "Request",
-        donationType: "food",
-        quantity: 15,
-      }
-    ];
-
-    setRequests(donationRequests);
-    setLoading(false);
-  }, []);
 
   // Function to aggregate donations by date
   const aggregateDonationsByDate = (items) => {
@@ -67,26 +27,17 @@ const BarCharts = ({items}) => {
 
   const aggregatedData = aggregateDonationsByDate(items);
 
-  // Filter data based on selected type (currently this doesn't affect the aggregation, you can expand it later if needed)
-  const filteredData = selectedType === 'All' ? aggregatedData : aggregatedData.filter(item => item.type === selectedType);
-
   return (
     <div className="bar-chart-container">
-      <h3 className="text-lg font-bold">Requests Over Time</h3>
-
-      <select
-        className="mb-4 p-2 border border-gray-300 rounded"
-        value={selectedType}
-        onChange={(e) => setSelectedType(e.target.value)}
-      >
-        <option value="All">All</option>
-        {/* You can add other donation types if you want the dropdown */}
-      </select>
-
+      {
+      role === "Donor" ? ( <h3 className="text-lg font-bold">Offers Over Time</h3>):
+      role === "Beneficiary" ?(<h3 className="text-lg font-bold">Requests Over Time</h3>):
+      (<h3 className="text-lg font-bold">Donations Over Time</h3>)
+      }
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <BarChart width={500} height={300} data={filteredData}>
+        <BarChart width={500} height={300} data={aggregatedData}>
           <XAxis dataKey="date" />
           <YAxis />
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />

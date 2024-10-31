@@ -29,7 +29,7 @@ router.get('/:userId/sent-donations', authenticate, authorize('Donor'), donation
 router.get('/:userId/donations', authenticate, handleValidationErrors, donationController.getDonationsByUserId); // get all donations from all types by user id
 
 router.put('/:id', authenticate, authorize('Donor'), validationMiddleware.validateDonationId, handleValidationErrors, donationController.updateOffer); // donor can update it's offer
-router.delete('/:id', authenticate, validationMiddleware.validateDonationId, handleValidationErrors, donationController.deleteDonation); // user can delete it's donation
+router.delete('/:id', donationController.deleteDonation); // user can delete it's donation
 
 router.post('/take-offer', authenticate, authorize('Beneficiary'), validationMiddleware.validateTakeOffer, handleValidationErrors, donationController.takeOffer); // beneficiary can take an offer
 router.post('/fulfill-request', authenticate, authorize('Donor'), validationMiddleware.validateFulfillRequest, handleValidationErrors, donationController.fulfillRequest); // donor can fulfill a request
