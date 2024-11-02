@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { ApiUrl } from "../../utils/ApiConfigUrl";
 
 const UserPanelController = () => {
   const [users, setUsers] = useState([]);
@@ -8,7 +9,7 @@ const UserPanelController = () => {
   useEffect(() => {
     async function fetchUsers() {
       try{ 
-        const response = await axios.get('http://localhost:5000/api/users/');
+        const response = await axios.get(`${ApiUrl}/api/users/`);
         console.log(response.data)
         setUsers(response.data);
         setLoading(false);
@@ -23,7 +24,7 @@ const UserPanelController = () => {
   const deleteUser = (userId) => {
     const token = localStorage.getItem('authToken');
     console.log(token)
-    const res =  axios.delete(`http://localhost:5000/api/users/${userId}`,  {
+    const res =  axios.delete(`${ApiUrl}/api/users/${userId}`,  {
       headers: {
         Authorization: `Bearer ${token}`, // Send the token in the Authorization header
       },

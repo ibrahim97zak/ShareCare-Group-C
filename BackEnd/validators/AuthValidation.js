@@ -45,10 +45,17 @@ export const signupSchema =
       })
     }).required()
 
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?$/;
 
 export const loginSchema =Joi.object({
-        email:generalFeilds.email,
-        password:generalFeilds.password,
+  email: Joi.string().pattern(emailRegex).required().messages({
+    'string.empty': 'Email is required',
+    'string.pattern.base': 'Please enter a valid email',
+  }),
+  password: Joi.string().min(6).required().messages({
+    'string.empty': 'Password is required',
+    'string.min': 'Password must be at least 6 characters long',
+  }),
     }).required()
 
     export const confirmEmailSchema = Joi.object().keys({

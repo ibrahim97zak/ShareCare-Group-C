@@ -7,6 +7,7 @@ import calculateChartData from "../utils/chartData";
 import UserPanelController from "../components/profileElements/UserPanelController";
 import { useUserContext } from "../context/UserProvider";
 import axios from 'axios';
+import { ApiUrl } from "../utils/ApiConfigUrl";
 
 const ProfileDetails = () => {
   const { user } = useUserContext();
@@ -28,7 +29,7 @@ const ProfileDetails = () => {
   const deleteDonation = async (id) => {
     try {
       // Call the API to delete the item
-      await axios.delete(`http://localhost:5000/api/donations/${id}`);
+      await axios.delete(`${ApiUrl}/api/donations/${id}`);
 
       // Update the state to remove the deleted item
       setItems(items.filter(item => item.id !== id));

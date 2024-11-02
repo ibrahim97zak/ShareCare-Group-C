@@ -1,5 +1,6 @@
 import React,{useState,useEffect} from 'react';
 import axios from 'axios';
+import { ApiUrl } from '../../utils/ApiConfigUrl';
 
 const ActiveTab = ({activeItems,user}) => {
   const [activeDonation, setActiveDonation] = useState(activeItems);
@@ -8,7 +9,7 @@ const ActiveTab = ({activeItems,user}) => {
   }, [activeItems]);
   const handleDelete = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:5000/api/donations/${id}`);
+      const response = await axios.delete(`${ApiUrl}/api/donations/${id}`);
       console.log(response.data)
       alert("successfully deleted")
       setActiveDonation(activeDonation.filter(item => item.id !== id));

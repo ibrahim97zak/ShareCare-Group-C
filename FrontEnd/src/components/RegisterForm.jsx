@@ -7,6 +7,7 @@ import validateSignup from "../utils/validateSignup";
 import logo from "../assets/images/SAHEM-logo.png";
 import LocationSelect from "./input/LocationSelect";
 import axios from "axios";
+import { ApiUrl } from "../utils/ApiConfigUrl";
 
 const RegisterForm = () => {
   const [userInputs, setUserInputs] = useState({
@@ -55,7 +56,7 @@ const RegisterForm = () => {
     console.log(formData)
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        `${ApiUrl}/api/auth/register`,
         formData
       );
       const data = response.data;

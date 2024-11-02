@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../context/UserProvider.jsx";
 import axios from "axios";
 import Swal from 'sweetalert2';
+import { ApiUrl } from "../utils/ApiConfigUrl.js";
 
 const RequestDonationForm = () => {
   const { user } = useUserContext();
@@ -60,7 +61,7 @@ const RequestDonationForm = () => {
 
     console.log(formData);
     // Make API call to create donation here
-    const endpoint = `http://localhost:5000/api/donations/${user.role === "Beneficiary" ? "request" : "offer"}`;
+    const endpoint = `${ApiUrl}/api/donations/${user.role === "Beneficiary" ? "request" : "offer"}`;
 
   try {
     const response = await axios.post(endpoint, formData);

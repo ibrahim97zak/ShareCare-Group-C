@@ -2,6 +2,7 @@ import React, { useState} from "react";
 import Modal from 'react-modal';
 import SweetAlertComponent from "./SweetAlertComponent ";
 import axios from 'axios';
+import { ApiUrl } from "../utils/ApiConfigUrl";
 
 const DonationModal = ({ isOpen, onClose,donationType,remainingAmount,id,receivedQuantity,updateReceivedQuantity}) => {
 
@@ -21,7 +22,7 @@ const DonationModal = ({ isOpen, onClose,donationType,remainingAmount,id,receive
         
         async function updateRequest() {
           try{ 
-           axios.put(`http://localhost:5000/api/donations/request/${id}`,{newQuantity:selectedAmount+receivedQuantity}) // Replace with your API URL
+           axios.put(`${ApiUrl}/api/donations/request/${id}`,{newQuantity:selectedAmount+receivedQuantity}) // Replace with your API URL
               .then(response => {
                  console.log(response.data)
                })

@@ -3,6 +3,7 @@ import RequestCard from './RequestCard';
 import FilterBar from './FilterBar';
 import DonationService from './DonationService';
 import axios from 'axios';
+import { ApiUrl } from '../utils/ApiConfigUrl';
 
 const RequestsList = () => {
    const [searchTerm, setSearchTerm] = useState('');
@@ -16,7 +17,7 @@ const RequestsList = () => {
         throw new Error('Authentication token not found');
       }
       try{ 
-        const response = await axios.get('http://localhost:5000/api/donations/requests');
+        const response = await axios.get(`${ApiUrl}/api/donations/requests`);
         // Update state with fetched donations
         setRequests(response.data);
       }

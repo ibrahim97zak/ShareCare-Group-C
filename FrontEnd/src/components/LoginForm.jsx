@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+ /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import InputField from "./input/InputField";
@@ -7,7 +7,8 @@ import validateLogin from "../utils/validateLogin";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { useUserContext } from "../context/UserProvider";
+import { useUserContext } from "../context/UserProvider"
+ import { ApiUrl } from "../utils/ApiConfigUrl";
 
 
 const LoginForm = () => {
@@ -53,7 +54,7 @@ const LoginForm = () => {
       } else {
         try {
           // Send a POST request to the login API
-          const response = await axios.post("http://localhost:5000/api/auth/login", formData, {
+          const response = await axios.post(`${ApiUrl}/api/auth/login`, formData, {
             withCredentials: true, // This allows cookies to be set if your API is configured to use them
             credentials: 'include' // Add this line
           });
@@ -64,7 +65,7 @@ const LoginForm = () => {
           Cookies.set('token', token, { expires: 1 }); // store the token in a cookie
           await setUser(response.data.user); // Ensure user is set
           // Set login status
-          setIsLoggedIn(true);
+          setIsLoggedIn(true)
           }
         } catch (err) {
           setError(err.response.data.message);

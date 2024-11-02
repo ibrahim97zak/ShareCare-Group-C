@@ -3,6 +3,7 @@ import DonationCard from './DonationCard';
 import FilterBar from './FilterBar';
 import DonationService from './DonationService';
 import axios from 'axios';
+import { ApiUrl } from '../utils/ApiConfigUrl';
 
 const DonationsList = () => {
    const [searchTerm, setSearchTerm] = useState('');
@@ -17,7 +18,7 @@ const DonationsList = () => {
         }
           console.log("from d",token)
         try{ 
-          const response = await axios.get('http://localhost:5000/api/donations/offers');
+          const response = await axios.get(`${ApiUrl}/api/donations/offers`);
           // Update state with fetched donations
           setDonations(response.data);
         }
