@@ -11,5 +11,4 @@ router.post('/register',validation(validators.signupSchema),asyncHandler(registe
 router.post('/login',validation(validators.loginSchema),asyncHandler(login));
 router.get('/confirm-email',validation(validators.confirmEmailSchema),confirmEmail);
 router.post('/logout',logout);
-
 export default router;

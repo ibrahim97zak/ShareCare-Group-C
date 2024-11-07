@@ -68,7 +68,8 @@ const LoginForm = () => {
           setIsLoggedIn(true)
           }
         } catch (err) {
-          setError(err.response.data.message);
+          console.log(err)
+          setError(err.response.data.error);
         }
       }
     } catch (err) {
