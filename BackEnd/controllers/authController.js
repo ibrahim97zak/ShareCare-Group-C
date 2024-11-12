@@ -93,7 +93,6 @@ export async function sendEmail(to, userName, subject, verificationLink) {
       subject: subject,
       html: html,
     });
-    console.log("Message sent: %s", info.messageId);
   } catch (error) {
     console.error("Error sending email:", error.message);
   }
@@ -198,6 +197,12 @@ export const login = async (req, res) => {
       userId: user.id,
       email: user.email,
       role: user.role,
+    });
+    res.cookie('token', token, {
+      httpOnly: true, // Only accessible by the server, not client-side JavaScript
+      sameSite: 'Lax', // Adjust depending on your requirements
+      maxAge: 24 * 60 * 60 * 1000 ,// Expires in 1 day
+      expires: new Date(Date.now() + 3600000), // Expire in 1 hour
     });
 
     // Return the token in the response

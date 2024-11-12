@@ -53,7 +53,6 @@ const RegisterForm = () => {
 
     setValidationErrors({});
     setError(null);
-    console.log(formData)
     try {
       const response = await axios.post(
         `${ApiUrl}/api/auth/register`,

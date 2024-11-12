@@ -12,13 +12,16 @@ const RequestsList = () => {
    const displayedRequests = filteredRequests.length === 0 ? requests : filteredRequests;
    useEffect(()=>{
     async function fetchRequests() {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        throw new Error('Authentication token not found');
-      }
       try{ 
-        const response = await axios.get(`${ApiUrl}/api/donations/requests`);
-        // Update state with fetched donations
+        const response = await axios.get(`${ApiUrl}/api/donations/requests`,
+          {
+              withCredentials: true, // Include cookies in request
+          }
+        );
+
+        //Update state with fetched donations
+        
+
         setRequests(response.data);
       }
       catch(error){
@@ -26,7 +29,6 @@ const RequestsList = () => {
       }
       }
     fetchRequests();
-
   },[])
   
 

@@ -53,7 +53,6 @@ export const createDonationRequest = async (req, res, next) => {
     const { userId, donationType, location, quantity,description  } = req.body;
 
     // Log the userId value
-    console.log('userId:', userId);
 
     // Validate request data
     if (!userId || !donationType || !location || !quantity || !description   ) {

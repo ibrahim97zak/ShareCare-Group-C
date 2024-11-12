@@ -1,18 +1,17 @@
- /* eslint-disable no-unused-vars */
+/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import InputField from "./input/InputField";
 import PasswordInput from "./input/PasswordInput";
 import validateLogin from "../utils/validateLogin";
 import axios from "axios";
-import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
-import { useUserContext } from "../context/UserProvider"
- import { ApiUrl } from "../utils/ApiConfigUrl";
-
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import { useUserContext } from "../context/UserProvider";
+import { ApiUrl } from "../utils/ApiConfigUrl";
 
 const LoginForm = () => {
-  const { setIsLoggedIn,setUser,user,isLoggedIn} = useUserContext();
+  const { setIsLoggedIn, setUser, user, isLoggedIn } = useUserContext();
   const navigate = useNavigate();
   const [userInputs, setUserInputs] = useState({
     email: "",
@@ -24,20 +23,20 @@ const LoginForm = () => {
     password: "",
   });
   useEffect(() => {
-    if (Object.keys(validationErrors).every((key) => validationErrors[key] === "")) {
+    if (
+      Object.keys(validationErrors).every((key) => validationErrors[key] === "")
+    ) {
       setError(null);
     }
-  }, [validationErrors])
+  }, [validationErrors]);
   const handleLogin = async (e) => {
     e.preventDefault();
-  
+
     const formData = { ...userInputs };
-  
+
     try {
       // Validate form inputs
       const { error } = validateLogin(formData);
-  
-      console.log('Error detail:', error);
       if (error) {
         const validationErrors = {};
         error.details.forEach((err) => {
@@ -46,29 +45,34 @@ const LoginForm = () => {
           } else {
             validationErrors[err.path[0]].push(err.message);
           }
-          
         });
-        console.log('Validation Errors:', validationErrors);
-
         setValidationErrors(validationErrors);
       } else {
         try {
           // Send a POST request to the login API
-          const response = await axios.post(`${ApiUrl}/api/auth/login`, formData, {
-            withCredentials: true, // This allows cookies to be set if your API is configured to use them
-            credentials: 'include' // Add this line
-          });
-  
+          const response = await axios.post(
+            `${ApiUrl}/api/auth/login`,
+            formData,
+            {
+              withCredentials: true, // This allows cookies to be set if your API is configured to use them
+            }
+          );
+
           // Handle successful login
           if (response.status === 200) {
             const token = response.data.token; // assuming the token is returned in the response data
-          Cookies.set('token', token, { expires: 1 }); // store the token in a cookie
-          await setUser(response.data.user); // Ensure user is set
-          // Set login status
-          setIsLoggedIn(true)
+            Cookies.set("token", token, {
+              expires: 1,
+              secure: true,
+              sameSite: "Lax",
+            }); // Store token with secure attributes
+            await setUser(response.data.user); // Ensure user is set
+            // Set login status
+            setIsLoggedIn(true);
+            // Navigate to home after successful login
+            navigate("/");
           }
         } catch (err) {
-          console.log(err)
           setError(err.response.data.error);
         }
       }
@@ -76,37 +80,38 @@ const LoginForm = () => {
       setError(err.message);
     }
   };
-  useEffect(() => {
-    if (isLoggedIn) {
-        navigate('/'); // Navigate to the home page
-    }
-}, [isLoggedIn, navigate]);
-
 
   return (
     <>
       <div className="flex items-center justify-center mt-28">
         <div className="w-96 border rounded bg-white px-7 py-10">
           <form onSubmit={handleLogin}>
-
             <h4 className="text-2xl text-center mb-7">Login</h4>
             <br />
             <InputField
               type="email"
               placeholder="Email"
               value={userInputs.email}
-              onChange={(e) => setUserInputs({ ...userInputs, email: e.target.value })}
+              onChange={(e) =>
+                setUserInputs({ ...userInputs, email: e.target.value })
+              }
             />
             {validationErrors.email && (
-              <p className="text-red-600 text-xs pb-1">{validationErrors.email}</p>
+              <p className="text-red-600 text-xs pb-1">
+                {validationErrors.email}
+              </p>
             )}
             <br />
             <PasswordInput
               value={userInputs.password}
-              onChange={(e) => setUserInputs({ ...userInputs, password: e.target.value })}
+              onChange={(e) =>
+                setUserInputs({ ...userInputs, password: e.target.value })
+              }
             />
             {validationErrors.password && (
-              <p className="text-red-600 text-xs pb-1">{validationErrors.password}</p>
+              <p className="text-red-600 text-xs pb-1">
+                {validationErrors.password}
+              </p>
             )}
             <br />
             {error && <p className="text-red-600 text-xs pb-1">{error}</p>}

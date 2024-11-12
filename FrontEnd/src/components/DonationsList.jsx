@@ -1,4 +1,4 @@
-import React,{useState,useEffect} from 'react';
+import {useState,useEffect} from 'react';
 import DonationCard from './DonationCard';
 import FilterBar from './FilterBar';
 import DonationService from './DonationService';
@@ -12,13 +12,11 @@ const DonationsList = () => {
    const displayedDonations = filteredDonations.length === 0 ? donations : filteredDonations;
    useEffect(()=>{
       async function fetchDonations() {
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-          throw new Error('Authentication token not found');
-        }
-          console.log("from d",token)
         try{ 
-          const response = await axios.get(`${ApiUrl}/api/donations/offers`);
+          const response = await axios.get(`${ApiUrl}/api/donations/offers`,
+            {
+                withCredentials: true, // Include cookies in request
+            });
           // Update state with fetched donations
           setDonations(response.data);
         }

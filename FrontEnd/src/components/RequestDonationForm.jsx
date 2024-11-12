@@ -19,7 +19,6 @@ const RequestDonationForm = () => {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
-  console.log(user._id);
 
   const handleSubmit = async (event) => {
     event.preventDefault();

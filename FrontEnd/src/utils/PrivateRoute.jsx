@@ -1,12 +1,11 @@
-/* eslint-disable react/prop-types */
-// PrivateRoute.jsx
 import { Navigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
+import { useUserContext } from '../context/UserProvider'; // Make sure to import your context
 
 const PrivateRoute = ({ element }) => {
-  const isAuthenticated = !!Cookies.get('token'); // Check if token exists
+  const { isLoggedIn } = useUserContext();  // Get the isLoggedIn state from context
 
-  return isAuthenticated ? element : <Navigate to="/login" />;
+  // If not logged in, redirect to the login page, otherwise render the element
+  return isLoggedIn ? element : <Navigate to="/login" />;
 };
 
 export default PrivateRoute;

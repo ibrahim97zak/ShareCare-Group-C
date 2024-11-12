@@ -7,33 +7,41 @@ const roles = {
   User: ['Donor', 'Beneficiary']
 };
 
+
 export const authenticate = async (req, res, next) => {
-  const { authorization } = req.headers;
-  if (!authorization?.startsWith(process.env.BEARERKEY)) {
-    return next(new Error("invalid bearer key", { cause: 400 }));
-  }
-  const token = authorization.split(process.env.BEARERKEY)[1];
+  try {
+    // Retrieve token from cookies
+    const token = req.cookies?.token;
+    console.log("token from auth",token)
+    if (!token) {
+      return next(new Error("Token not found in cookies", { cause: 400 }));
+    }
 
-  if (!token) {
-    return next(new Error("invalid token", { cause: 400 }));
-  }
-  const decoded = jwtUtils.verifyToken(token, process.env.JWT_SECRET);
-  console.log('decoded.id:', decoded.user.id);
-  if (!decoded) {
-    return next(new Error("invalid token payload", { cause: 400 }));
-  }
-  const user = await userModel.findById(decoded.user.id).select('userName role');
-  if (!user) {
-    return next(new Error("not registered user", { cause: 401 }));
-  }
-  req.user = user;
-  console.log('req.user:', req.user); // Add this logging statement
+    // Verify token
+    const decoded = jwtUtils.verifyToken(token, process.env.JWT_SECRET);
+    if (!decoded) {
+      return next(new Error("Invalid token payload", { cause: 400 }));
+    }
 
-  req.isAdmin = user.role === roles.Admin;
-  req.isDonor = user.role === roles.User[0];
-  req.isBeneficiary = user.role === roles.User[1];
-  next();
+    // Fetch user based on the decoded token
+    const user = await userModel.findById(decoded.userId).select('userName role');
+    if (!user) {
+      return next(new Error("Not registered user", { cause: 401 }));
+
+    }
+
+    // Attach user and role details to the request object
+    req.user = user;
+    req.isAdmin = user.role === roles.Admin;
+    req.isDonor = user.role === roles.User[0];
+    req.isBeneficiary = user.role === roles.User[1];
+    
+    next();
+  } catch (error) {
+    next(new Error("Authentication failed", { cause: 500 }));
+  }
 };
+
 
 export const authorize = (role) => {
   return async (req, res, next) => {

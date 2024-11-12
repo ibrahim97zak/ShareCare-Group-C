@@ -10,7 +10,6 @@ const UserPanelController = () => {
     async function fetchUsers() {
       try{ 
         const response = await axios.get(`${ApiUrl}/api/users/`);
-        console.log(response.data)
         setUsers(response.data);
         setLoading(false);
       }
@@ -23,7 +22,6 @@ const UserPanelController = () => {
 
   const deleteUser = (userId) => {
     const token = localStorage.getItem('authToken');
-    console.log(token)
     const res =  axios.delete(`${ApiUrl}/api/users/${userId}`,  {
       headers: {
         Authorization: `Bearer ${token}`, // Send the token in the Authorization header

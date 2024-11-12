@@ -7,7 +7,6 @@ const jwtUtils = {
     }
     try {
       const token = await jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
-      console.log(token)
       return token;
     } catch (error) {
       throw new Error(`Error generating token: ${error.message}`);

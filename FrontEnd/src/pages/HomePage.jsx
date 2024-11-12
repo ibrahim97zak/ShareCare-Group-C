@@ -1,8 +1,5 @@
-import React, { useState, useEffect } from "react";
-import NavigationBar from "../components/NavigationBar";
 import Banner from "../components/Banner";
 import DonationsList from "../components/DonationsList";
-import Footer from "../components/Footer";
 import RequestsList from "../components/RequestsList";
 import { useUserContext } from "../context/UserProvider";
 

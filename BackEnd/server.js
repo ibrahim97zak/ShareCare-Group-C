@@ -1,7 +1,6 @@
 import express, { json } from 'express';
 import { connect } from 'mongoose';
 import cors from 'cors';
-import bodyParser from 'body-parser';
 import cookieParser from "cookie-parser";
 import { config } from 'dotenv';
 import http from 'http';
