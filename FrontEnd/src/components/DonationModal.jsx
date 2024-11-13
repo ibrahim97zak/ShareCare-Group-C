@@ -7,7 +7,7 @@ import { ApiUrl } from "../utils/ApiConfigUrl";
 const DonationModal = ({ isOpen, onClose,donationType,remainingAmount,id,receivedQuantity,updateReceivedQuantity}) => {
 
   const donationAmounts = [10, 100, 200, 300, 500, 1000];
-  const [selectedAmount, setSelectedAmount] = useState(null);
+  const [selectedAmount, setSelectedAmount] = useState('');
   const handleSubmit = () => {
     if (!selectedAmount || Number(selectedAmount) <= 0) {
       SweetAlertComponent.error('Oops...', 'Please enter a valid amount!');
