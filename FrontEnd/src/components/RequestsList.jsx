@@ -20,7 +20,6 @@ const RequestsList = () => {
         );
 
         //Update state with fetched donations
-        
 
         setRequests(response.data);
       }
@@ -43,7 +42,7 @@ const RequestsList = () => {
           .filter(request => 
              request.goal === false)
           .map(request => (
-            <RequestCard key={request.id} request={request} />
+            <RequestCard key={request._id} request={request} />
           ))}
       </div>
       </>

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import ProgressBar from './ProgressBar';
 import DonationModal from './DonationModal';
 
-const RequestCard = ({ request }) => {
+const RequestCard = ({ request}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [receivedQuantity, setReceivedQuantity] = useState(request.receivedQuantity);

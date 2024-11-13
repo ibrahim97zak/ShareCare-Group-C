@@ -8,7 +8,6 @@ const DonationModal = ({ isOpen, onClose,donationType,remainingAmount,id,receive
 
   const donationAmounts = [10, 100, 200, 300, 500, 1000];
   const [selectedAmount, setSelectedAmount] = useState(null);
-  if (!isOpen) return null;
   const handleSubmit = () => {
     if (!selectedAmount || Number(selectedAmount) <= 0) {
       SweetAlertComponent.error('Oops...', 'Please enter a valid amount!');
@@ -42,10 +41,11 @@ const DonationModal = ({ isOpen, onClose,donationType,remainingAmount,id,receive
    <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
-      className="fixed inset-0 flex items-center justify-center p-4 bg-gray-600 bg-opacity-50 z-50"
+      className="fixed inset-0 flex items-center justify-center p-4 bg-gray-600 bg-opacity-50 z-50 "
+      ariaHideApp={false}
     >
      
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full ">
         <h2 className="text-2xl font-bold mb-6">Enter your donation</h2>
         
         {/* Donation Amounts */}

@@ -19,7 +19,7 @@ const Banner = () => {
       <div className="absolute inset-0 opacity-50 bg-green-200"></div>
 
       {/* Centered Content */}
-      <div className="relative flex flex-col justify-center items-center h-full text-center z-10">
+      <div className="relative flex flex-col justify-center items-center h-full text-center z-0">
         <h1 className="text-4xl font-bold text-black-800">
           Together we can make a difference
         </h1>
