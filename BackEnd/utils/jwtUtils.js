@@ -6,7 +6,8 @@ const jwtUtils = {
       throw new Error('JWT secret key is not set');
     }
     try {
-      const token = await jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
+      const token = await jwt.sign(payload, process.env.JWT_SECRET
+        , { expiresIn: process.env.JWT_EXPIRES_IN });
       return token;
     } catch (error) {
       throw new Error(`Error generating token: ${error.message}`);

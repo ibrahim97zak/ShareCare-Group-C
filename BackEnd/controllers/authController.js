@@ -203,6 +203,7 @@ export const login = async (req, res) => {
       sameSite: 'Lax', // Adjust depending on your requirements
       maxAge: 24 * 60 * 60 * 1000 ,// Expires in 1 day
       expires: new Date(Date.now() + 3600000), // Expire in 1 hour
+      secure: process.env.NODE_ENV !== "development" //only send over https
     });
 
     // Return the token in the response
