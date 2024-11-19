@@ -7,7 +7,7 @@
     "test": "jest",
   "server": "nodemon backend/server.js",
   "start": "NODE_ENV=production node backend/server.js",
-  "build": "npm install && npm install --prefix FrontEnd && npm run build --prefix FrontEnd",
+  "build": "npm run build --prefix FrontEnd",
   "dev": "concurrently \"npm run server\" \"npm run client\"",
   "client": "npm start --prefix FrontEnd"
   },
