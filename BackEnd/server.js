@@ -5,6 +5,11 @@ import cookieParser from "cookie-parser";
 import { config } from 'dotenv';
 import http from 'http';
 import { Server } from 'socket.io';
+import { fileURLToPath } from "url";
+import path from "path";
+
+const __dirname=path.resolve()
+
 
 // Import routes
 import authRoutes from './routes/authRoutes.js';
@@ -52,8 +57,24 @@ app.use('/api/notifications', notificationRoutes);
 
 // middlewares
 app.use(errorHandler);
+// Serve static files from the correct dist directory
+const staticPath = path.join(__dirname, '../FrontEnd/dist');
 
-connectDB();
+// Log paths for debugging
+// console.log('Static path:', staticPath);
+// console.log('Index.html path:', path.join(staticPath, 'index.html'));
+
+app.use(express.static(staticPath));
+
+// Handle all unmatched routes by serving index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(staticPath, 'index.html'), (err) => {
+        if (err) {
+            console.error('Error serving index.html:', err); // Log any errors
+            res.status(500).send(err);
+        }
+    });
+});
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
@@ -74,8 +95,10 @@ io.on('connection', (socket) => {
 
 // Start server
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () =>
-    console.log(`Server running on port ${PORT};
-    `));
+server.listen(PORT, () => {
+  connectDB();
+  console.log(`Server is running on ${PORT}`)
+  console.log("hi",__dirname)
+});
 
 export {server, io};
