@@ -39,7 +39,7 @@ const io = new Server(server);
 
 // Middleware
 app.use(cors({
-  origin: ["http://localhost:5173","https://sahem-gsg-app.onrender.com"], // Replace with your React app's URL
+  origin: ["http://localhost:5173","https://sharecare-group-c.onrender.com"], // Replace with your React app's URL
   credentials: true, // Allow cookies or authentication tokens to be sent
 }));
 
