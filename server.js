@@ -1,4 +1,4 @@
-import express, { json } from 'express';
+import express from 'express';
 import { connect } from 'mongoose';
 import cors from 'cors';
 import cookieParser from "cookie-parser";
@@ -12,20 +12,19 @@ const __dirname=path.resolve()
 
 
 // Import routes
-import authRoutes from './routes/authRoutes.js';
-import userRoutes from './routes/userRoutes.js';
-import donationRoutes from './routes/donationRoutes.js';
-import notificationRoutes from './routes/notificationRoutes.js';
+import authRoutes from './BackEnd/routes/authRoutes.js';
+import userRoutes from './BackEnd/routes/userRoutes.js';
+import donationRoutes from './BackEnd/routes/donationRoutes.js';
+import notificationRoutes from './BackEnd/routes/notificationRoutes.js';
 
 
 // Import error handler middleware
-import {errorHandler} from './utils/errorHandler.js';
+import {errorHandler} from './BackEnd/utils/errorHandler.js';
 
 // connect to DB
-import connectDB from './dbConfig/db.js';
+import connectDB from './BackEnd/dbConfig/db.js';
 
 
-import { initializeSocketIO, sendInAppNotification } from './utils/notificationUtils.js';
 
 // Load environment variables
 config();
@@ -59,7 +58,8 @@ app.use('/api/notifications', notificationRoutes);
 // middlewares
 app.use(errorHandler);
 // Serve static files from the correct dist directory
-const staticPath = path.join(__dirname, '../FrontEnd/dist');
+const staticPath = path.join(__dirname, './FrontEnd/dist');
+
 
 // Log paths for debugging
 // console.log('Static path:', staticPath);
@@ -71,34 +71,19 @@ app.use(express.static(staticPath));
 app.get('*', (req, res) => {
     res.sendFile(path.resolve(staticPath, 'index.html'), (err) => {
         if (err) {
-            console.error('Error serving index.html:', err); // Log any errors
+            console.error('Error serving  index.html:', err); // Log any errors
             res.status(500).send(err);
         }
     });
 });
 
 // Socket.io connection handling
-io.on('connection', (socket) => {
-    
-    console.log('A user connected:', socket.id);
-
-    // Handle event when a new notification is sent
-    socket.on('newNotification', (notification) => {
-        // Emit the notification to all connected clients
-        sendInAppNotification(socket.id, notification);
-      });
-  
-      // Handle disconnection
-      socket.on('disconnect', () => {
-        console.log('User disconnected:', socket.id);
-      });
-});
 
 // Start server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   connectDB();
-  console.log(`Server is running on ${PORT}`)
+  console.log(`Server is running on port ${PORT}`)
   console.log("hi",__dirname)
 });
 

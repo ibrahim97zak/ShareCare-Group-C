@@ -1,6 +1,6 @@
 import { Server } from 'socket.io';
 import nodemailer from 'nodemailer';
-import {io} from '../server.js';
+import {io} from '../../server.js';
 
 //let io;
 
