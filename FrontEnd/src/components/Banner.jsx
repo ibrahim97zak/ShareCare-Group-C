@@ -48,7 +48,7 @@ const Banner = React.memo(() => {
       {/* Centered Content */}
       <div className="relative flex flex-col justify-center items-center h-full text-center z-0">
         <h1 className="text-4xl font-bold text-black-800">
-          Together we can make a difference
+          Together we can make a big difference
         </h1>
         <p className="mt-4 text-gray-700 text-2xl font-bold">
           Your home for help
