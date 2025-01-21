@@ -8,6 +8,8 @@ import logo from "../assets/images/SAHEM-logo.png";
 import LocationSelect from "./input/LocationSelect";
 import axios from "axios";
 import { ApiUrl } from "../utils/ApiConfigUrl";
+import Swal from "sweetalert2";
+
 
 const RegisterForm = () => {
   const [userInputs, setUserInputs] = useState({
@@ -37,11 +39,11 @@ const RegisterForm = () => {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
-
+  
     const formData = { ...userInputs };
-
+  
     const { error } = validateSignup(formData);
-
+  
     if (error) {
       const validationErrors = {};
       error.details.forEach((err) => {
@@ -50,7 +52,7 @@ const RegisterForm = () => {
       setValidationErrors(validationErrors);
       return;
     }
-
+  
     setValidationErrors({});
     setError(null);
     try {
@@ -59,18 +61,42 @@ const RegisterForm = () => {
         formData
       );
       const data = response.data;
+  
+      // SweetAlert2 popup for successful registration
+      Swal.fire({
+        title: "Registration Successful!",
+        text: "Please check your email to verify your account.",
+        icon: "success",
+        confirmButtonText: "OK",
+      }).then(() => {
+        // Redirect to login after user clicks "OK"
+        window.location.href = "/login";
+      });
+  
       console.log("Form submitted successfully", data);
-      // You can also redirect the user to the login page or any other page
-      window.location.href = "/login";
     } catch (error) {
+      let errorMessage = "An unexpected error occurred.";
+  
       if (error.response) {
         console.error("Error submitting form:", error.response.data.message);
+        errorMessage = error.response.data.message;
       } else {
         console.error("Error submitting form:", error.message);
+        errorMessage = error.message;
       }
-      setError(error.response.data.message);
+  
+      setError(errorMessage);
+  
+      // SweetAlert2 popup for error
+      Swal.fire({
+        title: "Error",
+        text: errorMessage,
+        icon: "error",
+        confirmButtonText: "Try Again",
+      });
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center mt-10">
