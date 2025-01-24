@@ -7,9 +7,10 @@ import validateSignup from "../utils/validateSignup";
 import logo from "../assets/images/SAHEM-logo.png";
 import LocationSelect from "./input/LocationSelect";
 import axios from "axios";
-import { ApiUrl } from "../utils/ApiConfigUrl";
 import Swal from "sweetalert2";
 
+export const ApiUrl =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const RegisterForm = () => {
   const [userInputs, setUserInputs] = useState({
@@ -36,6 +37,7 @@ const RegisterForm = () => {
     phone: "",
     gender: "",
   });
+
 
   const handleSignUp = async (e) => {
     e.preventDefault();

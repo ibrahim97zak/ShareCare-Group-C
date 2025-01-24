@@ -3,8 +3,8 @@ import ProfileInfo from "../components/profileElements/ProfileInfo";
 import calculateChartData from "../utils/chartData";
 import { useUserContext } from "../context/UserProvider";
 import axios from 'axios';
-import { ApiUrl } from "../utils/ApiConfigUrl";
-import LoadingSpinner from "./LoadingSpinner";
+export const ApiUrl =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";import LoadingSpinner from "./LoadingSpinner";
 
 // Lazy load the tab components
 const ActiveTab = lazy(() => import("../components/profileElements/ActiveTab"));

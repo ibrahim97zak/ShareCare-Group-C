@@ -3,8 +3,8 @@ import DonationCard from './DonationCard';
 import FilterBar from './FilterBar';
 import DonationService from './DonationService';
 import axios from 'axios';
-import { ApiUrl } from '../utils/ApiConfigUrl';
-
+export const ApiUrl =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
 const DonationsList = () => {
    const [searchTerm, setSearchTerm] = useState('');
    const [donations, setDonations] = useState([]);
@@ -38,7 +38,7 @@ const DonationsList = () => {
            .filter(donation => 
              donation.status === 'available' )
           .map(donation => (
-          <DonationCard key={donation.id} donation={donation} />
+          <DonationCard key={donation._id} donation={donation} />
           ))}
         </div>
         </>

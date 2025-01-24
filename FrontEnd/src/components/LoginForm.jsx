@@ -8,8 +8,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useUserContext } from "../context/UserProvider";
-import { ApiUrl } from "../utils/ApiConfigUrl";
-
+export const ApiUrl =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
 const LoginForm = () => {
   const { setIsLoggedIn, setUser, user, isLoggedIn } = useUserContext();
   const navigate = useNavigate();
@@ -31,7 +31,6 @@ const LoginForm = () => {
   }, [validationErrors]);
   const handleLogin = async (e) => {
     e.preventDefault();
-
     const formData = { ...userInputs };
 
     try {

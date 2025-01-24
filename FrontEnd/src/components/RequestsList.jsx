@@ -3,8 +3,8 @@ import RequestCard from './RequestCard';
 import FilterBar from './FilterBar';
 import DonationService from './DonationService';
 import axios from 'axios';
-import { ApiUrl } from '../utils/ApiConfigUrl';
-
+export const ApiUrl =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
 const RequestsList = () => {
    const [searchTerm, setSearchTerm] = useState('');
    const [requests,setRequests] = useState([]);

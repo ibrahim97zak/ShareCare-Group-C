@@ -38,11 +38,14 @@ const io = new Server(server);
 //initializeSocketIO(server);
 
 // Middleware
-app.use(cors({
-  origin: ["http://localhost:5173","https://sharecare-group-c.onrender.com"], // Replace with your React app's URL
-  credentials: true, // Allow cookies or authentication tokens to be sent
-}));
-
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://sharecare-group-c.onrender.com"], // Frontend origins
+    credentials: true, // Allow cookies
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed methods
+    allowedHeaders: ["Content-Type", "Authorization", "x-csrf-token"], // Allowed headers
+  })
+);
 app.use(express.json()); // to parse the incoming requests with JSON payloads(from req.body)
 app.use(cookieParser())//to handle cookies and be able to access them
 
@@ -61,9 +64,13 @@ app.use(errorHandler);
 const staticPath = path.join(__dirname, './FrontEnd/dist');
 
 
-// Log paths for debugging
-// console.log('Static path:', staticPath);
-// console.log('Index.html path:', path.join(staticPath, 'index.html'));
+app.options("*", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.status(204).end();
+});
 
 app.use(express.static(staticPath));
 

@@ -8,8 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../context/UserProvider.jsx";
 import axios from "axios";
 import Swal from 'sweetalert2';
-import { ApiUrl } from "../utils/ApiConfigUrl.js";
-
+export const ApiUrl =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
 const RequestDonationForm = () => {
   const { user } = useUserContext();
   const [donationCategory, setDonationCategory] = useState("");
