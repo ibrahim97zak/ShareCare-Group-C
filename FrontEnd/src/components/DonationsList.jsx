@@ -19,6 +19,7 @@ const DonationsList = () => {
             });
           // Update state with fetched donations
           setDonations(response.data);
+          console.log("Environment Variables:", import.meta.env);
           console.log("API URL:", ApiUrl);
 
         }
@@ -28,7 +29,6 @@ const DonationsList = () => {
         }
       fetchDonations();
     },[])
-    console.log(donations);
   return (
    <div className="flex flex-col items-center justify-center p-20 bg-gray-100">
       <h1 className="text-3xl font-semibold mb-6">Donations List</h1>
