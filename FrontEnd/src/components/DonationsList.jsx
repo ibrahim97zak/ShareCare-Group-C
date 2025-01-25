@@ -20,7 +20,6 @@ const DonationsList = () => {
           // Update state with fetched donations
           setDonations(response.data);
           console.log("Environment Variables:", import.meta.env);
-          console.log("API URL:", ApiUrl);
 
         }
         catch(error){
