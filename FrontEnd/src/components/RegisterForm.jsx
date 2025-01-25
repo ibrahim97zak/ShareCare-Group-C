@@ -1,6 +1,7 @@
 // RegisterForm.js
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import InputField from "./input/InputField";
 import PasswordInput from "./input/PasswordInput";
 import validateSignup from "../utils/validateSignup";
@@ -13,6 +14,7 @@ export const ApiUrl =
   import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const RegisterForm = () => {
+  const navigate = useNavigate();
   const [userInputs, setUserInputs] = useState({
     name: "",
     userName: "",
@@ -72,7 +74,7 @@ const RegisterForm = () => {
         confirmButtonText: "OK",
       }).then(() => {
         // Redirect to login after user clicks "OK"
-        window.location.href = "/login";
+        navigate("/");
       });
   
       console.log("Form submitted successfully", data);
