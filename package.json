@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
   "server": "nodemon server.js",
-  "start": " node server.js",
+  "start": "NODE_ENV=production node server.js",
   "build": "npm install --prefix FrontEnd && npm run build --prefix FrontEnd",
   "dev": "concurrently \"npm run server\" \"npm run client\"",
   "client": "npm start --prefix FrontEnd"
