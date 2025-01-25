@@ -6,10 +6,7 @@
   "scripts": {
     "test": "jest",
   "server": "nodemon server.js",
-  "start": "NODE_ENV=production node server.js",
-  "build": "cd FrontEnd && npm install --force && npm run build",
-  "dev": "concurrently \"npm run server\" \"npm run client\"",
-  "client": "npm start --prefix FrontEnd"
+  "start": "NODE_ENV=production node server.js"
   },
   "jest": {
     "transform": {
