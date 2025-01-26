@@ -10,8 +10,13 @@ const UserProvider = ({ children }) => {
   });
 
   const [user, setUser] = useState(() => {
-    const storedUser  = localStorage.getItem('user');
-    return storedUser  ? JSON.parse(storedUser ) : {};
+    const storedUser = localStorage.getItem('user');
+    try {
+      return storedUser ? JSON.parse(storedUser) : {};
+    } catch (error) {
+      console.error("Error parsing user from localStorage:", error);
+      return {}; // Return an empty object if parsing fails
+    }
   });
 
   useEffect(() => {
@@ -20,6 +25,7 @@ const UserProvider = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem('user', JSON.stringify(user));
+    console.log("User state updated:", user); // Debugging log
   }, [user]);
 
   return (
