@@ -1,8 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import axios from "axios";
-export const ApiUrl =
-  import.meta.env.VITE_API_URL || "http://localhost:5000";
 const UserPanelController = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,7 +8,7 @@ const UserPanelController = () => {
   useEffect(() => {
     async function fetchUsers() {
       try{ 
-        const response = await axios.get(`${ApiUrl}/api/users/`);
+        const response = await axios.get(`/api/users/`);
         setUsers(response.data);
         setLoading(false);
       }
@@ -23,7 +21,7 @@ const UserPanelController = () => {
 
   const deleteUser = (userId) => {
     const token = localStorage.getItem('authToken');
-    const res =  axios.delete(`${ApiUrl}/api/users/${userId}`,  {
+    const res =  axios.delete(`/api/users/${userId}`,  {
       headers: {
         Authorization: `Bearer ${token}`, // Send the token in the Authorization header
       },

@@ -3,8 +3,7 @@ import  { useState} from "react";
 import Modal from 'react-modal';
 import SweetAlertComponent from "./SweetAlertComponent ";
 import axios from 'axios';
-export const ApiUrl =
-  import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 const DonationModal = ({ isOpen, onClose,donationType,remainingAmount,id,receivedQuantity,updateReceivedQuantity}) => {
 
   const donationAmounts = [10, 100, 200, 300, 500, 1000];
@@ -22,7 +21,7 @@ const DonationModal = ({ isOpen, onClose,donationType,remainingAmount,id,receive
         
         async function updateRequest() {
           try{ 
-           axios.put(`${ApiUrl}/api/donations/request/${id}`,{newQuantity:selectedAmount+receivedQuantity}) // Replace with your API URL
+           axios.put(`/api/donations/request/${id}`,{newQuantity:selectedAmount+receivedQuantity}) // Replace with your API URL
               .then(response => {
                  console.log(response.data)
                })

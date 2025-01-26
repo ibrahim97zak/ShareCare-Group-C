@@ -3,7 +3,6 @@ import DonationCard from './DonationCard';
 import FilterBar from './FilterBar';
 import DonationService from './DonationService';
 import axios from 'axios';
-export const ApiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 const DonationsList = () => {
    const [searchTerm, setSearchTerm] = useState('');
    const [donations, setDonations] = useState([]);
@@ -12,14 +11,13 @@ const DonationsList = () => {
    useEffect(()=>{
       async function fetchDonations() {
         try{ 
-          const response = await axios.get(`${ApiUrl}/api/donations/offers`,
+          const response = await axios.get(`/api/donations/offers`,
             
             {
                 withCredentials: true, // Include cookies in request
             });
           // Update state with fetched donations
           setDonations(response.data);
-          console.log("API URL:", ApiUrl);
 
         }
         catch(error){

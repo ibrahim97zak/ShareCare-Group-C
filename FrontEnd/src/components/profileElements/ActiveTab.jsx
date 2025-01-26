@@ -1,8 +1,6 @@
 /* eslint-disable react/prop-types */
 import {useState,useEffect} from 'react';
 import axios from 'axios';
-export const ApiUrl =
-  import.meta.env.VITE_API_URL || "http://localhost:5000";
 const ActiveTab = ({activeItems,user}) => {
   const [activeDonation, setActiveDonation] = useState(activeItems);
   useEffect(() => {
@@ -10,7 +8,7 @@ const ActiveTab = ({activeItems,user}) => {
   }, [activeItems]);
   const handleDelete = async (id) => {
     try {
-      const response = await axios.delete(`${ApiUrl}/api/donations/${id}`);
+      const response = await axios.delete(`/api/donations/${id}`);
       console.log(response.data)
       alert("successfully deleted")
       setActiveDonation(activeDonation.filter(item => item.id !== id));

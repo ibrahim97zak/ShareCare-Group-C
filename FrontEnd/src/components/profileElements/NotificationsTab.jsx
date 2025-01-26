@@ -1,14 +1,12 @@
 /* eslint-disable react/prop-types */
 import {useState, useEffect} from 'react'; 
 import axios from "axios";
-export const ApiUrl =
-  import.meta.env.VITE_API_URL || "http://localhost:5000";
 const NotificationsTab = ({userId}) => {
   const [notifications, setNotifications] = useState([]);
   useEffect(() => {
     async function fetchNotification() {
       try{ 
-        const response = await axios.get(`${ApiUrl}/api/notifications/${userId}`);
+        const response = await axios.get(`/api/notifications/${userId}`);
         console.log(response.data)
         setNotifications(response.data);
       }

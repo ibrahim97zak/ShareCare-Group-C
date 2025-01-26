@@ -8,8 +8,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useUserContext } from "../context/UserProvider";
-export const ApiUrl =
-  import.meta.env.VITE_API_URL || "http://localhost:5000";
 const LoginForm = () => {
   const { setIsLoggedIn, setUser, user, isLoggedIn } = useUserContext();
   const navigate = useNavigate();
@@ -50,7 +48,7 @@ const LoginForm = () => {
         try {
           // Send a POST request to the login API
           const response = await axios.post(
-            `${ApiUrl}/api/auth/login`,
+            `/api/auth/login`,
             formData,
             {
               withCredentials: true, // This allows cookies to be set if your API is configured to use them

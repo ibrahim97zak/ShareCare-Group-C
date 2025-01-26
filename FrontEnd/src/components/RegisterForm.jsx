@@ -10,9 +10,6 @@ import LocationSelect from "./input/LocationSelect";
 import axios from "axios";
 import Swal from "sweetalert2";
 
-export const ApiUrl =
-  import.meta.env.VITE_API_URL || "http://localhost:5000";
-
 const RegisterForm = () => {
   const navigate = useNavigate();
   const [userInputs, setUserInputs] = useState({
@@ -61,7 +58,7 @@ const RegisterForm = () => {
     setError(null);
     try {
       const response = await axios.post(
-        `${ApiUrl}/api/auth/register`,
+        `/api/auth/register`,
         formData
       );
       const data = response.data;

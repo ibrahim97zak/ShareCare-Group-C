@@ -3,8 +3,7 @@ import RequestCard from './RequestCard';
 import FilterBar from './FilterBar';
 import DonationService from './DonationService';
 import axios from 'axios';
-export const ApiUrl =
-  import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 const RequestsList = () => {
    const [searchTerm, setSearchTerm] = useState('');
    const [requests,setRequests] = useState([]);
@@ -13,7 +12,7 @@ const RequestsList = () => {
    useEffect(()=>{
     async function fetchRequests() {
       try{ 
-        const response = await axios.get(`${ApiUrl}/api/donations/requests`,
+        const response = await axios.get(`/api/donations/requests`,
           {
               withCredentials: true, // Include cookies in request
           }

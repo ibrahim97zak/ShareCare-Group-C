@@ -2,9 +2,9 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import ProfileInfo from "../components/profileElements/ProfileInfo";
 import calculateChartData from "../utils/chartData";
 import { useUserContext } from "../context/UserProvider";
+import LoadingSpinner from './LoadingSpinner'; // Updated import statement
+
 import axios from 'axios';
-export const ApiUrl =
-  import.meta.env.VITE_API_URL || "http://localhost:5000";import LoadingSpinner from "./LoadingSpinner";
 
 // Lazy load the tab components
 const ActiveTab = lazy(() => import("../components/profileElements/ActiveTab"));
@@ -25,7 +25,7 @@ const ProfileDetails = () => {
 
   const deleteDonation = async (id) => {
     try {
-      await axios.delete(`${ApiUrl}/api/donations/${id}`);
+      await axios.delete(`/api/donations/${id}`);
       setActiveItems(activeItems.filter(item => item.id !== id));
     } catch (error) {
       console.error("Error deleting item:", error);
@@ -37,13 +37,13 @@ const ProfileDetails = () => {
       try {
         let response;
         if (user.role === 'Donor') {
-          response = await axios.get(`${ApiUrl}/api/donations/${user._id}/offers`);
+          response = await axios.get(`/api/donations/${user._id}/offers`);
           setActiveItems(response.data.donationOffers);
         } else if (user.role === 'Admin') {
-          response = await axios.get(`${ApiUrl}/api/donations/`);
+          response = await axios.get(`$/api/donations/`);
           setActiveItems(response.data);
         } else {
-          response = await axios.get(`${ApiUrl}/api/donations/${user._id}/requests`);
+          response = await axios.get(`/api/donations/${user._id}/requests`);
           setActiveItems(response.data.donationRequests);
         }
       } catch (error) {
