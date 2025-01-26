@@ -20,7 +20,6 @@ const UserProvider = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem('user', JSON.stringify(user));
-    console.log("User state updated:", user); // Debugging log
   }, [user]);
 
   return (
