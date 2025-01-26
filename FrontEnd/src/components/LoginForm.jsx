@@ -8,6 +8,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useUserContext } from "../context/UserProvider";
+
 const LoginForm = () => {
   const { setIsLoggedIn, setUser, user, isLoggedIn } = useUserContext();
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const LoginForm = () => {
     email: "",
     password: "",
   });
+
   useEffect(() => {
     if (
       Object.keys(validationErrors).every((key) => validationErrors[key] === "")
@@ -27,6 +29,7 @@ const LoginForm = () => {
       setError(null);
     }
   }, [validationErrors]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     const formData = { ...userInputs };
@@ -51,23 +54,29 @@ const LoginForm = () => {
             `/api/auth/login`,
             formData,
             {
-              withCredentials: true, // This allows cookies to be set if your API is configured to use them
+              withCredentials: true,
             }
           );
 
           // Handle successful login
           if (response.status === 200) {
-            const token = response.data.token; // assuming the token is returned in the response data
+            const token = response.data.token;
             Cookies.set("token", token, {
               expires: 1,
               secure: true,
               sameSite: "Lax",
-            }); // Store token with secure attributes
-            await setUser(response.data.user); // Ensure user is set
-            // Set login status
-            setIsLoggedIn(true);
-            // Navigate to home after successful login
-            navigate("/");
+            });
+            await setUser(response.data.user);
+
+            // Check if user role is defined
+            if (response.data.user && response.data.user.role) {
+              // Set login status
+              setIsLoggedIn(true);
+              // Navigate to home after successful login
+              navigate("/");
+            } else {
+              setError("User role is undefined.");
+            }
           }
         } catch (err) {
           setError(err.response.data.error);
