@@ -19,7 +19,7 @@ const routes = (
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
             {/* Public Routes */}
-            <Route path="/signUp" element={<RegisterForm />} />
+            <Route path="/register" element={<RegisterForm />} />
             <Route path="/login" element={<LoginForm />} />
 
             {/* Protected Routes */}

@@ -89,7 +89,7 @@ const NavigationBar = () => {
                 Login
               </a>
               <a
-                href="/signUp"
+                href="/register"
                 className="cursor-pointer px-4 py-2 bg-green-600 text-white rounded-full"
               >
                 Start a SAHEM
