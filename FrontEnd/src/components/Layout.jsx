@@ -7,7 +7,7 @@ const Layout = ({ children }) => {
   const location = useLocation();
 
   // Paths where you don't want to show Navbar and Footer
-  const noLayoutRoutes = ['/signUp', '/login'];
+  const noLayoutRoutes = ['/signUp', '/login', '/register'];
 
   // Check if the current path is in the noLayoutRoutes array
   const shouldHideLayout = noLayoutRoutes.includes(location.pathname);
