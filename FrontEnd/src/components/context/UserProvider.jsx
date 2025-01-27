@@ -11,12 +11,15 @@ const UserProvider = ({ children }) => {
 
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('user');
-    try {
-      return storedUser ? JSON.parse(storedUser) : {};
-    } catch (error) {
-      console.error("Error parsing user from localStorage:", error);
-      return {}; // Return an empty object if parsing fails
+    if (storedUser) {
+      try {
+        return JSON.parse(storedUser);
+      } catch (error) {
+        console.error("Error parsing user from localStorage:", error);
+        return {}; // Return an empty object if parsing fails
+      }
     }
+    return {}; // Return an empty object if no user is stored
   });
 
   useEffect(() => {
