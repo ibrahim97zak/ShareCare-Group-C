@@ -10,8 +10,8 @@
     "lint:frontend": "eslint FrontEnd/**/*.js --ext .js,.jsx",
     "lint:backend": "eslint BackEnd/**/*.js --ext .js,.ts",
     "lint:all": "eslint . --ext .js,.jsx,.ts",
-    "server": "nodemon server.js",
-    "start": "cross-env NODE_ENV=production node server.js",
+    "server": "nodemon server.js", 
+    "start": "node server.js",
     "build": "npm install --prefix FrontEnd && npm run build --prefix FrontEnd",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "client": "npm start --prefix FrontEnd"
@@ -48,6 +48,7 @@
     "mongodb-memory-server": "^10.0.1",
     "mongoose": "^8.6.3",
     "nodemailer": "^6.9.15",
+    "nodemon": "^3.1.9",
     "pg": "^8.13.0",
     "punycode": "^2.3.1",
     "socket.io": "^4.8.0"
