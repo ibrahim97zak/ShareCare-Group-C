@@ -252,3 +252,17 @@ export async function logout(req, res) {
   res.clearCookie('token');
   res.json({ success: true });
 }
+// New endpoint to get the current user data
+export const getCurrentUser = async (req, res) => {
+  try {
+    const userId = req.user.id; // Assuming user ID is stored in req.user
+    const user = await User.findById(userId).select('-password'); // Exclude password from response
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({ user });
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
