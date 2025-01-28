@@ -6,13 +6,14 @@ export default defineConfig({
   build: {
     outDir: 'dist', // Output directory for the build
   },
-  server:{
-   host: 'localhost',
-   port: 3000,
-   proxy: {
-   "/api": {
-     target: "http://localhost:5000",
-   }
- },
-},
+  server: {
+    host: true, // Allow access from external IPs
+    port: process.env.PORT || 3000, // Use environment variable for port
+    proxy: {
+      "/api": {
+        target: "http://localhost:5000", // Update this for production
+        changeOrigin: true,
+      }
+    },
+  },
 });

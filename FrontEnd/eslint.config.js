@@ -16,6 +16,7 @@ export default [
         it: 'readonly',
         test: 'readonly',
         expect: 'readonly',
+        jest: 'readonly', // Added Jest global
       },
       parserOptions: {
         ecmaVersion: 'latest',
@@ -39,6 +40,11 @@ export default [
         'warn',
         { allowConstantExport: true },
       ],
+    },
+  },
+  {
+    env: {
+      node: true, // Added Node.js environment
     },
   },
 ]
