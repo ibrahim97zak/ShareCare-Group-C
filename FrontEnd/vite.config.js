@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 export default defineConfig({
   plugins: [react()],
   build: {
@@ -11,7 +13,7 @@ export default defineConfig({
     port: process.env.PORT || 3000, // Use environment variable for port
     proxy: {
       "/api": {
-        target: "http://localhost:5000", // Update this for production
+        target: isProduction ? "https://sharecare-group-c.onrender.com" : "http://localhost:5000", // Conditional target based on environment
         changeOrigin: true,
       }
     },
