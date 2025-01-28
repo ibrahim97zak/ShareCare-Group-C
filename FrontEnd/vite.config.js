@@ -13,7 +13,7 @@ export default defineConfig({
     port: process.env.PORT || 3000, // Use environment variable for port
     proxy: {
       "/api": {
-        target: isProduction ? "https://sharecare-group-c.onrender.com" : "http://localhost:5000", // Conditional target based on environment
+        target: isProduction ? "https://sharecare-group-c-dp4v.onrender.com" : "http://localhost:5000", // Conditional target based on environment
         changeOrigin: true,
       }
     },
